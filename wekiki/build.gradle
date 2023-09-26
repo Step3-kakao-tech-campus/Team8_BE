@@ -1,0 +1,60 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.4'
+	id 'io.spring.dependency-management' version '1.1.3'
+}
+
+group = 'com.kakao.techcampus'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	// 스프링 부트 웹 애플리케이션 개발을 위한 필수 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// JPA (Java Persistence API)를 제공
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// 시큐리티 관련
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	// Redis 제공
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// (배포용) 사용할 MariaDB
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+	// (테스트용) H2 데이터베이스
+	runtimeOnly 'com.h2database:h2'
+
+	// 테스트 기능 제공
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// 모니터링용
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// 개발 편의용
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
