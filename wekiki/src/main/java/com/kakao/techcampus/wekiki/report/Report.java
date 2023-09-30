@@ -20,7 +20,7 @@ public class Report {
     @ManyToOne
     private GroupMember groupMember;
     @ManyToOne
-    private Page page;
+    private Post post;
     private String content;
 
     @Builder
