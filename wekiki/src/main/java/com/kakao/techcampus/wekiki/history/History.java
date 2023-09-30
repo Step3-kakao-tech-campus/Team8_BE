@@ -23,8 +23,6 @@ public class History {
     @ManyToOne
     private GroupMember groupMember;
     @ManyToOne
-    private Page page;
-    @ManyToOne
     private Post post;
     private String content;
     private LocalDateTime created_at;
