@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.page.post;
+package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.page.Page;
