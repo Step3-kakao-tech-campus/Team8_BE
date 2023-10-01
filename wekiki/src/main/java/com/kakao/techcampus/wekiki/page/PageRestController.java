@@ -1,7 +1,9 @@
 package com.kakao.techcampus.wekiki.page;
 
 
+import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class PageRestController {
 
-    //private final PageService pageService;
+    private final PageService pageService;
 
     /*
      페이지 + 글 조회 기능
@@ -28,9 +30,14 @@ public class PageRestController {
      */
 
     @PostMapping("/create")
-    public void createPage() {
+    public ResponseEntity<?> createPage(@RequestBody PageRequest.createPageDTO request) {
 
+        // TODO : JWT에서 userId 꺼내도록 수정
+        Long tempUserId = 1L;
 
+        PageResponse.createPageDTO response = pageService.createPage(request.getTitle(), request.getGroupId(), tempUserId);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
