@@ -48,6 +48,9 @@ dependencies {
 	// 모니터링용
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+	// 유효성 검사
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	// 개발 편의용
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

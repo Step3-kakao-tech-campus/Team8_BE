@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupRequest;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -23,7 +24,7 @@ public class GroupRestController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createUnOfficialClosedGroup(
-            @RequestBody UnOfficialGroupRequest.CreateClosedGroupDTO requestDTO) {
+            @RequestBody @Valid UnOfficialGroupRequest.CreateClosedGroupDTO requestDTO, Errors errors) {
 
         // JWT Token에서 memberId 획득
         Long tempMemberId = 1L;
