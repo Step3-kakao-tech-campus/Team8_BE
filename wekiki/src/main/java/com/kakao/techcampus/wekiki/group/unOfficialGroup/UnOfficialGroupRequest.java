@@ -8,18 +8,10 @@ public class UnOfficialGroupRequest {
 
     @Getter
     @Setter
-    public static class CreateClosedGroupDTO {
+    public static class CreateUnOfficialGroupDTO {
+        // TODO: groupType 타입은 뭘로 할지 결정
         @NotNull
-        private String groupName;
-        @NotNull
-        private String groupImage;
-        @NotNull
-        private String groupNickName;
-    }
-
-    @Getter
-    @Setter
-    public static class CreateOpenedGroupDTO {
+        private int groupType;
         @NotNull
         private String groupName;
         @NotNull
@@ -27,9 +19,7 @@ public class UnOfficialGroupRequest {
         @NotNull
         private String groupNickName;
         private String introduction;
-        @NotNull
         private String entranceHint;
-        @NotNull
         private String entrancePassword;
     }
 }

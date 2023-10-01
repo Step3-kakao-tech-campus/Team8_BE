@@ -25,26 +25,14 @@ public class GroupRestController {
         - /create/closed, /create/opened 따로 받는게 좋을까
         - 그룹 생성 시 기본 페이지 생성은 어떻게 하는게 좋을까
      */
-    @PostMapping("/create/closed")
-    public ResponseEntity<?> createUnOfficialClosedGroup(
-            @RequestBody @Valid UnOfficialGroupRequest.CreateClosedGroupDTO requestDTO, Errors errors) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createUnOfficialGroup(
+            @RequestBody @Valid UnOfficialGroupRequest.CreateUnOfficialGroupDTO requestDTO, Errors errors) {
 
         // JWT Token에서 memberId 획득
         Long tempMemberId = 1L;
 
-        UnOfficialGroupResponse.CreateUnOfficialGroupDTO response = groupService.createUnOfficialClosedGroup(requestDTO, tempMemberId);
-
-        return ResponseEntity.ok().body(ApiUtils.success(response));
-    }
-
-    @PostMapping("/create/opened")
-    public ResponseEntity<?> createUnOfficialOpenedGroup(
-            @RequestBody @Valid UnOfficialGroupRequest.CreateOpenedGroupDTO requestDTO, Errors errors) {
-
-        // JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        UnOfficialGroupResponse.CreateUnOfficialGroupDTO response = groupService.createUnOfficialOpenedGroup(requestDTO, tempMemberId);
+        UnOfficialGroupResponse.CreateUnOfficialGroupDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
