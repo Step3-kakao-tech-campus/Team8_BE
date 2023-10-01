@@ -12,4 +12,11 @@ public class PageRequest {
         private Long groupId;
     }
 
+    @Getter
+    @Setter
+    public static class likePageDTO {
+        private Long groupId;
+    }
+
+
 }

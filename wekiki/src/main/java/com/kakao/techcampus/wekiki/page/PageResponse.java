@@ -17,4 +17,18 @@ public class PageResponse {
         }
     }
 
+    @Getter @Setter
+    public static class likePageDTO{
+
+        Long pageId;
+        String title;
+        int goodCount;
+
+        public likePageDTO(Page page){
+            this.pageId = page.getId();
+            this.title = page.getTitle();
+            this.goodCount = page.getGoodCount();
+        }
+    }
+
 }

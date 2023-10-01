@@ -57,9 +57,14 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/like")
-    public void likePage(@PathVariable Long pageid) {
+    public ResponseEntity<?> likePage(@PathVariable Long pageid , @RequestBody PageRequest.likePageDTO request) {
 
+        // TODO : JWT에서 userId 꺼내도록 수정
+        Long tempUserId = 1L;
 
+        PageResponse.likePageDTO response = pageService.likePage(pageid, request.getGroupId(), tempUserId);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
