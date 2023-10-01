@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.report;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.page.Page;
+import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,10 +25,10 @@ public class Report {
     private String content;
 
     @Builder
-    public Report(Long id, GroupMember groupMember, Page page, String content) {
+    public Report(Long id, GroupMember groupMember, Post post, String content) {
         this.id = id;
         this.groupMember = groupMember;
-        this.page = page;
+        this.post = post;
         this.content = content;
     }
 }
