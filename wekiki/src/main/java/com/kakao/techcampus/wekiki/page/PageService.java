@@ -59,4 +59,24 @@ public class PageService {
 
     }
 
+    @Transactional
+    public PageResponse.hatePageDTO hatePage(Long pageId , Long groupId, Long userId){
+
+        // 1. groupId랑 userId로 Group 객체, User 객체 가져오기 (없으면 Exception)
+
+        // 2. groupMember 존재하는지 확인 (없으면 Exception)
+
+        // 3. 해당 페이지 불러오기 (없으면 Exception)
+        Optional<Page> page = pageJPARepository.findById(pageId);
+
+        // 4. 페이지 goodCount 증가
+        page.get().plusBadCount();
+
+        // 5. 유저 경험치증가 or 유저 당일 페이지 좋아요 횟수 차감
+
+        // 6. return
+        return new PageResponse.hatePageDTO(page.get());
+
+    }
+
 }

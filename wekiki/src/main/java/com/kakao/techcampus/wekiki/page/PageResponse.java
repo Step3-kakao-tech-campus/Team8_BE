@@ -31,4 +31,18 @@ public class PageResponse {
         }
     }
 
+    @Getter @Setter
+    public static class hatePageDTO{
+
+        Long pageId;
+        String title;
+        int badCount;
+
+        public hatePageDTO(Page page){
+            this.pageId = page.getId();
+            this.title = page.getTitle();
+            this.badCount = page.getBadCount();
+        }
+    }
+
 }

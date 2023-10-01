@@ -18,5 +18,10 @@ public class PageRequest {
         private Long groupId;
     }
 
+    @Getter
+    @Setter
+    public static class hatePageDTO {
+        private Long groupId;
+    }
 
 }

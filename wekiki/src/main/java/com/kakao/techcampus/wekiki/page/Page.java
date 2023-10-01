@@ -42,4 +42,9 @@ public class Page {
     public void plusGoodCount(){
         this.goodCount++;
     }
+
+    public void plusBadCount(){
+        this.badCount++;
+    }
+
 }

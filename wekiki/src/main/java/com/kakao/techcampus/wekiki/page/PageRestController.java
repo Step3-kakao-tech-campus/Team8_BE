@@ -73,8 +73,14 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/hate")
-    public void hatePage(@PathVariable Long pageid) {
+    public ResponseEntity<?> hatePage(@PathVariable Long pageid , @RequestBody PageRequest.hatePageDTO request) {
 
+        // TODO : JWT에서 userId 꺼내도록 수정
+        Long tempUserId = 1L;
+
+        PageResponse.hatePageDTO response = pageService.hatePage(pageid, request.getGroupId(), tempUserId);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
 
     }
 
