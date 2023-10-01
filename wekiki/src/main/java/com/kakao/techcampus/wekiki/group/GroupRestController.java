@@ -1,8 +1,8 @@
 package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupRequest;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupResponse;
+import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +27,12 @@ public class GroupRestController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createUnOfficialGroup(
-            @RequestBody @Valid UnOfficialGroupRequest.CreateUnOfficialGroupDTO requestDTO, Errors errors) {
+            @RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, Errors errors) {
 
         // JWT Token에서 memberId 획득
         Long tempMemberId = 1L;
 
-        UnOfficialGroupResponse.CreateUnOfficialGroupDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
+        CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }

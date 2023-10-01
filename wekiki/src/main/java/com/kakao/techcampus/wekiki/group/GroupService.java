@@ -1,9 +1,9 @@
 package com.kakao.techcampus.wekiki.group;
 
+import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupRequest;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.UnOfficialGroupResponse;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
 import com.kakao.techcampus.wekiki.member.Member;
@@ -23,26 +23,22 @@ public class GroupService {
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
 
+    /*
+        비공식 그룹 생성
+     */
     @Transactional
-    public UnOfficialGroupResponse.CreateUnOfficialGroupDTO createUnOfficialGroup(UnOfficialGroupRequest.CreateUnOfficialGroupDTO requestDTO, Long memberId) {
+    public CreateUnOfficialGroupResponseDTO createUnOfficialGroup(CreateUnOfficialGroupRequestDTO requestDTO, Long memberId) {
 
-        // MemberId로부터 Member 찾기
-        // TODO: 예외 처리 구현
-        Member member = memberJPARepository.findById(memberId).orElse(null);
-
+        // Group 생성
         Group group;
-        GroupMember groupMember;
-
-        //
-        switch (requestDTO.getGroupType()) {
-            case 1:
+        
+        switch (requestDTO.groupType()) {
+            case UNOFFICIAL_CLOSED:
                 group = buildUnOfficialClosedGroup(requestDTO);
-                groupMember = buildGroupMember(member, group, requestDTO.getGroupNickName());
                 break;
 
-            case 2:
+            case UNOFFICIAL_OPENED:
                 group = buildUnOfficialOpenedGroup(requestDTO);
-                groupMember = buildGroupMember(member, group, requestDTO.getGroupNickName());
                 break;
 
             default:
@@ -50,22 +46,28 @@ public class GroupService {
                 throw new IllegalArgumentException("Invalid groupType");
         }
 
+        // MemberId로부터 Member 찾기
+        // TODO: 예외 처리 구현
+        Member member = memberJPARepository.findById(memberId).orElse(null);
+        // GroupMember 생성
+        GroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
+
         // Entity 저장
         groupJPARepository.save(group);
         groupMemberJPARepository.save(groupMember);
 
         // return
-        return new UnOfficialGroupResponse.CreateUnOfficialGroupDTO(group);
+        return new CreateUnOfficialGroupResponseDTO(group);
     }
 
     /*
         비공식 비공개 그룹 생성 후 반환
      */
-    protected Group buildUnOfficialClosedGroup(UnOfficialGroupRequest.CreateUnOfficialGroupDTO requestDTO) {
+    protected UnOfficialClosedGroup buildUnOfficialClosedGroup(CreateUnOfficialGroupRequestDTO requestDTO) {
         // Group 생성
         return UnOfficialClosedGroup.unOfficialClosedGroupBuilder()
-                .groupName(requestDTO.getGroupName())
-                .groupProfileImage(requestDTO.getGroupImage())
+                .groupName(requestDTO.groupName())
+                .groupProfileImage(requestDTO.groupImage())
                 .memberCount(1)
                 .created_at(LocalDateTime.now())
                 .build();
@@ -74,16 +76,16 @@ public class GroupService {
     /*
         비공식 공개 그룹 생성 후 반환
      */
-    protected Group buildUnOfficialOpenedGroup(UnOfficialGroupRequest.CreateUnOfficialGroupDTO requestDTO) {
+    protected UnOfficialOpenedGroup buildUnOfficialOpenedGroup(CreateUnOfficialGroupRequestDTO requestDTO) {
         // Group 생성
         return UnOfficialOpenedGroup.unOfficialOpenedGroupBuilder()
-                .groupName(requestDTO.getGroupName())
-                .groupProfileImage(requestDTO.getGroupImage())
+                .groupName(requestDTO.groupName())
+                .groupProfileImage(requestDTO.groupImage())
                 .memberCount(1)
                 .created_at(LocalDateTime.now())
-                .introduction(requestDTO.getIntroduction())
-                .entranceHint(requestDTO.getEntranceHint())
-                .entrancePassword(requestDTO.getEntrancePassword())
+                .introduction(requestDTO.introduction())
+                .entranceHint(requestDTO.entranceHint())
+                .entrancePassword(requestDTO.entrancePassword())
                 .build();
     }
 
