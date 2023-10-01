@@ -28,10 +28,9 @@ public class History {
     private LocalDateTime created_at;
 
     @Builder
-    public History(Long id, GroupMember groupMember, Page page, Post post, String content, LocalDateTime created_at) {
+    public History(Long id, GroupMember groupMember, Post post, String content, LocalDateTime created_at) {
         this.id = id;
         this.groupMember = groupMember;
-        this.page = page;
         this.post = post;
         this.content = content;
         this.created_at = created_at;

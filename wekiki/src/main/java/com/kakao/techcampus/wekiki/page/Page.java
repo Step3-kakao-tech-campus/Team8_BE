@@ -25,9 +25,10 @@ public class Page {
     private int badCount;
     private int viewCount;
     private LocalDateTime created_at;
+    private LocalDateTime updated_at;
 
     @Builder
-    public Page(Long id, Group group, String title, int goodCount, int badCount, int viewCount, LocalDateTime created_at) {
+    public Page(Long id, Group group, String title, int goodCount, int badCount, int viewCount, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
         this.group = group;
         this.title = title;
@@ -35,5 +36,15 @@ public class Page {
         this.badCount = badCount;
         this.viewCount = viewCount;
         this.created_at = created_at;
+        this.updated_at = updated_at;
     }
+
+    public void plusGoodCount(){
+        this.goodCount++;
+    }
+
+    public void plusBadCount(){
+        this.badCount++;
+    }
+
 }
