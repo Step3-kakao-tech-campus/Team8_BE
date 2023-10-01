@@ -16,4 +16,20 @@ public class UnOfficialGroupRequest {
         @NotNull
         private String groupNickName;
     }
+
+    @Getter
+    @Setter
+    public static class CreateOpenedGroupDTO {
+        @NotNull
+        private String groupName;
+        @NotNull
+        private String groupImage;
+        @NotNull
+        private String groupNickName;
+        private String introduction;
+        @NotNull
+        private String entranceHint;
+        @NotNull
+        private String entrancePassword;
+    }
 }
