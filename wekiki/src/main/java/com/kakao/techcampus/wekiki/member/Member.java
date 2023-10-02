@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,8 +17,10 @@ import java.util.UUID;
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @Column(columnDefinition = "binary(16)")
+    private UUID id;
     private String name;
     private String email;
     private String password;
@@ -25,8 +28,7 @@ public class Member {
     // private Authority authority;
 
     @Builder
-    public Member(Long id, String name, String email, String password, LocalDateTime created_at) {
-        this.id = id;
+    public Member(String name, String email, String password, LocalDateTime created_at) {
         this.name = name;
         this.email = email;
         this.password = password;
