@@ -3,14 +3,12 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,7 +27,7 @@ public class GroupRestController {
     public ResponseEntity<?> createUnOfficialGroup(
             @RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, Errors errors) {
 
-        // JWT Token에서 memberId 획득
+        // TODO: JWT Token에서 memberId 획득
         Long tempMemberId = 1L;
 
         CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
@@ -40,6 +38,14 @@ public class GroupRestController {
     /*
         그룹 검색
      */
+    @GetMapping("/search")
+    public ResponseEntity<?> searchGroup(@RequestParam(value = "keyword", required = false) String keyword) {
+        
+        // TODO: 페이지네이션 필요
+        SearchGroupDTO response = groupService.searchGroupByKeyword(keyword);
+
+        return ResponseEntity.ok().body(ApiUtils.success(response));
+    }
     
     /*
         특정 공개 그룹 정보 조회

@@ -2,8 +2,10 @@ package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
 import com.kakao.techcampus.wekiki.member.Member;
@@ -13,6 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -101,5 +106,26 @@ public class GroupService {
                 .isValid(true)
                 .created_at(LocalDateTime.now())
                 .build();
+    }
+
+    /*
+        공식 그룹 리스트, 비공식 공개 그룹 리스트 그룹
+        - keyword가 포함된 모든 그룹 그룹별 리스트
+        - 이름 정렬 후 반환
+     */
+    public SearchGroupDTO searchGroupByKeyword(String keyword) {
+
+        // 공식 그룹 리스트
+        List<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword);
+        // 비공식 공개 그룹 리스트
+        List<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword);
+
+        // 정렬
+        officialGroups.sort(Comparator.comparing(OfficialGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
+        unOfficialOpenedGroups.sort(Comparator.comparing(UnOfficialOpenedGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
+        
+        // TODO: 페이지네이션 필요
+
+        return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
     }
 }
