@@ -1,7 +1,7 @@
 package com.kakao.techcampus.wekiki._core.error.exception;
 
 
-import com.junsim.whereami.errors.ApiUtils;
+import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
