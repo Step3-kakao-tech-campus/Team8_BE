@@ -137,4 +137,15 @@ public class GroupService {
 
         return new SearchGroupInfoDTO(group);
     }
+
+    public void groupEntry(Long groupId, String entrancePassword) {
+
+        // 해당 그룹의 입장 비밀번호가 일치하는지 확인
+        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        // 틀린 경우, 에러 핸들링
+        if(group.getEntrancePassword() != entrancePassword) {
+            // TODO: 예외 처리
+        }
+    }
 }

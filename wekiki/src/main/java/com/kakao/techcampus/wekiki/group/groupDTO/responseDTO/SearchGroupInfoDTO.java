@@ -13,7 +13,6 @@ public class SearchGroupInfoDTO {
     int memberCount;
     LocalDateTime created_at;
     String entranceHint;
-    String entrancePassword;
 
     public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
         this.groupName = group.getGroupName();
@@ -22,7 +21,6 @@ public class SearchGroupInfoDTO {
         this.memberCount = group.getMemberCount();
         this.created_at = group.getCreated_at();
         this.entranceHint = group.getEntranceHint();
-        this.entrancePassword = group.getEntrancePassword();
     }
 }
 

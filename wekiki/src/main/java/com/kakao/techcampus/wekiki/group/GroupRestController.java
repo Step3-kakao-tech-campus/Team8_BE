@@ -51,16 +51,29 @@ public class GroupRestController {
     /*
         특정 공개 그룹 정보 조회
      */
-    @GetMapping("/search/{grouid}")
-    public ResponseEntity<?> searchGroupInfo(@PathVariable("groupid") Long groupId) {
+    @GetMapping("/search/{grouId}")
+    public ResponseEntity<?> searchGroupInfo(@PathVariable("groupId") Long groupId) {
         SearchGroupInfoDTO response = groupService.getGroupInfo(groupId);
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
     
     /*
+        비공식 공개 그룹 입장 비밀번호 확인
+        - 그 후 그룹 참가로 이동
+     */
+    @PostMapping("/{groupId}/entry")
+    public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, @RequestParam("entrancePassword") String entrancePassword) {
+
+        groupService.groupEntry(groupId, entrancePassword);
+
+        return ResponseEntity.ok().body(ApiUtils.success(null));
+    }
+
+    /*
         그룹 참가
      */
+
     
     /*
         그룹 초대
