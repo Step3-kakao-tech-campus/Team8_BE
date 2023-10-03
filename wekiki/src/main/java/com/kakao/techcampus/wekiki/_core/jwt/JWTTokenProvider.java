@@ -34,7 +34,7 @@ public class JWTTokenProvider {
     }
 
 
-    public MemberResponse.AuthTokenDTO generateToken(Authentication authentication) {
+    public MemberResponse.authTokenDTO generateToken(Authentication authentication) {
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -55,7 +55,7 @@ public class JWTTokenProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
 
-        return new MemberResponse.AuthTokenDTO("Bearer", accessToken, accessTokenValidTime);
+        return new MemberResponse.authTokenDTO("Bearer", accessToken, accessTokenValidTime);
     }
 
     public boolean validateToken(String token) {
