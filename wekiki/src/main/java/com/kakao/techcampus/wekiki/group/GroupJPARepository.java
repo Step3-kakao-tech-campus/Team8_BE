@@ -14,8 +14,16 @@ import java.util.List;
 @Repository
 public interface GroupJPARepository extends JpaRepository<Group, Long> {
 
+    /*
+        그룹 검색 용
+     */
     @Query("SELECT g FROM OfficialGroup g WHERE g.groupName LIKE CONCAT('%', :keyword, '%')")
     List<OfficialGroup> findOfficialGroupsByKeyword(@Param("keyword") String keyword);
     @Query("SELECT g FROM UnOfficialOpenedGroup g WHERE g.groupName LIKE CONCAT('%', :keyword, '%')")
     List<UnOfficialOpenedGroup> findUnOfficialOpenedGroupsByKeyword(@Param("keyword") String keyword);
+
+    /*
+        비공식 공개 그룹 상세 조회
+     */
+    UnOfficialOpenedGroup findUnOfficialOpenedGroupById(Long id);
 }

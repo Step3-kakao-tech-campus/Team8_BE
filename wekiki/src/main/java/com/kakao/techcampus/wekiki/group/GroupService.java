@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -128,5 +127,14 @@ public class GroupService {
         // TODO: 페이지네이션 필요
 
         return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+    }
+
+    /*
+        비공식 공개 그룹 상세 정보 조회
+     */
+    public SearchGroupInfoDTO getGroupInfo(Long groupId) {
+        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        return new SearchGroupInfoDTO(group);
     }
 }

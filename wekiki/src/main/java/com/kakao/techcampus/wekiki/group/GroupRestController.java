@@ -51,6 +51,12 @@ public class GroupRestController {
     /*
         특정 공개 그룹 정보 조회
      */
+    @GetMapping("/search/{grouid}")
+    public ResponseEntity<?> searchGroupInfo(@PathVariable("groupid") Long groupId) {
+        SearchGroupInfoDTO response = groupService.getGroupInfo(groupId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(response));
+    }
     
     /*
         그룹 참가
