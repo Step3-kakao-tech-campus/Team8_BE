@@ -28,6 +28,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+jwt:
+  secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
 
 logging:
   level:
