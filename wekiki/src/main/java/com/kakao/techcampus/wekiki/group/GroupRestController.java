@@ -73,7 +73,16 @@ public class GroupRestController {
     /*
         그룹 참가
      */
+    @PostMapping("/{groupId}/join")
+    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId) {
 
+        // TODO: JWT Token에서 memberId 획득
+        Long tempMemberId = 1L;
+
+        groupService.joinGroup(groupId, tempMemberId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(null));
+    }
     
     /*
         그룹 초대
