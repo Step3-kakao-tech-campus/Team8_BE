@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
@@ -147,15 +148,16 @@ public class GroupService {
         }
     }
 
-    public void joinGroup(Long groupId, Long memberId) {
+    public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
         // 회원 정보 확인
         Member member = memberJPARepository.findById(memberId).orElse(null);
         
         // 그룹 정보 확인
+        // TODO: Redis 활용
         UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
         
         // GroupMember 생성
-        GroupMember groupMember = buildGroupMember(member, group, member.getName());
+        GroupMember groupMember = buildGroupMember(member, group, requestDTO.nickName());
 
         // GroupMember 저장
         groupMemberJPARepository.save(groupMember);

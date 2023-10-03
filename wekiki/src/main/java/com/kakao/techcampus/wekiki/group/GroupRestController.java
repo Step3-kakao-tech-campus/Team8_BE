@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
@@ -74,12 +75,12 @@ public class GroupRestController {
         그룹 참가
      */
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId) {
+    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, JoinGroupRequestDTO requestDTO) {
 
         // TODO: JWT Token에서 memberId 획득
         Long tempMemberId = 1L;
 
-        groupService.joinGroup(groupId, tempMemberId);
+        groupService.joinGroup(groupId, tempMemberId, requestDTO);
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
