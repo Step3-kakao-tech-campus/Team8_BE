@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

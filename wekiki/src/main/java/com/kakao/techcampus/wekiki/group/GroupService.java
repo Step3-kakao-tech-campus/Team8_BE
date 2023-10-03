@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
