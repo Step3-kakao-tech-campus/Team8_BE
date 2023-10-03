@@ -1,8 +1,7 @@
 package com.kakao.techcampus.wekiki._core.jwt;
 
 import com.kakao.techcampus.wekiki.member.MemberResponse;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -51,5 +50,29 @@ public class JWTTokenProvider {
                 .compact();
 
         return new MemberResponse.AuthTokenDTO("Bearer", accessToken, accessTokenValidTime);
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("올바르지 않은 서명의 JWT Token 입니다.", e);
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT Token 입니다.", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 형식의 JWT Token 입니다.", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT Claims가 비어있습니다.", e);
+        }
+        return false;
+    }
+
+    public Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(accessToken).getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 }
