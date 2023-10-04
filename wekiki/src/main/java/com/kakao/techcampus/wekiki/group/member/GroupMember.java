@@ -39,4 +39,9 @@ public class GroupMember {
         this.isValid = isValid;
         this.created_at = created_at;
     }
+
+    // 그룹 내 정보 변경
+    public void update(String groupNickName) {
+        this.nickName = groupNickName;
+    }
 }

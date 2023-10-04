@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
@@ -190,5 +191,27 @@ public class GroupService {
 
         // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
         return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
+    }
+
+    /*
+        그룹 내 마이 페이지 정보 수정
+     */
+    public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
+        // 회원 정보 확인
+        Member member = memberJPARepository.findById(memberId).orElse(null);
+
+        // 그룹 정보 확인
+        // TODO: Redis 활용
+        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        // 그룹 멤버 확인
+        // TODO: Redis 활용
+        GroupMember groupMember = groupMemberJPARepository.findByMemberAndGroup(member, group);
+
+        // 그룹 닉네임 변경
+        groupMember.update(requestDTO.groupNickName());
+
+        // 저장
+        groupMemberJPARepository.save(groupMember);
     }
 }
