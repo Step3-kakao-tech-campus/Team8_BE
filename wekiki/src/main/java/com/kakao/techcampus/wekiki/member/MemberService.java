@@ -3,6 +3,8 @@ package com.kakao.techcampus.wekiki.member;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -13,9 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional
+@RequiredArgsConstructor
 public class MemberService {
     private final MemberJPARepository memberRepository;
     private final JWTTokenProvider tokenProvider;
@@ -27,6 +30,7 @@ public class MemberService {
                 .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
                 .name(signUpRequestDTO.getNickName())
                 .created_at(LocalDateTime.now())
+                .authority(Authority.user)
                 .build();
         memberRepository.save(member);
     }
@@ -41,7 +45,8 @@ public class MemberService {
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                 = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(usernamePasswordAuthenticationToken);
+        AuthenticationManager manager = authenticationManagerBuilder.getObject();
+        Authentication authentication = manager.authenticate(usernamePasswordAuthenticationToken);
         return tokenProvider.generateToken(authentication);
     }
 }

@@ -25,13 +25,15 @@ public class Member {
     private String email;
     private String password;
     private LocalDateTime created_at;
-    // private Authority authority;
+    @Enumerated(value = EnumType.STRING)
+    Authority authority;
 
     @Builder
-    public Member(String name, String email, String password, LocalDateTime created_at) {
+    public Member(String name, String email, String password, LocalDateTime created_at, Authority authority) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.created_at = created_at;
+        this.authority = authority;
     }
 }
