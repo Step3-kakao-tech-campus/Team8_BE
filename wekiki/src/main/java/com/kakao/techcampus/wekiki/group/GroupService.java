@@ -8,7 +8,6 @@ import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoRespons
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
@@ -18,6 +17,8 @@ import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
+import com.kakao.techcampus.wekiki.post.Post;
+import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class GroupService {
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
     private final HistoryJPARepository historyJPARepository;
+    private final PostJPARepository postJPARepository;
 
     /*
         비공식 그룹 생성
@@ -43,21 +45,13 @@ public class GroupService {
     public CreateUnOfficialGroupResponseDTO createUnOfficialGroup(CreateUnOfficialGroupRequestDTO requestDTO, Long memberId) {
 
         // Group 생성
-        Group group;
-        
-        switch (requestDTO.groupType()) {
-            case UNOFFICIAL_CLOSED:
-                group = buildUnOfficialClosedGroup(requestDTO);
-                break;
-
-            case UNOFFICIAL_OPENED:
-                group = buildUnOfficialOpenedGroup(requestDTO);
-                break;
-
-            default:
+        Group group = switch (requestDTO.groupType()) {
+            case UNOFFICIAL_CLOSED -> buildUnOfficialClosedGroup(requestDTO);
+            case UNOFFICIAL_OPENED -> buildUnOfficialOpenedGroup(requestDTO);
+            default ->
                 // TODO: 예외 처리 구현
-                throw new IllegalArgumentException("Invalid groupType");
-        }
+                    throw new IllegalArgumentException("Invalid groupType");
+        };
 
         // MemberId로부터 Member 찾기
         // TODO: 예외 처리 구현
@@ -110,7 +104,7 @@ public class GroupService {
                 .member(member)
                 .group(group)
                 .nickName(groupNickName)
-                .joined_at(LocalDateTime.now())
+                .created_at(LocalDateTime.now())
                 .build();
     }
 
@@ -220,5 +214,34 @@ public class GroupService {
 
         // 저장
         groupMemberJPARepository.save(groupMember);
+    }
+
+    /*
+        그룹 탈퇴
+     */
+    public void leaveGroup(Long groupId, Long memberId) {
+        // 회원 정보 확인
+        Member member = memberJPARepository.findById(memberId).orElse(null);
+
+        // 그룹 정보 확인
+        // TODO: Redis 활용
+        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        // 그룹 멤버 확인
+        // TODO: Redis 활용
+        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+
+        // 탈퇴 그룹 회원 생성
+        InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);
+
+        // Post의 그룹 멤버 변경
+        List<Post> postList = postJPARepository.findAllByGroupMember(activeGroupMember.getId());
+        postList.forEach(p -> p.updateGroupMember(inactiveGroupMember));
+
+
+        // DB 작업
+        groupMemberJPARepository.delete(activeGroupMember);
+        groupMemberJPARepository.save(inactiveGroupMember);
+        postJPARepository.saveAll(postList);
     }
 }

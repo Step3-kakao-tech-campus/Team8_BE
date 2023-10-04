@@ -125,5 +125,14 @@ public class GroupRestController {
     /*
         그룹 탈퇴
      */
+    @DeleteMapping("/{groupId}/myInfo")
+    public ResponseEntity<?> leaveGroup(@PathVariable("groupId") Long groupId) {
 
+        // TODO: JWT Token에서 memberId 획득
+        Long tempMemberId = 1L;
+
+        groupService.leaveGroup(groupId, tempMemberId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(null));
+    }
 }

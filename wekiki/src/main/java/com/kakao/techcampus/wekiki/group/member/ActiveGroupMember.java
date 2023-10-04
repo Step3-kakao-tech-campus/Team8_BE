@@ -16,11 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("active_group_member")
 public class ActiveGroupMember extends GroupMember {
-    private LocalDateTime joined_at;
 
     @Builder(builderMethodName = "activeGroupMemberBuilder")
-    public ActiveGroupMember(Long id, Member member, Group group, String nickName, LocalDateTime joined_at) {
-        super(id, member, group, nickName);
-        this.joined_at = joined_at;
+    public ActiveGroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at) {
+        super(id, member, group, nickName, created_at);
     }
 }

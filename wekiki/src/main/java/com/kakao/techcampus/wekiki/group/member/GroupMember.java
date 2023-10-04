@@ -28,14 +28,16 @@ public class GroupMember {
     private Group group;
     private String nickName;
     private int memberLevel;
+    private LocalDateTime created_at;
 
     @Builder
-    public GroupMember(Long id, Member member, Group group, String nickName) {
+    public GroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at) {
         this.id = id;
         this.member = member;
         this.group = group;
         this.nickName = nickName;
         this.memberLevel = 1;
+        this.created_at = created_at;
     }
 
     // 그룹 내 정보 변경

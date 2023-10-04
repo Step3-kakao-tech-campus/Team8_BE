@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.page.Page;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,5 +34,9 @@ public class Post {
         this.page = page;
         this.content = content;
         this.created_at = created_at;
+    }
+
+    public void updateGroupMember(GroupMember groupMember) {
+        this.groupMember = groupMember;
     }
 }

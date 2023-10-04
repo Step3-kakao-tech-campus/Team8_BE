@@ -19,8 +19,16 @@ public class InactiveGroupMember extends GroupMember {
     private LocalDateTime left_at;
 
     @Builder(builderMethodName = "inactiveGroupMemberBuilder")
-    public InactiveGroupMember(Long id, Member member, Group group, String nickName, LocalDateTime left_at) {
-        super(id, member, group, nickName);
+    public InactiveGroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at, LocalDateTime left_at) {
+        super(id, member, group, nickName, created_at);
         this.left_at = left_at;
+    }
+
+    /*
+        그룹 멤버 탈퇴 전환
+     */
+    public InactiveGroupMember(ActiveGroupMember groupMember) {
+        super(groupMember.getId(), groupMember.getMember(), groupMember.getGroup(), groupMember.getNickName(), groupMember.getCreated_at());
+        this.left_at = LocalDateTime.now();
     }
 }
