@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface HistoryJPARepository extends JpaRepository<History, Long> {
-    List<History> findByGroupMember(GroupMember groupMember);
+    List<History> findAllByGroupMember(GroupMember groupMember);
 }

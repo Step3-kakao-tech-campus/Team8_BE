@@ -35,9 +35,8 @@ public class GroupService {
     private final GroupJPARepository groupJPARepository;
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
-    private final HistoryJPARepository historyJPARepository;
     private final PostJPARepository postJPARepository;
-
+    private final HistoryJPARepository historyJPARepository;
     /*
         비공식 그룹 생성
      */
@@ -160,13 +159,14 @@ public class GroupService {
 
         // 재가입 회원인지 확인
         InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
-        
+
+        // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
+        ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
+
+        // 그룹 멤버 잔재 삭제
         if(wasGroupMember != null) {
-            // TODO: 비활성화 멤버 살리기
+            groupMemberJPARepository.delete(wasGroupMember);
         }
-        
-        // GroupMember 생성
-        ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.nickName());
 
         // GroupMember 저장
         groupMemberJPARepository.save(groupMember);
@@ -188,7 +188,7 @@ public class GroupService {
 
         // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
         // TODO: 페이지네이션 필요
-        List<History> myHistoryList = historyJPARepository.findByGroupMember(groupMember);
+        List<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember);
 
         // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
         return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
@@ -235,13 +235,17 @@ public class GroupService {
         InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);
 
         // Post의 그룹 멤버 변경
-        List<Post> postList = postJPARepository.findAllByGroupMember(activeGroupMember.getId());
+        List<Post> postList = postJPARepository.findAllByGroupMember(activeGroupMember);
         postList.forEach(p -> p.updateGroupMember(inactiveGroupMember));
+
+        // History 그룹 멤버 변경
+        List<History> historyList = historyJPARepository.findAllByGroupMember(activeGroupMember);
+        historyList.forEach(h -> h.updateGroupMember(inactiveGroupMember));
 
 
         // DB 작업
         groupMemberJPARepository.delete(activeGroupMember);
         groupMemberJPARepository.save(inactiveGroupMember);
-        postJPARepository.saveAll(postList);
+        historyJPARepository.saveAll(historyList);
     }
 }

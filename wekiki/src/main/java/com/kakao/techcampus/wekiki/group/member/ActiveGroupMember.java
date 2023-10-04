@@ -21,4 +21,11 @@ public class ActiveGroupMember extends GroupMember {
     public ActiveGroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at) {
         super(id, member, group, nickName, created_at);
     }
+
+    /*
+        그룹 멤버 재가입
+     */
+    public ActiveGroupMember(InactiveGroupMember groupMember) {
+        super(groupMember.getId(), groupMember.getMember(), groupMember.getGroup(), groupMember.getNickName(), groupMember.getCreated_at());
+    }
 }
