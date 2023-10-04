@@ -14,7 +14,9 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "group_member_tb")
+@DiscriminatorColumn(name = "member_status", discriminatorType = DiscriminatorType.STRING)
 public class GroupMember {
 
     @Id
@@ -26,18 +28,14 @@ public class GroupMember {
     private Group group;
     private String nickName;
     private int memberLevel;
-    private boolean isValid;
-    private LocalDateTime created_at;
 
     @Builder
-    public GroupMember(Long id, Member member, Group group, String nickName, int memberLevel, boolean isValid, LocalDateTime created_at) {
+    public GroupMember(Long id, Member member, Group group, String nickName) {
         this.id = id;
         this.member = member;
         this.group = group;
         this.nickName = nickName;
-        this.memberLevel = memberLevel;
-        this.isValid = isValid;
-        this.created_at = created_at;
+        this.memberLevel = 1;
     }
 
     // 그룹 내 정보 변경

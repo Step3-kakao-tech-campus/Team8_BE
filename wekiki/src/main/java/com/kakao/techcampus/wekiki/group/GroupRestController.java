@@ -125,4 +125,5 @@ public class GroupRestController {
     /*
         그룹 탈퇴
      */
+
 }

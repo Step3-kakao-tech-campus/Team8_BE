@@ -7,8 +7,10 @@ import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGr
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
+import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
@@ -61,7 +63,7 @@ public class GroupService {
         // TODO: 예외 처리 구현
         Member member = memberJPARepository.findById(memberId).orElse(null);
         // GroupMember 생성
-        GroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
+        ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
 
         // Entity 저장
         groupJPARepository.save(group);
@@ -103,14 +105,12 @@ public class GroupService {
     /*
         GroupMember 생성 후 반환
      */
-    protected GroupMember buildGroupMember(Member member, Group group, String groupNickName) {
-        return GroupMember.builder()
+    protected ActiveGroupMember buildGroupMember(Member member, Group group, String groupNickName) {
+        return ActiveGroupMember.activeGroupMemberBuilder()
                 .member(member)
                 .group(group)
                 .nickName(groupNickName)
-                .memberLevel(1)
-                .isValid(true)
-                .created_at(LocalDateTime.now())
+                .joined_at(LocalDateTime.now())
                 .build();
     }
 
@@ -148,7 +148,7 @@ public class GroupService {
         UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
 
         // 틀린 경우, 에러 핸들링
-        if(group.getEntrancePassword() != entrancePassword) {
+        if(group.getEntrancePassword().equals(entrancePassword)) {
             // TODO: 예외 처리
         }
     }
@@ -163,9 +163,16 @@ public class GroupService {
         // 그룹 정보 확인
         // TODO: Redis 활용
         UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        // 재가입 회원인지 확인
+        InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
+        
+        if(wasGroupMember != null) {
+            // TODO: 비활성화 멤버 살리기
+        }
         
         // GroupMember 생성
-        GroupMember groupMember = buildGroupMember(member, group, requestDTO.nickName());
+        ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.nickName());
 
         // GroupMember 저장
         groupMemberJPARepository.save(groupMember);
@@ -183,7 +190,7 @@ public class GroupService {
         UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
 
         // 그룹 멤버 확인
-        GroupMember groupMember = groupMemberJPARepository.findByMemberAndGroup(member, group);
+        ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
 
         // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
         // TODO: 페이지네이션 필요
@@ -206,7 +213,7 @@ public class GroupService {
 
         // 그룹 멤버 확인
         // TODO: Redis 활용
-        GroupMember groupMember = groupMemberJPARepository.findByMemberAndGroup(member, group);
+        ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
 
         // 그룹 닉네임 변경
         groupMember.update(requestDTO.groupNickName());
