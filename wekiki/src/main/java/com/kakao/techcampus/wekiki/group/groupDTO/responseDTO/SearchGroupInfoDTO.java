@@ -1,18 +1,20 @@
 package com.kakao.techcampus.wekiki.group.groupDTO.responseDTO;
 
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
-import lombok.Value;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Value
+@Getter
+@Setter
 public class SearchGroupInfoDTO {
-    String groupName;
-    String groupImage;
-    String introduction;
-    int memberCount;
-    LocalDateTime created_at;
-    String entranceHint;
+    private String groupName;
+    private String groupImage;
+    private String introduction;
+    private int memberCount;
+    private LocalDateTime created_at;
+    private String entranceHint;
 
     public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
         this.groupName = group.getGroupName();

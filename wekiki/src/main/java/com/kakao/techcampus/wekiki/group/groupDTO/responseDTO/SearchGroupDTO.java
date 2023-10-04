@@ -16,28 +16,21 @@ public class SearchGroupDTO {
     private List<GroupInfoDTO> unofficialOpenedGroups;
 
     public SearchGroupDTO(List<OfficialGroup> officialGroups, List<UnOfficialOpenedGroup> unofficialOpenedGroups) {
-        this.officialGroups = GroupInfoDTO.fromGroups(officialGroups);
-        this.unofficialOpenedGroups = GroupInfoDTO.fromGroups(unofficialOpenedGroups);
+        this.officialGroups = officialGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList());
+        this.unofficialOpenedGroups = unofficialOpenedGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList());
     }
 
-    public static class GroupInfoDTO {
+    @Getter
+    @Setter
+    public class GroupInfoDTO {
         private String groupName;
         private String groupProfileImage;
         private int memberCount;
 
-        public GroupInfoDTO(String groupName, String groupProfileImage, int memberCount) {
-            this.groupName = groupName;
-            this.groupProfileImage = groupProfileImage;
-            this.memberCount = memberCount;
-        }
-
-        public static List<GroupInfoDTO> fromGroups(List<? extends Group> groups) {
-            return groups.stream()
-                    .map(group -> new GroupInfoDTO(
-                            group.getGroupName(),
-                            group.getGroupProfileImage(),
-                            group.getMemberCount()
-                    )).collect(Collectors.toList());
+        public GroupInfoDTO(Group group) {
+            this.groupName = group.getGroupName();
+            this.groupProfileImage = group.getGroupProfileImage();
+            this.memberCount = group.getMemberCount();
         }
     }
 }

@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
@@ -10,6 +11,8 @@ import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
+import com.kakao.techcampus.wekiki.history.History;
+import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class GroupService {
     private final GroupJPARepository groupJPARepository;
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
+    private final HistoryJPARepository historyJPARepository;
 
     /*
         비공식 그룹 생성
@@ -148,6 +152,9 @@ public class GroupService {
         }
     }
 
+    /*
+        그룹 참가 (공통 부분)
+     */
     public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
         // 회원 정보 확인
         Member member = memberJPARepository.findById(memberId).orElse(null);
@@ -161,5 +168,27 @@ public class GroupService {
 
         // GroupMember 저장
         groupMemberJPARepository.save(groupMember);
+    }
+
+    /*
+        그룹 내 마이 페이지
+     */
+    public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
+        // 회원 정보 확인
+        Member member = memberJPARepository.findById(memberId).orElse(null);
+
+        // 그룹 정보 확인
+        // TODO: Redis 활용
+        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+
+        // 그룹 멤버 확인
+        GroupMember groupMember = groupMemberJPARepository.findByMemberAndGroup(member, group);
+
+        // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
+        // TODO: 페이지네이션 필요
+        List<History> myHistoryList = historyJPARepository.findByGroupMember(groupMember);
+
+        // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
+        return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
     }
 }

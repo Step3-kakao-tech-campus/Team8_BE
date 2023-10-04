@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
 import jakarta.validation.Valid;
@@ -91,7 +92,20 @@ public class GroupRestController {
     
     /*
         그룹 내 본인 정보 조회
+        - 그룹 이름
+        - 그룹 닉네임 수정칸
+        - 내 문서 기여 목록
      */
+    @GetMapping("/{groupId}/myInfo")
+    public ResponseEntity<?> myGroupPage(@PathVariable("groupId") Long groupId) {
+
+        // TODO: JWT Token에서 memberId 획득
+        Long tempMemberId = 1L;
+
+        MyGroupInfoResponseDTO responseDTO = groupService.getMyGroupInfo(groupId, tempMemberId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
     
     /*
         그룹 내 본인 정보 수정
