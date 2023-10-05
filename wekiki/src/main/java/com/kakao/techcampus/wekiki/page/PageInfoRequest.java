@@ -3,7 +3,7 @@ package com.kakao.techcampus.wekiki.page;
 import lombok.Getter;
 import lombok.Setter;
 
-public class PageRequest {
+public class PageInfoRequest {
 
     @Getter
     @Setter
