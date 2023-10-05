@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/page")
 @RequiredArgsConstructor
@@ -30,12 +32,12 @@ public class PageRestController {
      */
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPage(@RequestBody PageRequest.createPageDTO request) {
+    public ResponseEntity<?> createPage(@RequestBody PageInfoRequest.createPageDTO request) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
 
-        PageResponse.createPageDTO response = pageService.createPage(request.getTitle(), request.getGroupId(), tempUserId);
+        PageInfoResponse.createPageDTO response = pageService.createPage(request.getTitle(), request.getGroupId(), tempUserId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -57,12 +59,12 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/like")
-    public ResponseEntity<?> likePage(@PathVariable Long pageid , @RequestBody PageRequest.likePageDTO request) {
+    public ResponseEntity<?> likePage(@PathVariable Long pageid , @RequestBody PageInfoRequest.likePageDTO request) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
 
-        PageResponse.likePageDTO response = pageService.likePage(pageid, request.getGroupId(), tempUserId);
+        PageInfoResponse.likePageDTO response = pageService.likePage(pageid, request.getGroupId(), tempUserId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -73,12 +75,12 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/hate")
-    public ResponseEntity<?> hatePage(@PathVariable Long pageid , @RequestBody PageRequest.hatePageDTO request) {
+    public ResponseEntity<?> hatePage(@PathVariable Long pageid , @RequestBody PageInfoRequest.hatePageDTO request) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
 
-        PageResponse.hatePageDTO response = pageService.hatePage(pageid, request.getGroupId(), tempUserId);
+        PageInfoResponse.hatePageDTO response = pageService.hatePage(pageid, request.getGroupId(), tempUserId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
 
@@ -90,8 +92,10 @@ public class PageRestController {
      */
 
     @GetMapping("/search")
-    public void searchPage(@RequestParam("keyword") String keyword) {
+    public ResponseEntity<?> searchPage(@RequestParam(value = "keyword" , defaultValue = "") String keyword, @RequestParam(value = "page", defaultValue = "1") int page) {
 
+        List<PageInfoResponse.searchPageDTO> response = pageService.searchPage(page-1, keyword);
 
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 }
