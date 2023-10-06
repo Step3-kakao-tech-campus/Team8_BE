@@ -2,7 +2,6 @@ package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
-import com.kakao.techcampus.wekiki._core.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,6 +60,21 @@ public class MemberService {
         // member 안의 groupMember를 뽑아낸 뒤, 그걸로 Response를 제작
         //MemberResponse.myInfoResponseDTO.myInfoGroupDTO()
         //MemberResponse.myInfoResponseDTO(member.get().getName(), )
+    }
 
+    public void cancel() {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
+        memberRepository.delete(member.get());
+    }
+
+    public void changePassword(MemberRequest.changePasswordRequestDTO changePasswordDTO) {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
+        if(passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.get().getPassword()))
+            throw new Exception400("비밀번호가 잘못되었습니다.");
+        member.get().changePassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
     }
 }

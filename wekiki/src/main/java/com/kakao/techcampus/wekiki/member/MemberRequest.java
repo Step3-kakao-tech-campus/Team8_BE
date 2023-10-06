@@ -17,4 +17,10 @@ public class MemberRequest {
         private String email;
         private String password;
     }
+
+    @Getter
+    public static class changePasswordRequestDTO {
+        private String currentPassword;
+        private String newPassword;
+    }
 }

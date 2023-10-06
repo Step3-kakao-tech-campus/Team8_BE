@@ -36,4 +36,8 @@ public class Member {
         this.created_at = created_at;
         this.authority = authority;
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }

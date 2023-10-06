@@ -29,5 +29,22 @@ public class MemberController {
         return ResponseEntity.ok(true);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> cancel() {
+        memberService.cancel();
+        return ResponseEntity.ok(true);
+    }
+
+    /*
+    로그아웃은 추후에 Redis 구현 후 Refresh Token을 지우는 기능만 추가할 예정
+     */
+
+    @PatchMapping("/password/change")
+    public ResponseEntity<?> changePassword(@RequestBody MemberRequest.changePasswordRequestDTO changePasswordRequestDTO) {
+        memberService.changePassword(changePasswordRequestDTO);
+        return ResponseEntity.ok(true);
+    }
+
+
 
 }
