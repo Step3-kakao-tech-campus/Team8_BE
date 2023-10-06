@@ -3,10 +3,7 @@ package com.kakao.techcampus.wekiki.member;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,6 +21,12 @@ public class MemberController {
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.loginRequestDTO loginDTO) {
         MemberResponse.authTokenDTO response = memberService.login(loginDTO);
         return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+    @GetMapping("/myinfo")
+    public ResponseEntity<?> myPage() {
+        memberService.getMyInfo();
+        return ResponseEntity.ok(true);
     }
 
 

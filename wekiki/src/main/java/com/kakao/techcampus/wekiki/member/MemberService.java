@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
+import com.kakao.techcampus.wekiki._core.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
+
 @Slf4j
 @Service
 @Transactional
@@ -24,6 +27,7 @@ public class MemberService {
     private final JWTTokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
+
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
         Member member = Member.builder()
                 .email(signUpRequestDTO.getEmail())
@@ -48,5 +52,15 @@ public class MemberService {
         AuthenticationManager manager = authenticationManagerBuilder.getObject();
         Authentication authentication = manager.authenticate(usernamePasswordAuthenticationToken);
         return tokenProvider.generateToken(authentication);
+    }
+
+    public void getMyInfo() {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
+        // member 안의 groupMember를 뽑아낸 뒤, 그걸로 Response를 제작
+        //MemberResponse.myInfoResponseDTO.myInfoGroupDTO()
+        //MemberResponse.myInfoResponseDTO(member.get().getName(), )
+
     }
 }
