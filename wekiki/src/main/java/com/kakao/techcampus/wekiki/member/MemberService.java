@@ -73,8 +73,8 @@ public class MemberService {
         Optional<Member> member = memberRepository.findByEmail(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
-        if(passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.get().getPassword()))
-            throw new Exception400("비밀번호가 잘못되었습니다.");
+        if(!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.get().getPassword()))
+            throw new Exception400("비밀번호가 틀렸습니다.");
         member.get().changePassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
     }
 }
