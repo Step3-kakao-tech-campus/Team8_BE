@@ -5,6 +5,8 @@ import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Random;
 
 import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
 
@@ -28,6 +31,8 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
+    private final JavaMailSender javaMailSender;
+
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
         Member member = Member.builder()
@@ -80,9 +85,20 @@ public class MemberService {
         member.get().changePassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
     }
 
-    public void sendEmail() {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
-        if(member.isEmpty())
-            throw new Exception404("없는 회원입니다.");
+    public void sendEmail(String email) {
+        Integer authNumber = makeEmailAuthNum();
+        redisUtility.setValues(email, Integer.toString(authNumber), 300);
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSubject("부산대 인증 메일입니다!");
+        simpleMailMessage.setText("인증 번호 입니다.\n"
+                + authNumber +
+                "\n잘 입력해 보세요!");
+        // 이메일 발신
+        javaMailSender.send(simpleMailMessage);
+    }
+
+    public Integer makeEmailAuthNum() {
+        return new Random().nextInt(888888) + 111111;
     }
 }

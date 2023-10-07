@@ -23,4 +23,9 @@ public class MemberRequest {
         private String currentPassword;
         private String newPassword;
     }
+
+    @Getter
+    public static class emailRequestDTO {
+        private String email;
+    }
 }

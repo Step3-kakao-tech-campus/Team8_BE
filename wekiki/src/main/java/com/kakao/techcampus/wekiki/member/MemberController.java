@@ -45,6 +45,12 @@ public class MemberController {
         return ResponseEntity.ok(true);
     }
 
+    @PostMapping("/pusanuniv")
+    public ResponseEntity<?> sendMail(@RequestBody MemberRequest.emailRequestDTO emailRequestDTO) {
+        memberService.sendEmail(emailRequestDTO.getEmail());
+        return ResponseEntity.ok(true);
+    }
+
 
 
 }
