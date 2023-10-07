@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
+import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ public class MemberService {
     private final JWTTokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
+    private final RedisUtility redisUtility;
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
         Member member = Member.builder()
@@ -76,5 +78,11 @@ public class MemberService {
         if(!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.get().getPassword()))
             throw new Exception400("비밀번호가 틀렸습니다.");
         member.get().changePassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+    }
+
+    public void sendEmail() {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
     }
 }

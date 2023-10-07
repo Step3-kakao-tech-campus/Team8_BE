@@ -23,11 +23,12 @@ spring:
         format_sql: true
       default_batch_fetch_size: 100
     open-in-view: false
-  session:
+  data:
     storage-type: redis
     redis:
       host: localhost
       port: 6379
+      password: zinc
 jwt:
   secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
 
