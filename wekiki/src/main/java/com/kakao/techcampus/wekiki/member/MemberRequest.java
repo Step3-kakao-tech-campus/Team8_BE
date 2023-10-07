@@ -28,4 +28,9 @@ public class MemberRequest {
     public static class emailRequestDTO {
         private String email;
     }
+
+    @Getter
+    public static class findPasswordRequestDTO {
+        private String email;
+    }
 }

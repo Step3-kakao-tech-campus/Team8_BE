@@ -51,6 +51,11 @@ public class MemberController {
         return ResponseEntity.ok(true);
     }
 
+    @PostMapping("/password/find")
+    public ResponseEntity<?> findPassword(@RequestBody MemberRequest.findPasswordRequestDTO findPasswordRequestDTO) {
+        memberService.findPassword(findPasswordRequestDTO.getEmail());
+        return ResponseEntity.ok(true);
+    }
 
 
 }

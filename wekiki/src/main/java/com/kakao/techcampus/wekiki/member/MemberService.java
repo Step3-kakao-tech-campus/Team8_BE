@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.member;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
+import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -98,7 +99,37 @@ public class MemberService {
         javaMailSender.send(simpleMailMessage);
     }
 
+    public void findPassword(String email) {
+        Optional<Member> member = memberRepository.findByEmail(email);
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
+        String randomPassword = makeRandomPassword();
+        member.get().changePassword(passwordEncoder.encode(randomPassword));
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(email);
+        simpleMailMessage.setSubject("비밀번호가 변경되었습니다.");
+        simpleMailMessage.setText("임의 생성된 비밀번호입니다.\n"
+                + randomPassword +
+                "\n추후에 꼭 변경하세요!");
+        // 이메일 발신
+        javaMailSender.send(simpleMailMessage);
+    }
+
     public Integer makeEmailAuthNum() {
         return new Random().nextInt(888888) + 111111;
+    }
+
+    public String makeRandomPassword() {
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+
+        return random.ints(leftLimit,rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+
     }
 }
