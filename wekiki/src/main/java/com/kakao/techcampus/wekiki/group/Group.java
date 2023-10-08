@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Table(name = "group_tb")
-@DiscriminatorColumn(name = "group_type")
+@DiscriminatorColumn(name = "group_type", discriminatorType = DiscriminatorType.STRING)
 public class Group {
 
     @Id

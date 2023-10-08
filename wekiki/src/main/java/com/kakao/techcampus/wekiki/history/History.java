@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.history;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.page.Page;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
@@ -34,5 +35,9 @@ public class History {
         this.post = post;
         this.content = content;
         this.created_at = created_at;
+    }
+
+    public void updateGroupMember(GroupMember groupMember) {
+        this.groupMember = groupMember;
     }
 }
