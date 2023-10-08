@@ -1,7 +1,7 @@
 package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
-import com.kakao.techcampus.wekiki.page.Page;
+import com.kakao.techcampus.wekiki.page.PageInfo;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -19,19 +21,38 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    private Post parent;
+
+    private int orders;
+
     @ManyToOne
     private GroupMember groupMember;
     @ManyToOne
-    private Page page;
+    private PageInfo pageInfo;
+
+    private String title;
     private String content;
     private LocalDateTime created_at;
 
     @Builder
-    public Post(Long id, GroupMember groupMember, Page page, String content, LocalDateTime created_at) {
+    public Post(Long id ,Post parent,int orders, GroupMember groupMember, PageInfo pageInfo, String title, String content, LocalDateTime created_at) {
         this.id = id;
+        this.parent = parent;
+        this.orders = orders;
         this.groupMember = groupMember;
-        this.page = page;
+        this.pageInfo = pageInfo;
+        this.title = title;
         this.content = content;
         this.created_at = created_at;
+    }
+
+    public void plusOrder(){
+        this.orders++;
+    }
+
+    public void updateGroupMember(GroupMember groupMember) {
+        this.groupMember = groupMember;
     }
 }
