@@ -8,7 +8,8 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "WEKIKI-000", "Internal server error"),
-    PAGE_NOT_FOUND(HttpStatus.NOT_FOUND,"PAGE-001" , "존재하지 않는 페이지 입니다.");
+    PAGE_NOT_FOUND(HttpStatus.NOT_FOUND,"PAGE-001" , "존재하지 않는 페이지 입니다."),
+    PARENT_POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-001","존재하지 않는 PARENT POST 입니다.");
 
     /*
     예시)
