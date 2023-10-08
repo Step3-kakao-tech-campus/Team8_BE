@@ -87,6 +87,9 @@ public class MemberService {
     }
 
     public void sendEmail(String email) {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
         Integer authNumber = makeEmailAuthNum();
         redisUtility.setValues(email, Integer.toString(authNumber), 300);
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -97,6 +100,21 @@ public class MemberService {
                 "\n잘 입력해 보세요!");
         // 이메일 발신
         javaMailSender.send(simpleMailMessage);
+    }
+
+    public void checkPNUEmail(MemberRequest.checkPNUEmailRequestDTO pnuEmailRequestDTO) {
+        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        if(member.isEmpty())
+            throw new Exception404("없는 회원입니다.");
+        if(redisUtility.getValues(pnuEmailRequestDTO.getEmail()).equals(pnuEmailRequestDTO.getCertificationNumber())){
+            /*
+            부산대 인증 완료 후 GroupMember 만드는 로직 들어가면 될듯!
+            */
+            System.out.println("인증번호가 맞았습니다!");
+        }
+        else {
+            throw new Exception400("인증번호가 틀렸습니다.");
+        }
     }
 
     public void findPassword(String email) {
@@ -132,4 +150,5 @@ public class MemberService {
                 .toString();
 
     }
+
 }

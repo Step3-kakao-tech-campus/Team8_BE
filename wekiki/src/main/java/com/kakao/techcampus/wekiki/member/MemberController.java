@@ -46,8 +46,14 @@ public class MemberController {
     }
 
     @PostMapping("/pusanuniv")
-    public ResponseEntity<?> sendMail(@RequestBody MemberRequest.emailRequestDTO emailRequestDTO) {
-        memberService.sendEmail(emailRequestDTO.getEmail());
+    public ResponseEntity<?> sendMail(@RequestBody MemberRequest.PNUEmailRequestDTO PNUemailRequestDTO) {
+        memberService.sendEmail(PNUemailRequestDTO.getEmail());
+        return ResponseEntity.ok(true);
+    }
+
+    @PostMapping("/pusanuniv/cert")
+    public ResponseEntity<?> checkPNUEmail(@RequestBody MemberRequest.checkPNUEmailRequestDTO pnuEmailRequestDTO) {
+        memberService.checkPNUEmail(pnuEmailRequestDTO);
         return ResponseEntity.ok(true);
     }
 
@@ -56,6 +62,7 @@ public class MemberController {
         memberService.findPassword(findPasswordRequestDTO.getEmail());
         return ResponseEntity.ok(true);
     }
+
 
 
 }

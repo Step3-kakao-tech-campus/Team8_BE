@@ -25,8 +25,14 @@ public class MemberRequest {
     }
 
     @Getter
-    public static class emailRequestDTO {
+    public static class PNUEmailRequestDTO {
         private String email;
+    }
+
+    @Getter
+    public static class checkPNUEmailRequestDTO {
+        private String email;
+        private String certificationNumber;
     }
 
     @Getter
