@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.group.unofficialGroup.closedGroup;
+package com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup;
 
 import com.kakao.techcampus.wekiki.group.Group;
 import jakarta.persistence.DiscriminatorValue;

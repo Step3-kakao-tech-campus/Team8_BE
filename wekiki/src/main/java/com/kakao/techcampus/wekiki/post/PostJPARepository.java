@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki.page.PageInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.kakao.techcampus.wekiki.group.member.GroupMember;
 
 import java.util.List;
 
@@ -15,4 +16,5 @@ public interface PostJPARepository extends JpaRepository<Post, Long> {
             @Param("orders") int orders
     );
 
+    List<Post> findAllByGroupMember(GroupMember groupMember);
 }

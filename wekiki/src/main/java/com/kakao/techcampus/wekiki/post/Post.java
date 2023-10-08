@@ -52,4 +52,7 @@ public class Post {
         this.orders++;
     }
 
+    public void updateGroupMember(GroupMember groupMember) {
+        this.groupMember = groupMember;
+    }
 }
