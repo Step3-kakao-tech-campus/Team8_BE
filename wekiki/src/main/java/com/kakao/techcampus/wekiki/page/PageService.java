@@ -46,7 +46,7 @@ public class PageService {
     }
 
     @Transactional
-    public PageInfoResponse.likePageDTO likePage(Long pageId , Long groupId, Long userId){
+    public PageInfoResponse.likePageDTO likePage(Long pageId , Long userId){
 
         // 1. groupId랑 userId로 Group 객체, User 객체 가져오기 (없으면 Exception)
 
@@ -66,7 +66,7 @@ public class PageService {
     }
 
     @Transactional
-    public PageInfoResponse.hatePageDTO hatePage(Long pageId , Long groupId, Long userId){
+    public PageInfoResponse.hatePageDTO hatePage(Long pageId , Long userId){
 
         // 1. groupId랑 userId로 Group 객체, User 객체 가져오기 (없으면 Exception)
 
@@ -99,5 +99,7 @@ public class PageService {
         return pages.getContent().stream().map(pageInfo -> new PageInfoResponse.searchPageDTO(pageInfo)).collect(Collectors.toList());
 
     }
+
+
 
 }

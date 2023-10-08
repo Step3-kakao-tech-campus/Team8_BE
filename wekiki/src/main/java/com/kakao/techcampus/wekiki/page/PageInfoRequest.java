@@ -12,16 +12,5 @@ public class PageInfoRequest {
         private Long groupId;
     }
 
-    @Getter
-    @Setter
-    public static class likePageDTO {
-        private Long groupId;
-    }
-
-    @Getter
-    @Setter
-    public static class hatePageDTO {
-        private Long groupId;
-    }
 
 }
