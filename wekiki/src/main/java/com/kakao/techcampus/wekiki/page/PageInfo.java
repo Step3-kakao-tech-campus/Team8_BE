@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "page_tb")
-public class Page {
+@Table(name = "pageinfo_tb")
+public class PageInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Page {
     private LocalDateTime updated_at;
 
     @Builder
-    public Page(Long id, Group group, String title, int goodCount, int badCount, int viewCount, LocalDateTime created_at, LocalDateTime updated_at) {
+    public PageInfo(Long id, Group group, String title, int goodCount, int badCount, int viewCount, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
         this.group = group;
         this.title = title;
@@ -47,4 +47,17 @@ public class Page {
         this.badCount++;
     }
 
+    @Override
+    public String toString() {
+        return "PageInfo{" +
+                "id=" + id +
+                //", group=" + group +
+                ", title='" + title + '\'' +
+                ", goodCount=" + goodCount +
+                ", badCount=" + badCount +
+                ", viewCount=" + viewCount +
+                ", created_at=" + created_at +
+                ", updated_at=" + updated_at +
+                '}';
+    }
 }
