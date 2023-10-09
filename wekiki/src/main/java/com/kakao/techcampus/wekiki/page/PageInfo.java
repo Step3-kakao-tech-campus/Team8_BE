@@ -47,6 +47,10 @@ public class PageInfo {
         this.badCount++;
     }
 
+    public void updatePage(){
+        this.updated_at = LocalDateTime.now();
+    }
+
     @Override
     public String toString() {
         return "PageInfo{" +
