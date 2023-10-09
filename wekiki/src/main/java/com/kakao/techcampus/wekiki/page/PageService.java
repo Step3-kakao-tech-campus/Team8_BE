@@ -2,6 +2,9 @@ package com.kakao.techcampus.wekiki.page;
 
 import com.kakao.techcampus.wekiki._core.errors.ApplicationException;
 import com.kakao.techcampus.wekiki._core.errors.ErrorCode;
+import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
+import com.kakao.techcampus.wekiki.post.Post;
+import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,8 +22,37 @@ import java.util.stream.Collectors;
 public class PageService {
 
     private final PageJPARepository pageJPARepository;
+    private final PostJPARepository postJPARepository;
+
+    private final IndexUtils indexUtils;
 
     final int PAGE_COUNT = 10;
+
+    @Transactional
+    public PageInfoResponse.getPageFromIdDTO getPageFromId(Long userId, Long pageId){
+        // 1. userId로 User 객체 가져오기
+
+        // 2. pageId로 PageInfo 객체 들고오기
+        PageInfo pageInfo = pageJPARepository.findById(pageId).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+
+        // 3. PageInfo로부터 Group 객체 들고오기
+
+        // 4. GroupMember인지 체크
+
+        // 5. 해당 groupId를 들고 있는 모든 페이지 Order 순으로 들고오기
+        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(pageId);
+
+        // 6. 목차 생성하기
+        HashMap<Long, String> indexs = indexUtils.createIndex(posts);
+
+        // 7. DTO로 return
+        List<PageInfoResponse.getPageFromIdDTO.postDTO> temp = posts.stream()
+                .map(p -> new PageInfoResponse.getPageFromIdDTO.postDTO(p, indexs.get(p.getId())))
+                .collect(Collectors.toList());
+
+        return new PageInfoResponse.getPageFromIdDTO(pageInfo, temp);
+
+    }
 
     @Transactional
     public PageInfoResponse.createPageDTO createPage(String title, Long groupId, Long userId){

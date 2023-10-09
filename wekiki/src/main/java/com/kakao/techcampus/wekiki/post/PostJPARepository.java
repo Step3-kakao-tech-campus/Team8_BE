@@ -16,5 +16,8 @@ public interface PostJPARepository extends JpaRepository<Post, Long> {
             @Param("orders") int orders
     );
 
+    @Query("SELECT p FROM Post p WHERE p.pageInfo.id = :pageId ORDER BY p.orders ASC")
+    List<Post> findPostsByPageIdOrderByOrderAsc(@Param("pageId") Long pageId);
+
     List<Post> findAllByGroupMember(GroupMember groupMember);
 }

@@ -1,7 +1,10 @@
 package com.kakao.techcampus.wekiki.page;
 
+import com.kakao.techcampus.wekiki.post.Post;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 public class PageInfoResponse {
 
@@ -57,6 +60,39 @@ public class PageInfoResponse {
             this.title = pageInfo.getTitle();
         }
 
+    }
+
+    @Getter
+    @Setter
+    public static class getPageFromIdDTO{
+        String pageName;
+        List<postDTO> postList;
+        int goodCount;
+        int badCount;
+
+        public getPageFromIdDTO(PageInfo pageInfo , List<postDTO> postList){
+            this.pageName = pageInfo.getTitle();
+            this.postList = postList;
+            this.goodCount = pageInfo.getGoodCount();
+            this.badCount = pageInfo.getBadCount();
+        }
+
+
+        @Getter
+        @Setter
+        public static class postDTO {
+            Long postId;
+            String index;
+            String postTitle;
+            String content;
+
+            public postDTO(Post post, String index){
+                this.postId = post.getId();
+                this.index = index;
+                this.postTitle = post.getTitle();
+                this.content = post.getContent();
+            }
+        }
     }
 
 }

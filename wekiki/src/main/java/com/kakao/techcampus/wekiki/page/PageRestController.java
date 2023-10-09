@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.page;
 
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
+import com.kakao.techcampus.wekiki.post.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +17,18 @@ public class PageRestController {
     private final PageService pageService;
 
     /*
-     페이지 + 글 조회 기능
+     페이지 ID로 페이지 + 글 조회 기능
 
      */
 
     @GetMapping("/page/{pageid}")
-    public void getPageFromId(@PathVariable Long pageid) {
+    public ResponseEntity<?> getPageFromId(@PathVariable Long pageid) {
 
+        Long tempUserId = 1L;
 
+        PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromId(tempUserId, pageid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
