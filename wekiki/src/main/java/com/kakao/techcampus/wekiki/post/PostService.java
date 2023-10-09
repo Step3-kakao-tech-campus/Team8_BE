@@ -23,8 +23,6 @@ public class PostService {
 
     private final HistoryJPARepository historyJPARepository;
 
-
-
     @Transactional
     public PostResponse.createPostDTO createPost(Long pageId, Long parentPostId, int order, String title, String content){
 
@@ -67,9 +65,43 @@ public class PostService {
         History newHistory = History.builder()
                 .post(savedPost)
                 .build();
+
         historyJPARepository.save(newHistory);
 
         // 8. return DTO
         return new PostResponse.createPostDTO(savedPost);
     }
+
+    @Transactional
+    public PostResponse.modifyPostDTO modifyPost(Long postId , String title, String content){
+
+        // 1. userId user 객체 들고오기
+
+        // 2. postId -> pageId -> groupId (여기서 groupId 바로 받기..?)
+
+        // 3. userId랑 groupId로 groupMember 있는지 확인 (즉 그룹 멤버인지 확인)
+
+        // 4. postId로 post 엔티티 가져오기
+        Post post = postJPARepository.findById(postId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+
+        // 5. 현재 Post랑 내용 같은지 확인
+        if(post.getTitle().equals(title) && post.getContent().equals(content)){
+            throw new ApplicationException(ErrorCode.POST_SAME_DATE);
+        }
+
+        // 6. 다르면 Post 수정후 히스토리 생성 저장
+        // TODO : groupMember 추가
+        post.modifyPost(null,title,content);
+
+        History newHistory = History.builder()
+                .post(post)
+                .build();
+        historyJPARepository.save(newHistory);
+
+        // 7. return DTO
+        return new PostResponse.modifyPostDTO(post);
+
+    }
+
 }

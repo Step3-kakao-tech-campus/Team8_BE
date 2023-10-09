@@ -21,4 +21,19 @@ public class PostResponse {
         }
     }
 
+    @Getter
+    @Setter
+    public static class modifyPostDTO{
+
+        Long postId;
+        String title;
+        String content;
+
+        public modifyPostDTO(Post post){
+            this.postId = post.getId();
+            this.title = post.getTitle();
+            this.content = post.getContent();
+        }
+    }
+
 }
