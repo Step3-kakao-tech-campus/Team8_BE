@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki.post.Post;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PageInfoResponse {
@@ -93,6 +94,31 @@ public class PageInfoResponse {
                 this.content = post.getContent();
             }
         }
+    }
+
+
+    @Getter @Setter
+    public static class getRecentPageDTO{
+
+        List<RecentPageDTO> recentPage;
+
+        public getRecentPageDTO(List<RecentPageDTO> recentPage){
+            this.recentPage = recentPage;
+        }
+
+        @Getter @Setter
+        public static class RecentPageDTO{
+            Long pageId;
+            String title;
+            private LocalDateTime updated_at;
+
+            public RecentPageDTO(PageInfo pageInfo){
+                this.pageId = pageInfo.getId();
+                this.title = pageInfo.getTitle();
+                this.updated_at = pageInfo.getUpdated_at();
+            }
+        }
+
     }
 
 }

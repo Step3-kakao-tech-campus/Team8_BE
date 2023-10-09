@@ -2,7 +2,6 @@ package com.kakao.techcampus.wekiki.page;
 
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
-import com.kakao.techcampus.wekiki.post.PostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -111,6 +110,7 @@ public class PageRestController {
 
     }
 
+    // ========================================================================
 
     /*
      페이지 키워드 검색 기능
@@ -131,8 +131,13 @@ public class PageRestController {
 
      */
     @GetMapping("/group/{groupid}/page/recent")
-    public void getRecentPage(@PathVariable Long groupid){
+    public ResponseEntity<?> getRecentPage(@PathVariable Long groupid){
 
+        Long tempUserId = 1L;
+
+        PageInfoResponse.getRecentPageDTO response = pageService.getRecentPage(tempUserId, groupid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*

@@ -8,11 +8,11 @@ import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +61,9 @@ public class PageService {
 
         // 2. groupMember 존재하는지 확인 (없으면 Exception)
 
-        // 3. Page 생성
+        // TODO : 3. 그룹 내 동일한 Page가 존재하는지 체크
+
+        // 4. Page 생성
         PageInfo newPageInfo = PageInfo.builder()
                 //.group(group)
                 .title(title)
@@ -72,10 +74,10 @@ public class PageService {
                 .updated_at(LocalDateTime.now())
                 .build();
 
-        // 4. Page 저장
+        // 5. Page 저장
         PageInfo savedPageInfo = pageJPARepository.save(newPageInfo);
 
-        // 5. return
+        // 6. return DTO
         return new PageInfoResponse.createPageDTO(savedPageInfo);
     }
 
@@ -134,6 +136,29 @@ public class PageService {
 
     }
 
+    // ============================groupId 필요==========================================================
+
+    @Transactional
+    public PageInfoResponse.getRecentPageDTO getRecentPage(Long userId , Long groupId){
+
+        // 1. userId user 객체 들고오기
+
+        // 2. groupId로부터 Group 객체 들고오기
+
+        // 3. userId랑 groupId로 groupMember 존재하는지 확인
+
+        // 4. 특정 groupId를 가진 Page들 order by로 updated_at이 최신인 10개 Page 조회
+        // TODO : where 문에 groupId 추가
+        Pageable pageable = PageRequest.of(0, 10);
+        //List<PageInfo> recentPage = pageJPARepository.findByGroupIdOrderByUpdatedAtDesc(groupId, pageable);
+        List<PageInfo> recentPage = pageJPARepository.findOrderByUpdatedAtDesc(pageable);
+
+        // 5. return DTO
+        List<PageInfoResponse.getRecentPageDTO.RecentPageDTO> collect = recentPage.stream().map(pageInfo ->
+                new PageInfoResponse.getRecentPageDTO.RecentPageDTO(pageInfo)).collect(Collectors.toList());
+        return new PageInfoResponse.getRecentPageDTO(collect);
+
+    }
 
 
 }
