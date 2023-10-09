@@ -44,7 +44,7 @@ public class IndexUtils {
         indexs.put(now,index+res);
         if(tree.containsKey(now)){
             for(int i = 0 ; i < tree.get(now).size(); i++){
-                DFS(i+1,tree.get(now).get(i), index+res+"-",indexs,tree);
+                DFS(i+1,tree.get(now).get(i), index+res+".",indexs,tree);
             }
         }
     }
