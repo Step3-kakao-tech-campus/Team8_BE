@@ -61,7 +61,10 @@ public class PageService {
 
         // 2. groupMember 존재하는지 확인 (없으면 Exception)
 
-        // TODO : 3. 그룹 내 동일한 Page가 존재하는지 체크
+        // 3. 그룹 내 동일한 title의 Page가 존재하는지 체크 (TODO : where 문에 groupId 추가)
+        if(pageJPARepository.findByTitle(title).isPresent()){
+            throw new ApplicationException(ErrorCode.PAGE_ALREADY_PRESENT);
+        }
 
         // 4. Page 생성
         PageInfo newPageInfo = PageInfo.builder()

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "WEKIKI-000", "Internal server error"),
     PAGE_NOT_FOUND(HttpStatus.NOT_FOUND,"PAGE-001" , "존재하지 않는 페이지 입니다."),
+    PAGE_ALREADY_PRESENT(HttpStatus.BAD_REQUEST,"PAGE-002","이미 존재하는 페이지 입니다."),
     PARENT_POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-001","존재하지 않는 PARENT POST 입니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-002","존재하지 않는 POST 입니다."),
     POST_SAME_DATE(HttpStatus.BAD_REQUEST,"POST-003","동일한 데이터 입니다.");

@@ -16,7 +16,6 @@ import java.util.List;
 public class PostRestController {
 
     private final PostService postService;
-    private final HistoryJPARepository historyJPARepository;
 
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestBody PostRequest.createPostDTO request) {
