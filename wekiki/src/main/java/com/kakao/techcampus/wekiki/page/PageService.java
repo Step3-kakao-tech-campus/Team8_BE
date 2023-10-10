@@ -186,5 +186,29 @@ public class PageService {
 
     }
 
+    @Transactional
+    public PageInfoResponse.getPageFromIdDTO getPageFromTitle(Long userId, Long groupId, String title){
+
+        // 1. userId로 User 객체 가져오기
+
+        // 2. groupId로 GroupMember인지 체크하기
+
+        // 3. groupId랑 title로 Page있는지 확인 (TODO : where 문에 groupId 추가)
+        PageInfo page = pageJPARepository.findByTitle(title).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+
+        // 4. 해당 pageId를 들고있는 모든 페이지 Order 순으로 들고오기
+        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(page.getId());
+
+        // 5. 목차 생성하기
+        HashMap<Long, String> indexs = indexUtils.createIndex(posts);
+
+        // 6. DTO로 return
+        List<PageInfoResponse.getPageFromIdDTO.postDTO> temp = posts.stream()
+                .map(p -> new PageInfoResponse.getPageFromIdDTO.postDTO(p, indexs.get(p.getId())))
+                .collect(Collectors.toList());
+
+        return new PageInfoResponse.getPageFromIdDTO(page, temp);
+    }
+
 
 }

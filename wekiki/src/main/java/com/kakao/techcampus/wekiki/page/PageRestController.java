@@ -30,15 +30,6 @@ public class PageRestController {
         return ResponseEntity.ok(ApiUtils.success(response));
     }
 
-    /*
-     페이지 목차 조회
-     */
-
-    @GetMapping("/page/index/{pageid}")
-    public void getIndex(@PathVariable Long pageid) {
-
-
-    }
 
     /*
      페이지 생성 기능
@@ -104,17 +95,22 @@ public class PageRestController {
 
     }
 
+    // ========================================================================
+
     /*
       페이지 제목으로 페이지 조회
 
      */
     @GetMapping("/group/{groupid}/page")
-    public void getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
+    public ResponseEntity<?> getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
 
+        Long tempUserId = 1L;
+
+        PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromTitle(tempUserId, groupid,title);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
 
     }
-
-    // ========================================================================
 
     /*
      페이지 키워드 검색 기능
