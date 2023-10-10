@@ -210,5 +210,20 @@ public class PageService {
         return new PageInfoResponse.getPageFromIdDTO(page, temp);
     }
 
+    @Transactional
+    public PageInfoResponse.getPageLinkDTO getPageLink(Long userId, Long groupId, String title){
+
+        // 1. userId로 User 객체 가져오기
+
+        // 2. groupId로 GroupMember인지 체크하기
+
+        // 3. groupId랑 title로 Page있는지 확인 (TODO : where 문에 groupId 추가)
+        // (추후에 redis로 Key Value를 <groupId_pageTitle, pageId>로해서 성능 향상시켜보자)
+        PageInfo page = pageJPARepository.findByTitle(title).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+
+        // 4. return DTO
+        return new PageInfoResponse.getPageLinkDTO(page);
+    }
+
 
 }

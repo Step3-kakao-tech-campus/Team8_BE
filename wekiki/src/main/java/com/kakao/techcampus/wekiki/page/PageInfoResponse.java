@@ -133,4 +133,13 @@ public class PageInfoResponse {
 
     }
 
+    @Getter @Setter
+    public static class getPageLinkDTO{
+        Long pageId;
+
+        public getPageLinkDTO(PageInfo pageInfo){
+            this.pageId = pageInfo.getId();
+        }
+    }
+
 }

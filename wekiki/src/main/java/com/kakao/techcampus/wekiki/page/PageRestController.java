@@ -120,6 +120,8 @@ public class PageRestController {
     @GetMapping("/group/{groupid}/page/search")
     public ResponseEntity<?> searchPage(@PathVariable Long groupid,@RequestParam(value = "keyword" , defaultValue = "") String keyword, @RequestParam(value = "page", defaultValue = "1") int page) {
 
+        Long tempUserId = 1L;
+
         List<PageInfoResponse.searchPageDTO> response = pageService.searchPage(page-1, keyword);
 
         return ResponseEntity.ok(ApiUtils.success(response));
@@ -146,8 +148,13 @@ public class PageRestController {
 
      */
     @GetMapping("/group/{groupid}/page/link")
-    public void getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
+    public ResponseEntity<?> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
 
+        Long tempUserId = 1L;
+
+        PageInfoResponse.getPageLinkDTO response = pageService.getPageLink(tempUserId, groupid, title);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
 
