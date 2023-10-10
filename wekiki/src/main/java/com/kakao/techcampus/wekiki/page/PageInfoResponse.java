@@ -10,6 +10,18 @@ import java.util.List;
 public class PageInfoResponse {
 
     @Getter @Setter
+    public static class deletePageDTO{
+
+        Long pageId;
+        String title;
+
+        public deletePageDTO(PageInfo pageInfo){
+            this.pageId = pageInfo.getId();
+            this.title = pageInfo.getTitle();
+        }
+    }
+
+    @Getter @Setter
     public static class createPageDTO{
 
         Long pageId;

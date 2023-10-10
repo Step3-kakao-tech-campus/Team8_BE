@@ -29,6 +29,29 @@ public class PageService {
     final int PAGE_COUNT = 10;
 
     @Transactional
+    public PageInfoResponse.deletePageDTO deletePage(Long userId, Long pageId){
+        // 1. userId로 User 객체 가져오기
+
+        // 2. GroupMember 인지 체크하기
+
+        // 3. 존재하는 페이지 인지 체크
+        PageInfo pageInfo = pageJPARepository.findById(pageId).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+
+        // 3. pageId로 post 있는지 확인 -> post 존재하면 Exception
+        if(postJPARepository.existsByPageInfoId(pageId)){
+            throw new ApplicationException(ErrorCode.PAGE_HAVE_POST);
+        }
+
+        // 4. 포스트가 하나도 없으면 삭제시키기
+        PageInfoResponse.deletePageDTO response = new PageInfoResponse.deletePageDTO(pageInfo);
+        pageJPARepository.deleteById(pageId);
+
+        // 5. return DTO
+        return response;
+    }
+
+
+    @Transactional
     public PageInfoResponse.getPageFromIdDTO getPageFromId(Long userId, Long pageId){
         // 1. userId로 User 객체 가져오기
 
@@ -153,8 +176,8 @@ public class PageService {
         // 4. 특정 groupId를 가진 Page들 order by로 updated_at이 최신인 10개 Page 조회
         // TODO : where 문에 groupId 추가
         Pageable pageable = PageRequest.of(0, 10);
-        //List<PageInfo> recentPage = pageJPARepository.findByGroupIdOrderByUpdatedAtDesc(groupId, pageable);
         List<PageInfo> recentPage = pageJPARepository.findOrderByUpdatedAtDesc(pageable);
+        //List<PageInfo> recentPage = pageJPARepository.findByGroupIdOrderByUpdatedAtDesc(groupId, pageable);
 
         // 5. return DTO
         List<PageInfoResponse.getRecentPageDTO.RecentPageDTO> collect = recentPage.stream().map(pageInfo ->

@@ -62,9 +62,13 @@ public class PageRestController {
      */
 
     @DeleteMapping("/page/{pageid}")
-    public void deletePage(@PathVariable Long pageid) {
+    public ResponseEntity<?> deletePage(@PathVariable Long pageid) {
 
+        Long tempUserId = 1L;
 
+        PageInfoResponse.deletePageDTO response = pageService.deletePage(tempUserId, pageid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
