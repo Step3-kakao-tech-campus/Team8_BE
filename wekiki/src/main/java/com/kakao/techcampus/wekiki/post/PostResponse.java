@@ -36,4 +36,17 @@ public class PostResponse {
         }
     }
 
+    @Getter
+    @Setter
+    public static class deletePostDTO{
+
+        Long postId;
+        String title;
+
+        public deletePostDTO(Post post){
+            this.postId = post.getId();
+            this.title = post.getTitle();
+        }
+    }
+
 }

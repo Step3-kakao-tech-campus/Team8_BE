@@ -20,11 +20,10 @@ public class PostService {
 
     private final PageJPARepository pageJPARepository;
     private final PostJPARepository postJPARepository;
-
     private final HistoryJPARepository historyJPARepository;
 
     @Transactional
-    public PostResponse.createPostDTO createPost(Long pageId, Long parentPostId, int order, String title, String content){
+    public PostResponse.createPostDTO createPost(Long userId,Long pageId, Long parentPostId, int order, String title, String content){
 
         // 1. userId로 user 객체 들고오기
 
@@ -73,7 +72,7 @@ public class PostService {
     }
 
     @Transactional
-    public PostResponse.modifyPostDTO modifyPost(Long postId , String title, String content){
+    public PostResponse.modifyPostDTO modifyPost(Long userId, Long postId , String title, String content){
 
         // 1. userId user 객체 들고오기
 
@@ -101,6 +100,38 @@ public class PostService {
 
         // 7. return DTO
         return new PostResponse.modifyPostDTO(post);
+
+    }
+
+    @Transactional
+    public PostResponse.deletePostDTO deletePost(Long userId, Long postId){
+
+        // 1. userId로 user 객체 가져오기
+
+        // 2. groupId로 GroupMember 인지 체크하기
+
+        // 3. 존재하는 포스트 인지 체크
+        Post post = postJPARepository.findById(postId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+
+        // 4. parent로 해당 postId를 가지고 있는 post가 있는지 확인 -> 존재하면 Exception
+        if(postJPARepository.existsByParentId(postId)){
+            throw new ApplicationException(ErrorCode.HAVE_CHILD_POST);
+        }
+
+        // 5. child post 존재 안하면 history + post 삭제 시키기
+        PostResponse.deletePostDTO response = new PostResponse.deletePostDTO(post);
+        historyJPARepository.deleteByPostId(postId);
+        postJPARepository.deleteById(postId);
+
+        // 6. order값 앞으로 땡기기
+        List<Post> posts = postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders());
+        for(Post p : posts){
+            p.minusOrder();
+        }
+
+        // 7. return DTO;
+        return response;
 
     }
 

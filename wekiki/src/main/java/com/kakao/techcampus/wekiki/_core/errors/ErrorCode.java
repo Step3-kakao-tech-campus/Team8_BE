@@ -13,7 +13,8 @@ public enum ErrorCode {
     PAGE_HAVE_POST(HttpStatus.BAD_REQUEST,"PAGE-003","글이 적혀있는 페이지는 삭제가 불가능합니다."),
     PARENT_POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-001","존재하지 않는 PARENT POST 입니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-002","존재하지 않는 POST 입니다."),
-    POST_SAME_DATE(HttpStatus.BAD_REQUEST,"POST-003","동일한 데이터 입니다.");
+    POST_SAME_DATE(HttpStatus.BAD_REQUEST,"POST-003","동일한 데이터 입니다."),
+    HAVE_CHILD_POST(HttpStatus.BAD_REQUEST,"POST-004","하위 포스트가 존재하는 포스트는 삭제가 불가능합니다.");
 
 
     /*

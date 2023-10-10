@@ -20,7 +20,9 @@ public class PostRestController {
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestBody PostRequest.createPostDTO request) {
 
-        PostResponse.createPostDTO response = postService.createPost(request.getPageId(), request.getParentPostId(),
+        Long tempUserId = 1L;
+
+        PostResponse.createPostDTO response = postService.createPost(tempUserId,request.getPageId(), request.getParentPostId(),
                 request.getOrder(), request.getTitle(),request.getContent());
 
         return ResponseEntity.ok(ApiUtils.success(response));
@@ -29,7 +31,19 @@ public class PostRestController {
     @PutMapping("/modify")
     public ResponseEntity<?> modifyPost(@RequestBody PostRequest.modifyPostDTO request){
 
-        PostResponse.modifyPostDTO response = postService.modifyPost(request.getPostId(), request.getTitle(), request.getContent());
+        Long tempUserId = 1L;
+
+        PostResponse.modifyPostDTO response = postService.modifyPost(tempUserId, request.getPostId(), request.getTitle(), request.getContent());
+
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+    @DeleteMapping("/{postid}")
+    public ResponseEntity<?> deletePost(@PathVariable Long postid){
+
+        Long tempUserId = 1L;
+
+        PostResponse.deletePostDTO response = postService.deletePost(tempUserId, postid);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }

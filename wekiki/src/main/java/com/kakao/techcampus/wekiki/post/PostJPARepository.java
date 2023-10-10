@@ -21,5 +21,7 @@ public interface PostJPARepository extends JpaRepository<Post, Long> {
 
     boolean existsByPageInfoId(Long pageInfoId);
 
+    boolean existsByParentId(Long parentId);
+
     List<Post> findAllByGroupMember(GroupMember groupMember);
 }
