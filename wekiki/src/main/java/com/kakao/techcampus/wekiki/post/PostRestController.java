@@ -48,5 +48,16 @@ public class PostRestController {
         return ResponseEntity.ok(ApiUtils.success(response));
     }
 
+    @GetMapping("/{postid}/history")
+    public ResponseEntity<?> getPostHistory(@PathVariable Long postid
+            ,@RequestParam(value = "page", defaultValue = "1") int page){
+
+        Long tempUserId = 1L;
+
+        PostResponse.getPostHistoryDTO response = postService.getPostHistory(tempUserId, postid, page - 1);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
 
 }

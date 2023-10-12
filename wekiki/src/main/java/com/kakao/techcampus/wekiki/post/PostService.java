@@ -8,11 +8,14 @@ import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -21,6 +24,7 @@ public class PostService {
     private final PageJPARepository pageJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+    final int HISTORY_COUNT = 5;
 
     @Transactional
     public PostResponse.createPostDTO createPost(Long userId,Long pageId, Long parentPostId, int order, String title, String content){
@@ -100,6 +104,31 @@ public class PostService {
 
         // 7. return DTO
         return new PostResponse.modifyPostDTO(post);
+
+    }
+
+    @Transactional
+    public PostResponse.getPostHistoryDTO getPostHistory(Long userId, Long postId , int pageNo){
+
+        // 1. userId로 user객체 가져오기
+
+        // 2. GroupMember인지 체크하기
+
+        // 3. 존재하는 포스트인지 체크
+        Post post = postJPARepository.findById(postId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+
+        // 4. 해당 PostId로 history 모두 가져오기 시간순 + 페이지네이션
+        // memberId, nickName, historyId,title, content, created_at (TODO : 나중에 멤버 추가하기 + fetch join 추가)
+        PageRequest pageRequest = PageRequest.of(pageNo, HISTORY_COUNT);
+        //Page<History> historys = historyJPARepository.findHistoryWithMemberByPostId(postId, pageRequest);
+        Page<History> historys = historyJPARepository.findHistoryByPostId(postId, pageRequest);
+
+
+        // 5. DTO로 return
+        List<PostResponse.getPostHistoryDTO.historyDTO> historyDTOs = historys.getContent().stream().
+                map(h -> new PostResponse.getPostHistoryDTO.historyDTO(h)).collect(Collectors.toList());
+        return new PostResponse.getPostHistoryDTO(post,historyDTOs);
 
     }
 
