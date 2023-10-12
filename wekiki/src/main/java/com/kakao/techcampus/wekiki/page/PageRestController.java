@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/group/{groupid}/page")
 @RequiredArgsConstructor
 public class PageRestController {
 
@@ -20,8 +20,8 @@ public class PageRestController {
 
      */
 
-    @GetMapping("/page/{pageid}")
-    public ResponseEntity<?> getPageFromId(@PathVariable Long pageid) {
+    @GetMapping("/{pageid}")
+    public ResponseEntity<?> getPageFromId(@PathVariable Long groupid,@PathVariable Long pageid) {
 
         Long tempUserId = 1L;
 
@@ -36,8 +36,8 @@ public class PageRestController {
 
      */
 
-    @PostMapping("/page/create")
-    public ResponseEntity<?> createPage(@RequestBody PageInfoRequest.createPageDTO request) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createPage(@PathVariable Long groupid,@RequestBody PageInfoRequest.createPageDTO request) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
@@ -52,8 +52,8 @@ public class PageRestController {
 
      */
 
-    @DeleteMapping("/page/{pageid}")
-    public ResponseEntity<?> deletePage(@PathVariable Long pageid) {
+    @DeleteMapping("/{pageid}")
+    public ResponseEntity<?> deletePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
         Long tempUserId = 1L;
 
@@ -67,8 +67,8 @@ public class PageRestController {
 
      */
 
-    @PostMapping("/page/{pageid}/like")
-    public ResponseEntity<?> likePage(@PathVariable Long pageid) {
+    @PostMapping("/{pageid}/like")
+    public ResponseEntity<?> likePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
@@ -83,8 +83,8 @@ public class PageRestController {
 
      */
 
-    @PostMapping("/page/{pageid}/hate")
-    public ResponseEntity<?> hatePage(@PathVariable Long pageid) {
+    @PostMapping("/{pageid}/hate")
+    public ResponseEntity<?> hatePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
@@ -100,8 +100,8 @@ public class PageRestController {
 
      */
 
-    @GetMapping("/page/{pageid}/index")
-    public ResponseEntity<?> getPageIndex(@PathVariable Long pageid) {
+    @GetMapping("/{pageid}/index")
+    public ResponseEntity<?> getPageIndex(@PathVariable Long groupid,@PathVariable Long pageid) {
 
         Long tempUserId = 1L;
 
@@ -118,7 +118,7 @@ public class PageRestController {
       페이지 제목으로 페이지 조회
 
      */
-    @GetMapping("/group/{groupid}/page")
+    @GetMapping
     public ResponseEntity<?> getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
 
         Long tempUserId = 1L;
@@ -134,7 +134,7 @@ public class PageRestController {
 
      */
 
-    @GetMapping("/group/{groupid}/page/search")
+    @GetMapping("/search")
     public ResponseEntity<?> searchPage(@PathVariable Long groupid,
                                         @RequestParam(value = "keyword" , defaultValue = "") String keyword,
                                         @RequestParam(value = "page", defaultValue = "1") int page) {
@@ -151,7 +151,7 @@ public class PageRestController {
 
 
      */
-    @GetMapping("/group/{groupid}/page/recent")
+    @GetMapping("/recent")
     public ResponseEntity<?> getRecentPage(@PathVariable Long groupid){
 
         Long tempUserId = 1L;
@@ -166,7 +166,7 @@ public class PageRestController {
 
 
      */
-    @GetMapping("/group/{groupid}/page/link")
+    @GetMapping("/link")
     public ResponseEntity<?> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
 
         Long tempUserId = 1L;

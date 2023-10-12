@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/group/{groupid}/post")
 @RequiredArgsConstructor
 public class PostRestController {
 
     private final PostService postService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPost(@RequestBody PostRequest.createPostDTO request) {
+    public ResponseEntity<?> createPost(@PathVariable Long groupid, @RequestBody PostRequest.createPostDTO request) {
 
         Long tempUserId = 1L;
 
@@ -29,7 +29,7 @@ public class PostRestController {
     }
 
     @PutMapping("/modify")
-    public ResponseEntity<?> modifyPost(@RequestBody PostRequest.modifyPostDTO request){
+    public ResponseEntity<?> modifyPost(@PathVariable Long groupid,@RequestBody PostRequest.modifyPostDTO request){
 
         Long tempUserId = 1L;
 
@@ -39,7 +39,7 @@ public class PostRestController {
     }
 
     @DeleteMapping("/{postid}")
-    public ResponseEntity<?> deletePost(@PathVariable Long postid){
+    public ResponseEntity<?> deletePost(@PathVariable Long groupid, @PathVariable Long postid){
 
         Long tempUserId = 1L;
 
@@ -49,7 +49,7 @@ public class PostRestController {
     }
 
     @GetMapping("/{postid}/history")
-    public ResponseEntity<?> getPostHistory(@PathVariable Long postid
+    public ResponseEntity<?> getPostHistory(@PathVariable Long groupid,@PathVariable Long postid
             ,@RequestParam(value = "page", defaultValue = "1") int page){
 
         Long tempUserId = 1L;
