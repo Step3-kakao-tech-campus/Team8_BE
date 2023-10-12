@@ -29,6 +29,32 @@ public class PageService {
     final int PAGE_COUNT = 10;
 
     @Transactional
+    public PageInfoResponse.getPageIndexDTO getPageIndex(Long userId, Long pageId){
+        // 1. userId로 User 객체 가져오기
+
+        // 2. pageId로 PageInfo 객체 들고오기
+        PageInfo pageInfo = pageJPARepository.findById(pageId).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+
+        // 3. PageInfo로부터 Group 객체 들고오기
+
+        // 4. GroupMember인지 체크
+
+        // 5. 해당 groupId를 들고 있는 모든 페이지 Order 순으로 들고오기
+        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(pageId);
+
+        // 6. 목차 생성하기
+        HashMap<Long, String> indexs = indexUtils.createIndex(posts);
+
+        // 7. DTO로 return
+        List<PageInfoResponse.getPageIndexDTO.postDTO> temp = posts.stream()
+                .map(p -> new PageInfoResponse.getPageIndexDTO.postDTO(p, indexs.get(p.getId())))
+                .collect(Collectors.toList());
+
+        return new PageInfoResponse.getPageIndexDTO(pageInfo, temp);
+
+    }
+
+    @Transactional
     public PageInfoResponse.deletePageDTO deletePage(Long userId, Long pageId){
         // 1. userId로 User 객체 가져오기
 

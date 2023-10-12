@@ -95,6 +95,23 @@ public class PageRestController {
 
     }
 
+    /*
+    페이지 목차 조회 기능
+
+     */
+
+    @GetMapping("/page/{pageid}/index")
+    public ResponseEntity<?> getPageIndex(@PathVariable Long pageid) {
+
+        Long tempUserId = 1L;
+
+        PageInfoResponse.getPageIndexDTO response = pageService.getPageIndex(tempUserId, pageid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+
+
     // ========================================================================
 
     /*

@@ -77,6 +77,33 @@ public class PageInfoResponse {
 
     @Getter
     @Setter
+    public static class getPageIndexDTO{
+        String pageName;
+        List<postDTO> postList;
+
+        public getPageIndexDTO(PageInfo pageInfo , List<postDTO> postList){
+            this.pageName = pageInfo.getTitle();
+            this.postList = postList;
+        }
+
+
+        @Getter
+        @Setter
+        public static class postDTO {
+            Long postId;
+            String index;
+            String postTitle;
+
+            public postDTO(Post post, String index){
+                this.postId = post.getId();
+                this.index = index;
+                this.postTitle = post.getTitle();
+            }
+        }
+    }
+
+    @Getter
+    @Setter
     public static class getPageFromIdDTO{
         String pageName;
         List<postDTO> postList;
