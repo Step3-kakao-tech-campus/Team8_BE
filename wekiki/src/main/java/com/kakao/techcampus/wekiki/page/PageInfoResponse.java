@@ -105,12 +105,15 @@ public class PageInfoResponse {
     @Getter
     @Setter
     public static class getPageFromIdDTO{
+
+        Long pageId;
         String pageName;
         List<postDTO> postList;
         int goodCount;
         int badCount;
 
         public getPageFromIdDTO(PageInfo pageInfo , List<postDTO> postList){
+            this.pageId = pageInfo.getId();
             this.pageName = pageInfo.getPageName();
             this.postList = postList;
             this.goodCount = pageInfo.getGoodCount();
