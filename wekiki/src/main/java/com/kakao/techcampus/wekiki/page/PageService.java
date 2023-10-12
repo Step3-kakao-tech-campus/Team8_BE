@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -173,19 +174,32 @@ public class PageService {
     }
 
     @Transactional
-    public List<PageInfoResponse.searchPageDTO> searchPage(int pageNo, String keyword){
+    public PageInfoResponse.searchPageDTO searchPage(int pageNo, String keyword){
 
         // 1. groupId랑 userId로 Group 객체, User 객체 가져오기 (없으면 Exception)
 
         // 2. groupMember 존재하는지 확인 (없으면 Exception)
 
-        // 3. keyword로 존재하는 page title에 keyword를 가지고 있는 페이지들 다 가져오기
+        // 3. keyword로 존재하는 page title에 keyword를 가지고 있는 페이지들 다 가져오기 (TODO : group 추가)
         PageRequest pageRequest = PageRequest.of(pageNo, PAGE_COUNT);
         Page<PageInfo> pages = pageJPARepository.findPagesByTitleContainingKeyword(keyword, pageRequest);
 
-        // 4. pages로 DTO return
-        return pages.getContent().stream().map(pageInfo -> new PageInfoResponse.searchPageDTO(pageInfo)).collect(Collectors.toList());
+        // 해당 Page들을 FK로 가지고 있는 Post들 중에 Orders가 1인 Post들 가져오기
 
+        List<PageInfoResponse.searchPageDTO.pageDTO> res = new ArrayList<>();
+        for(PageInfo p : pages.getContent()){
+            List<Post> posts = postJPARepository.findFirstPost(p.getId());
+            if(posts.size() == 0){
+                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,""));
+            }else{
+                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,posts.get(0).getContent()));
+            }
+            // TODO : 성능 개선이 필요하긴 할듯
+            //  posts.get(0)가 존재하면 DTO 만들어서 던지기 + 고려할 점 : post의 contents만 들고 오는 방식? (흠..)
+        }
+
+        // 4. pages로 DTO return
+        return new PageInfoResponse.searchPageDTO(res);
     }
 
     // ============================groupId 필요==========================================================

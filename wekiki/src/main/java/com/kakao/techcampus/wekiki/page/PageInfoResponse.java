@@ -64,16 +64,27 @@ public class PageInfoResponse {
     @Getter @Setter
     public static class searchPageDTO{
 
-        Long pageId;
-        String pageName;
-        //String contents;
+        List<pageDTO> pages;
 
-        public searchPageDTO(PageInfo pageInfo){
-            this.pageId = pageInfo.getId();
-            this.pageName = pageInfo.getPageName();
+        public searchPageDTO(List<pageDTO> pageDTO){
+            this.pages = pageDTO;
         }
 
+        @Getter @Setter
+        public static class pageDTO{
+
+            Long pageId;
+            String pageName;
+            String content;
+
+            public pageDTO(PageInfo pageInfo ,String content){
+                this.pageId = pageInfo.getId();
+                this.pageName = pageInfo.getPageName();
+                this.content = content;
+            }
+        }
     }
+
 
     @Getter
     @Setter
