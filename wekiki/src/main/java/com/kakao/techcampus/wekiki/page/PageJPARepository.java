@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface PageJPARepository extends JpaRepository<PageInfo, Long> {
 
-    @Query("SELECT p FROM PageInfo p WHERE p.title LIKE :keyword%")
+    @Query("SELECT p FROM PageInfo p WHERE p.pageName LIKE :keyword%")
     Page<PageInfo> findPagesByTitleContainingKeyword(String keyword, Pageable pageable);
 
 //    @Query("SELECT p FROM PageInfo p WHERE p.group.id = :groupId ORDER BY p.updated_at DESC")
@@ -20,7 +20,7 @@ public interface PageJPARepository extends JpaRepository<PageInfo, Long> {
     @Query("SELECT p FROM PageInfo p ORDER BY p.updated_at DESC")
     List<PageInfo> findOrderByUpdatedAtDesc(Pageable pageable);
 
-    @Query("SELECT p FROM PageInfo p where p.title=:title")
+    @Query("SELECT p FROM PageInfo p where p.pageName=:title")
     Optional<PageInfo> findByTitle(@Param("title") String title);
 
 }

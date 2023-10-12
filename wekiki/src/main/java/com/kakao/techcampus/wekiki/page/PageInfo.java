@@ -20,7 +20,7 @@ public class PageInfo {
     private Long id;
     @ManyToOne
     private Group group;
-    private String title;
+    private String pageName;
     private int goodCount;
     private int badCount;
     private int viewCount;
@@ -28,10 +28,10 @@ public class PageInfo {
     private LocalDateTime updated_at;
 
     @Builder
-    public PageInfo(Long id, Group group, String title, int goodCount, int badCount, int viewCount, LocalDateTime created_at, LocalDateTime updated_at) {
+    public PageInfo(Long id, Group group, String pageName, int goodCount, int badCount, int viewCount, LocalDateTime created_at, LocalDateTime updated_at) {
         this.id = id;
         this.group = group;
-        this.title = title;
+        this.pageName = pageName;
         this.goodCount = goodCount;
         this.badCount = badCount;
         this.viewCount = viewCount;
@@ -51,17 +51,5 @@ public class PageInfo {
         this.updated_at = LocalDateTime.now();
     }
 
-    @Override
-    public String toString() {
-        return "PageInfo{" +
-                "id=" + id +
-                //", group=" + group +
-                ", title='" + title + '\'' +
-                ", goodCount=" + goodCount +
-                ", badCount=" + badCount +
-                ", viewCount=" + viewCount +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
-                '}';
-    }
+
 }

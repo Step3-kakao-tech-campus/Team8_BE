@@ -17,7 +17,7 @@ public class PageInfoResponse {
 
         public deletePageDTO(PageInfo pageInfo){
             this.pageId = pageInfo.getId();
-            this.title = pageInfo.getTitle();
+            this.title = pageInfo.getPageName();
         }
     }
 
@@ -25,11 +25,11 @@ public class PageInfoResponse {
     public static class createPageDTO{
 
         Long pageId;
-        String title;
+        String pageName;
 
         public createPageDTO(PageInfo pageInfo){
             this.pageId = pageInfo.getId();
-            this.title = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
         }
     }
 
@@ -37,12 +37,12 @@ public class PageInfoResponse {
     public static class likePageDTO{
 
         Long pageId;
-        String title;
+        String pageName;
         int goodCount;
 
         public likePageDTO(PageInfo pageInfo){
             this.pageId = pageInfo.getId();
-            this.title = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
             this.goodCount = pageInfo.getGoodCount();
         }
     }
@@ -51,12 +51,12 @@ public class PageInfoResponse {
     public static class hatePageDTO{
 
         Long pageId;
-        String title;
+        String pageName;
         int badCount;
 
         public hatePageDTO(PageInfo pageInfo){
             this.pageId = pageInfo.getId();
-            this.title = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
             this.badCount = pageInfo.getBadCount();
         }
     }
@@ -65,12 +65,12 @@ public class PageInfoResponse {
     public static class searchPageDTO{
 
         Long pageId;
-        String title;
+        String pageName;
         //String contents;
 
         public searchPageDTO(PageInfo pageInfo){
             this.pageId = pageInfo.getId();
-            this.title = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
         }
 
     }
@@ -82,7 +82,7 @@ public class PageInfoResponse {
         List<postDTO> postList;
 
         public getPageIndexDTO(PageInfo pageInfo , List<postDTO> postList){
-            this.pageName = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
             this.postList = postList;
         }
 
@@ -111,7 +111,7 @@ public class PageInfoResponse {
         int badCount;
 
         public getPageFromIdDTO(PageInfo pageInfo , List<postDTO> postList){
-            this.pageName = pageInfo.getTitle();
+            this.pageName = pageInfo.getPageName();
             this.postList = postList;
             this.goodCount = pageInfo.getGoodCount();
             this.badCount = pageInfo.getBadCount();
@@ -148,12 +148,12 @@ public class PageInfoResponse {
         @Getter @Setter
         public static class RecentPageDTO{
             Long pageId;
-            String title;
+            String pageName;
             private LocalDateTime updated_at;
 
             public RecentPageDTO(PageInfo pageInfo){
                 this.pageId = pageInfo.getId();
-                this.title = pageInfo.getTitle();
+                this.pageName = pageInfo.getPageName();
                 this.updated_at = pageInfo.getUpdated_at();
             }
         }

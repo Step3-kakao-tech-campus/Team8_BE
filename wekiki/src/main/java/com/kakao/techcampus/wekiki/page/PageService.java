@@ -118,7 +118,7 @@ public class PageService {
         // 4. Page 생성
         PageInfo newPageInfo = PageInfo.builder()
                 //.group(group)
-                .title(title)
+                .pageName(title)
                 .goodCount(0)
                 .badCount(0)
                 .viewCount(0)

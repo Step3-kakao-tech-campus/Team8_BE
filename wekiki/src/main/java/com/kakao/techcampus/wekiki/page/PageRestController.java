@@ -42,7 +42,7 @@ public class PageRestController {
         // TODO : JWT에서 userId 꺼내도록 수정
         Long tempUserId = 1L;
 
-        PageInfoResponse.createPageDTO response = pageService.createPage(request.getTitle(), request.getGroupId(), tempUserId);
+        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), request.getGroupId(), tempUserId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
