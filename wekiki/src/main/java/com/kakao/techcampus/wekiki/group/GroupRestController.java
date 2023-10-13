@@ -4,10 +4,7 @@ import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +87,13 @@ public class GroupRestController {
     /*
         그룹 초대
      */
+    @GetMapping("/{invitationLink}")
+    public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
+
+        ValidateInvitationResponseDTO responseDTO = groupService.ValidateInvitation(invitationLink);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
     
     /*
         그룹 내 본인 정보 조회

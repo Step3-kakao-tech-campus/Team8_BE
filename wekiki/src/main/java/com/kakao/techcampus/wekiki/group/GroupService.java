@@ -3,10 +3,7 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
@@ -37,6 +34,7 @@ public class GroupService {
     private final MemberJPARepository memberJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+
     /*
         비공식 그룹 생성
      */
@@ -54,7 +52,7 @@ public class GroupService {
 
         // MemberId로부터 Member 찾기
         // TODO: 예외 처리 구현
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
         // GroupMember 생성
         ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
 
@@ -129,6 +127,28 @@ public class GroupService {
     }
 
     /*
+        비공식 비공개 그룹 초대 링크 확인
+        - 확인 후 해당하는 그룹 Id 반환
+        - 가입 url 생성 후 그룹 가입 API
+     */
+    public ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
+
+        String[] invitation = invitationLink.split("/");
+
+        Long groupId = Long.parseLong(invitation[0]);
+        String invitationCode = invitation[1];
+
+        UnOfficialClosedGroup group = groupJPARepository.findUnOfficialClosedGroupById(groupId);
+
+        // 초대 코드가 틀린 경우
+        if(!group.getInvitation().getInvitationCode().equals(invitationCode)) {
+            // 예외 처리
+        }
+
+        return new ValidateInvitationResponseDTO(groupId);
+    }
+
+    /*
         비공식 공개 그룹 상세 정보 조회
      */
     public SearchGroupInfoDTO getGroupInfo(Long groupId) {
@@ -151,7 +171,7 @@ public class GroupService {
      */
     public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
         
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -177,7 +197,7 @@ public class GroupService {
      */
     public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -199,7 +219,7 @@ public class GroupService {
      */
     public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -221,7 +241,7 @@ public class GroupService {
      */
     public void leaveGroup(Long groupId, Long memberId) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -247,5 +267,9 @@ public class GroupService {
         groupMemberJPARepository.delete(activeGroupMember);
         groupMemberJPARepository.save(inactiveGroupMember);
         historyJPARepository.saveAll(historyList);
+    }
+
+    public Member getMemberById(Long memberId) {
+        return memberJPARepository.findById(memberId).orElse(null);
     }
 }
