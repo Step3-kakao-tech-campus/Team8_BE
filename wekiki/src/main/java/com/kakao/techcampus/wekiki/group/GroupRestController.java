@@ -53,7 +53,7 @@ public class GroupRestController {
      */
     @GetMapping("/search/officialGroup")
     public ResponseEntity<?> searchOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                   @RequestParam(value = "page", defaultValue = "1") int page,
                                                    @RequestParam(value = "size", defaultValue = "10") int size) {
 
         SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page, size);
@@ -66,7 +66,7 @@ public class GroupRestController {
      */
     @GetMapping("/search/unOfficialGroup")
     public ResponseEntity<?> searchUnOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                   @RequestParam(value = "page", defaultValue = "1") int page,
                                                    @RequestParam(value = "size", defaultValue = "10") int size) {
 
         SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page, size);
