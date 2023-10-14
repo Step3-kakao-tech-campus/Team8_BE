@@ -69,6 +69,58 @@ public class CommentService {
         return new CommentResponse.createCommentDTO(savedComment,"temp");
     }
 
+    @Transactional
+    public CommentResponse.deleteCommentDTO deleteComment(Long memberId, Long groupId, Long commentId){
+
+        // 1. userId로 user 객체 들고오기
+
+        // 2. groupMember 맞는지 확인하기
+
+        // 3. comment 존재하는지 예외처리
+        Comment comment = commentJPARepository.findById(commentId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 4. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
+//        if(comment.getMember().getId() != memberId){
+//            throw new ApplicationException(ErrorCode.COMMENT_MEMBER_INCONSISTENCY);
+//        }
+
+        // 5. comment 삭제
+        CommentResponse.deleteCommentDTO response = new CommentResponse.deleteCommentDTO(comment);
+        commentJPARepository.delete(comment);
+
+        // 6. return DTO
+        return response;
+    }
+
+    @Transactional
+    public CommentResponse.updateCommentDTO updateComment(Long memberId, Long groupId, Long commentId, String updateContent){
+
+        // 1. userId로 user 객체 들고오기
+
+        // 2. groupMember 맞는지 확인하기
+
+        // 3. comment 존재하는지 예외처리
+        Comment comment = commentJPARepository.findById(commentId).orElseThrow(
+                () -> new ApplicationException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 4. comment 쓴 사람이 수정하는 유저랑 일치하는지 확인
+//        if(comment.getMember().getId() != memberId){
+//            throw new ApplicationException(ErrorCode.COMMENT_MEMBER_INCONSISTENCY);
+//        }
+
+        // 5. 내용 동일하면 exception
+        if(comment.getContent().equals(updateContent)){
+            throw new ApplicationException(ErrorCode.COMMENT_SAME_DATE);
+        }
+
+        // 6. 수정
+        comment.updateContent(updateContent);
+
+        // 7. return DTO
+        return new CommentResponse.updateCommentDTO(comment);
+    }
+
 
 
 }

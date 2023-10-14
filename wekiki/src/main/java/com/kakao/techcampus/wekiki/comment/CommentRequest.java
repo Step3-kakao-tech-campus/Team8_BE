@@ -11,4 +11,8 @@ public class CommentRequest {
         private String content;
     }
 
+    @Getter
+    public static class updateComment{
+        private String content;
+    }
 }

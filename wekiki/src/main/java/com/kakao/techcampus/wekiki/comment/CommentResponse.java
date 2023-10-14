@@ -55,4 +55,32 @@ public class CommentResponse {
 
     }
 
+    @Getter
+    @Setter
+    public static class deleteCommentDTO{
+
+        Long commentId;
+        String content;
+
+
+        public deleteCommentDTO(Comment comment){
+            this.commentId = comment.getId();
+            this.content = comment.getContent();
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class updateCommentDTO{
+
+        Long commentId;
+        String newContent;
+
+
+        public updateCommentDTO(Comment comment){
+            this.commentId = comment.getId();
+            this.newContent = comment.getContent();
+        }
+    }
+
 }

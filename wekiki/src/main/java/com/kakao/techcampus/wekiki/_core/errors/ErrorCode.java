@@ -14,7 +14,11 @@ public enum ErrorCode {
     PARENT_POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-001","존재하지 않는 PARENT POST 입니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND,"POST-002","존재하지 않는 POST 입니다."),
     POST_SAME_DATE(HttpStatus.BAD_REQUEST,"POST-003","동일한 데이터 입니다."),
-    HAVE_CHILD_POST(HttpStatus.BAD_REQUEST,"POST-004","하위 포스트가 존재하는 포스트는 삭제가 불가능합니다.");
+    HAVE_CHILD_POST(HttpStatus.BAD_REQUEST,"POST-004","하위 포스트가 존재하는 포스트는 삭제가 불가능합니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND,"COMMENT-001" , "존재하지 않는 댓글 입니다."),
+    COMMENT_MEMBER_INCONSISTENCY(HttpStatus.BAD_REQUEST,"COMMENT-002" , "본인이 쓴 댓글만 삭제가 가능합니다."),
+    COMMENT_SAME_DATE(HttpStatus.BAD_REQUEST,"COMMENT-003","동일한 데이터 입니다.");
+
 
 
     /*
