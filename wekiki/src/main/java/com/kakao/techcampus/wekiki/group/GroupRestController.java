@@ -49,6 +49,19 @@ public class GroupRestController {
     }
 
     /*
+        그룹 추가 검색 - 공식 그룹
+     */
+    @GetMapping("/search/officialGroup")
+    public ResponseEntity<?> searchOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
+                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page, size);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
+
+    /*
         그룹 추가 검색 - 비공식 공개 그룹
      */
     @GetMapping("/search/unOfficialGroup")

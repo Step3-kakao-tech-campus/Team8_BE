@@ -121,10 +121,21 @@ public class GroupService {
         Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
         // 비공식 공개 그룹 리스트
         Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
-        
-        // TODO: 페이지네이션 필요
 
         return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+    }
+
+    /*
+        공식 그룹 추가 리스트
+     */
+    public SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 비공식 공개 그룹 리스트
+        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
+
+        return new SearchOfficialGroupResponseDTO(officialGroups);
     }
 
     /*
