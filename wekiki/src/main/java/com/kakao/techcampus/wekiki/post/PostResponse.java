@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.post;
 
+import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import lombok.Getter;
@@ -70,14 +71,16 @@ public class PostResponse {
         @Getter @Setter
         public static class historyDTO{
 
-            //Long memberId;
-            //String nickName;
+            Long memberId;
+            String nickName;
             Long historyId;
             String title;
             String content;
             LocalDateTime created_at;
 
-            public historyDTO(History history){
+            public historyDTO(GroupMember groupMember,History history){
+                this.memberId = groupMember.getId();
+                this.nickName = groupMember.getNickName();
                 this.historyId = history.getId();
                 this.title = history.getTitle();
                 this.content = history.getContent();

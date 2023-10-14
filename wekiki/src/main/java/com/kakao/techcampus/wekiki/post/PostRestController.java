@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
+
 @RestController
 @RequestMapping("/group/{groupid}/post")
 @RequiredArgsConstructor
@@ -20,9 +22,7 @@ public class PostRestController {
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@PathVariable Long groupid, @RequestBody PostRequest.createPostDTO request) {
 
-        Long tempUserId = 1L;
-
-        PostResponse.createPostDTO response = postService.createPost(tempUserId,request.getPageId(), request.getParentPostId(),
+        PostResponse.createPostDTO response = postService.createPost(currentMember(),groupid,request.getPageId(), request.getParentPostId(),
                 request.getOrder(), request.getTitle(),request.getContent());
 
         return ResponseEntity.ok(ApiUtils.success(response));
@@ -31,9 +31,7 @@ public class PostRestController {
     @PutMapping("/modify")
     public ResponseEntity<?> modifyPost(@PathVariable Long groupid,@RequestBody PostRequest.modifyPostDTO request){
 
-        Long tempUserId = 1L;
-
-        PostResponse.modifyPostDTO response = postService.modifyPost(tempUserId, request.getPostId(), request.getTitle(), request.getContent());
+        PostResponse.modifyPostDTO response = postService.modifyPost(currentMember(),groupid, request.getPostId(), request.getTitle(), request.getContent());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -41,9 +39,7 @@ public class PostRestController {
     @DeleteMapping("/{postid}")
     public ResponseEntity<?> deletePost(@PathVariable Long groupid, @PathVariable Long postid){
 
-        Long tempUserId = 1L;
-
-        PostResponse.deletePostDTO response = postService.deletePost(tempUserId, postid);
+        PostResponse.deletePostDTO response = postService.deletePost(currentMember(), groupid, postid);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -52,9 +48,7 @@ public class PostRestController {
     public ResponseEntity<?> getPostHistory(@PathVariable Long groupid,@PathVariable Long postid
             ,@RequestParam(value = "page", defaultValue = "1") int page){
 
-        Long tempUserId = 1L;
-
-        PostResponse.getPostHistoryDTO response = postService.getPostHistory(tempUserId, postid, page - 1);
+        PostResponse.getPostHistoryDTO response = postService.getPostHistory(currentMember(), groupid, postid, page - 1);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }

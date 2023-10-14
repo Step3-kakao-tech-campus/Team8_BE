@@ -1,10 +1,17 @@
 package com.kakao.techcampus.wekiki.post;
 
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.errors.ApplicationException;
 import com.kakao.techcampus.wekiki._core.errors.ErrorCode;
+import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
+import com.kakao.techcampus.wekiki.member.Member;
+import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import lombok.RequiredArgsConstructor;
@@ -24,69 +31,74 @@ public class PostService {
     private final PageJPARepository pageJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+    private final MemberJPARepository memberJPARepository;
+    private final GroupMemberJPARepository groupMemberJPARepository;
+    private final GroupJPARepository groupJPARepository;
+
     final int HISTORY_COUNT = 5;
 
     @Transactional
-    public PostResponse.createPostDTO createPost(Long userId,Long pageId, Long parentPostId, int order, String title, String content){
+    public PostResponse.createPostDTO createPost(Long memberId,Long groupId,Long pageId, Long parentPostId, int order, String title, String content){
 
-        // 1. userId로 user 객체 들고오기
+        // 1. memberId로 Member 객체 가져오기
+        checkMemberFromMemberId(memberId);
 
-        // 2. pageId로 해당 PageInfo 객체들고오고 update_at 바꾸기 group 객체 가져오기
-        PageInfo pageInfo = pageJPARepository.findById(pageId).orElseThrow(
-                () -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+        // 2. 존재하는 group인지 확인하기
+        checkGroupFromGroupId(groupId);
+
+        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
+        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
+
+        // 4. pageId로 PageInfo 객체 들고오기
+        PageInfo pageInfo = checkPageFromPageId(pageId);
         pageInfo.updatePage();
 
-        // 3. userId랑 groupId로 groupmember가 맞는지 확인
-
-        // 4. parentPostId로 parentPost 가져오기
+        // 5. parentPostId로 parentPost 가져오기
         Post parent = null;
         if(parentPostId != 0) {
             parent = postJPARepository.findById(parentPostId).orElseThrow(
                     () -> new ApplicationException(ErrorCode.PARENT_POST_NOT_FOUND));
         }
 
-        // 5. 같은 pageId를 가진 Post들 중에 입력받은 order보다 높은 모든 Post들의 order를 1씩 증가
-        List<Post> postsByPageIdAndOrderGreaterThan = postJPARepository.findPostsByPageIdAndOrderGreaterThan(pageId, order);
-        for(Post p : postsByPageIdAndOrderGreaterThan){
-            p.plusOrder();
-        }
+        // 6. 같은 pageId를 가진 Post들 중에 입력받은 order보다 높은 모든 Post들의 order를 1씩 증가
+        postJPARepository.findPostsByPageIdAndOrderGreaterThan(pageId, order).stream().forEach(p -> p.plusOrder());
 
-        // 6. Post 엔티티 생성하고 저장하기
+        // 7. Post 엔티티 생성하고 저장하기
         Post newPost = Post.builder()
                 .parent(parent)
                 .orders(order)
-                //.groupMember()
+                .groupMember(groupMember)
                 .pageInfo(pageInfo)
                 .title(title)
                 .content(content)
                 .created_at(LocalDateTime.now())
                 .build();
-
         Post savedPost = postJPARepository.save(newPost);
 
-        // 7. 히스토리 생성
+        // 8. 히스토리 생성
         History newHistory = History.builder()
                 .post(savedPost)
                 .build();
-
         historyJPARepository.save(newHistory);
 
-        // 8. return DTO
+        // 9. return DTO
         return new PostResponse.createPostDTO(savedPost);
     }
 
     @Transactional
-    public PostResponse.modifyPostDTO modifyPost(Long userId, Long postId , String title, String content){
+    public PostResponse.modifyPostDTO modifyPost(Long memberId , Long groupId, Long postId , String title, String content){
 
-        // 1. userId user 객체 들고오기
+        // 1. memberId로 Member 객체 가져오기
+        checkMemberFromMemberId(memberId);
 
-        // 2. postId -> pageId -> groupId (여기서 groupId 바로 받기..?)
+        // 2. 존재하는 group인지 확인하기
+        checkGroupFromGroupId(groupId);
 
-        // 3. userId랑 groupId로 groupMember 있는지 확인 (즉 그룹 멤버인지 확인)
+        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
+        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
 
         // 4. postId로 post 엔티티 가져오기
-        Post post = postJPARepository.findById(postId).orElseThrow(
-                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+        Post post = checkPostFromPostId(postId);
 
         // 5. 현재 Post랑 내용 같은지 확인
         if(post.getTitle().equals(title) && post.getContent().equals(content)){
@@ -94,8 +106,7 @@ public class PostService {
         }
 
         // 6. 다르면 Post 수정후 히스토리 생성 저장
-        // TODO : groupMember 추가
-        post.modifyPost(null,title,content);
+        post.modifyPost(groupMember,title,content);
 
         History newHistory = History.builder()
                 .post(post)
@@ -104,64 +115,95 @@ public class PostService {
 
         // 7. return DTO
         return new PostResponse.modifyPostDTO(post);
-
     }
 
     @Transactional
-    public PostResponse.getPostHistoryDTO getPostHistory(Long userId, Long postId , int pageNo){
+    public PostResponse.getPostHistoryDTO getPostHistory(Long memberId, Long groupId, Long postId , int pageNo){
 
-        // 1. userId로 user객체 가져오기
+        // 1. memberId로 Member 객체 가져오기
+        checkMemberFromMemberId(memberId);
 
-        // 2. GroupMember인지 체크하기
+        // 2. 존재하는 group인지 확인하기
+        checkGroupFromGroupId(groupId);
 
-        // 3. 존재하는 포스트인지 체크
-        Post post = postJPARepository.findById(postId).orElseThrow(
-                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
+        checkGroupMember(memberId, groupId);
 
-        // 4. 해당 PostId로 history 모두 가져오기 시간순 + 페이지네이션
-        // memberId, nickName, historyId,title, content, created_at (TODO : 나중에 멤버 추가하기 + fetch join 추가)
+        // 4. postId로 post 엔티티 가져오기
+        Post post = checkPostFromPostId(postId);
+
+        // 5. 해당 PostId로 history 모두 가져오기 시간순 + 페이지네이션 (memberId, nickName, historyId,title, content, created_at)
         PageRequest pageRequest = PageRequest.of(pageNo, HISTORY_COUNT);
-        //Page<History> historys = historyJPARepository.findHistoryWithMemberByPostId(postId, pageRequest);
-        Page<History> historys = historyJPARepository.findHistoryByPostId(postId, pageRequest);
+        Page<History> historys = historyJPARepository.findHistoryWithMemberByPostId(postId, pageRequest);
+        //Page<History> historys = historyJPARepository.findHistoryByPostId(postId, pageRequest);
 
-
-        // 5. DTO로 return
+        // 6. DTO로 return
         List<PostResponse.getPostHistoryDTO.historyDTO> historyDTOs = historys.getContent().stream().
-                map(h -> new PostResponse.getPostHistoryDTO.historyDTO(h)).collect(Collectors.toList());
+                map(h -> new PostResponse.getPostHistoryDTO.historyDTO(h.getGroupMember(),h)).collect(Collectors.toList());
         return new PostResponse.getPostHistoryDTO(post,historyDTOs);
 
     }
 
     @Transactional
-    public PostResponse.deletePostDTO deletePost(Long userId, Long postId){
+    public PostResponse.deletePostDTO deletePost(Long memberId, Long groupId, Long postId){
 
-        // 1. userId로 user 객체 가져오기
+        // 1. memberId로 Member 객체 가져오기
+        checkMemberFromMemberId(memberId);
 
-        // 2. groupId로 GroupMember 인지 체크하기
+        // 2. 존재하는 group인지 확인하기
+        checkGroupFromGroupId(groupId);
 
-        // 3. 존재하는 포스트 인지 체크
-        Post post = postJPARepository.findById(postId).orElseThrow(
-                () -> new ApplicationException(ErrorCode.POST_NOT_FOUND));
+        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
+        checkGroupMember(memberId, groupId);
 
-        // 4. parent로 해당 postId를 가지고 있는 post가 있는지 확인 -> 존재하면 Exception
+        // 4. postId로 post 엔티티 가져오기
+        Post post = checkPostFromPostId(postId);
+
+        // 5. parent로 해당 postId를 가지고 있는 post가 있는지 확인 -> 존재하면 Exception
         if(postJPARepository.existsByParentId(postId)){
             throw new ApplicationException(ErrorCode.HAVE_CHILD_POST);
         }
 
-        // 5. child post 존재 안하면 history + post 삭제 시키기
+        // 6. child post 존재 안하면 history + post 삭제 시키기
         PostResponse.deletePostDTO response = new PostResponse.deletePostDTO(post);
         historyJPARepository.deleteByPostId(postId);
         postJPARepository.deleteById(postId);
 
-        // 6. order값 앞으로 땡기기
-        List<Post> posts = postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders());
-        for(Post p : posts){
-            p.minusOrder();
-        }
+        // 7. order값 앞으로 땡기기
+        postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders());
+//        postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders()).stream().forEach(p->p.minusOrder());
+//        for(Post p : posts){
+//            p.minusOrder();
+//        }
 
-        // 7. return DTO;
+        // 8. return DTO;
         return response;
 
+    }
+
+    public Member checkMemberFromMemberId(Long memberId){
+        return memberJPARepository.findById(memberId)
+                .orElseThrow(()-> new Exception404("존재하지 않는 회원입니다."));
+    }
+
+    public Group checkGroupFromGroupId(Long groupId){
+        return groupJPARepository.findById(groupId)
+                .orElseThrow(()-> new Exception404("존재하지 않는 그룹입니다."));
+    }
+
+    public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
+        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+                .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+    }
+
+    public PageInfo checkPageFromPageId(Long pageId){
+        return pageJPARepository.findById(pageId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
+    }
+
+    public Post checkPostFromPostId(Long postId){
+        return postJPARepository.findById(postId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 글 입니다."));
     }
 
 }
