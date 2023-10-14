@@ -19,6 +19,8 @@ import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,18 +112,32 @@ public class GroupService {
     /*
         공식 그룹 리스트, 비공식 공개 그룹 리스트 그룹
         - keyword가 포함된 모든 그룹 그룹별 리스트
-        - 이름 정렬 후 반환
      */
     public SearchGroupDTO searchGroupByKeyword(String keyword) {
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         // 공식 그룹 리스트
-        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword);
+        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
         // 비공식 공개 그룹 리스트
-        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword);
+        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
         
         // TODO: 페이지네이션 필요
 
         return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+    }
+
+    /*
+        비공식 공개 그룹 추가 리스트
+     */
+    public SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 비공식 공개 그룹 리스트
+        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
+
+        return new SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
     }
 
     /*

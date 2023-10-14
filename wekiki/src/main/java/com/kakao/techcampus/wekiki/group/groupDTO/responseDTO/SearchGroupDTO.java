@@ -23,7 +23,7 @@ public class SearchGroupDTO {
 
     @Getter
     @Setter
-    public class GroupInfoDTO {
+    public static class GroupInfoDTO {
         private String groupName;
         private String groupProfileImage;
         private int memberCount;
