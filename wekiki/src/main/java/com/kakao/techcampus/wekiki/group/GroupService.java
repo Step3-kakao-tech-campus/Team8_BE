@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGro
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
+import com.kakao.techcampus.wekiki.group.invitation.Invitation;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
@@ -17,6 +18,7 @@ import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,17 +115,23 @@ public class GroupService {
     public SearchGroupDTO searchGroupByKeyword(String keyword) {
 
         // 공식 그룹 리스트
-        List<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword);
+        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword);
         // 비공식 공개 그룹 리스트
-        List<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword);
-
-        // 정렬
-        officialGroups.sort(Comparator.comparing(OfficialGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
-        unOfficialOpenedGroups.sort(Comparator.comparing(UnOfficialOpenedGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
+        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword);
         
         // TODO: 페이지네이션 필요
 
         return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+    }
+
+    /*
+        초대 링크 확인
+     */
+    public GetInvitationLinkResponseDTO getGroupInvitationLink(Long groupId) {
+
+        Invitation invitation = groupJPARepository.findInvitationLinkByGroupId(groupId);
+
+        return new GetInvitationLinkResponseDTO(invitation);
     }
 
     /*

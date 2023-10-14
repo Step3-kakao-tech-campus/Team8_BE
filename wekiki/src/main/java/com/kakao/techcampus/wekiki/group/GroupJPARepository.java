@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.group;
 
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
+import com.kakao.techcampus.wekiki.group.invitation.Invitation;
 import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
 import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
@@ -35,4 +36,7 @@ public interface GroupJPARepository extends JpaRepository<Group, Long> {
      */
     @Query("SELECT g FROM UnOfficialClosedGroup g WHERE g.id = :id")
     UnOfficialClosedGroup findUnOfficialClosedGroupById(@Param("id") Long id);
+
+    @Query("SELECT g.invitation FROM UnOfficialClosedGroup  g WHERE g.id = :id")
+    Invitation findInvitationLinkByGroupId(@Param("id") Long id);
 }

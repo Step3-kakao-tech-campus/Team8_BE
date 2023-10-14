@@ -83,9 +83,20 @@ public class GroupRestController {
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
-    
+
     /*
-        그룹 초대
+        그룹 초대링크 확인
+     */
+    @GetMapping("/{groupId}/invitationLink")
+    public ResponseEntity<?> getInvitationLink(@PathVariable("groupId") Long groupId) {
+
+        GetInvitationLinkResponseDTO responseDTO = groupService.getGroupInvitationLink(groupId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
+
+    /*
+        그룹 초대링크 유효성 검사(?)
      */
     @GetMapping("/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
