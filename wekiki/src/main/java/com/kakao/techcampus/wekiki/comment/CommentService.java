@@ -1,8 +1,7 @@
 package com.kakao.techcampus.wekiki.comment;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki._core.errors.ApplicationException;
-import com.kakao.techcampus.wekiki._core.errors.ErrorCode;
 import com.kakao.techcampus.wekiki.group.Group;
 import com.kakao.techcampus.wekiki.group.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
@@ -106,7 +105,7 @@ public class CommentService {
 
         // 5. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
         if(comment.getGroupMember().getId() != groupMember.getId()){
-            throw new ApplicationException(ErrorCode.COMMENT_MEMBER_INCONSISTENCY);
+            throw new Exception400("본인이 쓴 댓글만 삭제가 가능합니다.");
         }
 
         // 5. comment 삭제
@@ -134,12 +133,12 @@ public class CommentService {
 
         // 5. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
         if(comment.getGroupMember().getId() != groupMember.getId()){
-            throw new ApplicationException(ErrorCode.COMMENT_MEMBER_INCONSISTENCY);
+            throw new Exception400("본인이 쓴 댓글만 수정이 가능합니다.");
         }
 
         // 6. 내용 동일하면 exception
         if(comment.getContent().equals(updateContent)){
-            throw new ApplicationException(ErrorCode.COMMENT_SAME_DATE);
+            throw new Exception400("기존 댓글과 동일한 내용입니다.");
         }
 
         // 7. 수정

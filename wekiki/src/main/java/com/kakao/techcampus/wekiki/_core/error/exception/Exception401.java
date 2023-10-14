@@ -14,7 +14,7 @@ public class Exception401 extends RuntimeException {
     }
 
     public ApiUtils.ApiResult<?> body(){
-        return ApiUtils.error(getMessage());
+        return ApiUtils.error(getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     public HttpStatus status(){

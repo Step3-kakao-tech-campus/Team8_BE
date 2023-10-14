@@ -1,8 +1,7 @@
 package com.kakao.techcampus.wekiki.page;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki._core.errors.ApplicationException;
-import com.kakao.techcampus.wekiki._core.errors.ErrorCode;
 import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
 import com.kakao.techcampus.wekiki.group.Group;
 import com.kakao.techcampus.wekiki.group.GroupJPARepository;
@@ -87,7 +86,7 @@ public class PageService {
 
         // 5. pageId로 하위 post들이 존재하는지 확인 -> 존재하면 Exception
         if(postJPARepository.existsByPageInfoId(pageId)){
-            throw new ApplicationException(ErrorCode.PAGE_HAVE_POST);
+            throw new Exception400("글이 적혀있는 페이지는 삭제가 불가능합니다.");
         }
 
         // 6. 포스트가 하나도 없으면 삭제시키기
@@ -143,7 +142,7 @@ public class PageService {
 
         // 4. 그룹 내 동일한 title의 Page가 존재하는지 체크 (TODO : where 문에 groupId 추가)
         if(pageJPARepository.findByTitle(title).isPresent()){
-            throw new ApplicationException(ErrorCode.PAGE_ALREADY_PRESENT);
+            throw new Exception400("이미 존재하는 페이지입니다.");
         }
 
         // 5. Page 생성
@@ -283,7 +282,9 @@ public class PageService {
         checkGroupMember(memberId, groupId);
 
         // 4. groupId랑 title로 Page있는지 확인 (TODO : where 문에 groupId 추가)
-        PageInfo page = pageJPARepository.findByTitle(title).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+        PageInfo page = pageJPARepository.findByTitle(title).
+                orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
+
 
         // 5. 해당 pageId를 들고있는 모든 페이지 Order 순으로 들고오기
         List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(page.getId());
@@ -313,7 +314,8 @@ public class PageService {
 
         // 4. groupId랑 title로 Page있는지 확인 (TODO : where 문에 groupId 추가)
         // (+ 추후에 redis로 Key Value를 <groupId_pageTitle, pageId>로해서 성능 향상시켜보자)
-        PageInfo page = pageJPARepository.findByTitle(title).orElseThrow(() -> new ApplicationException(ErrorCode.PAGE_NOT_FOUND));
+        PageInfo page = pageJPARepository.findByTitle(title).
+                orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
 
         // 5. return DTO
         return new PageInfoResponse.getPageLinkDTO(page);

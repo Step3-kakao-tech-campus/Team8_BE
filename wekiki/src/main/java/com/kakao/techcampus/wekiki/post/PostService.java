@@ -1,9 +1,8 @@
 package com.kakao.techcampus.wekiki.post;
 
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki._core.errors.ApplicationException;
-import com.kakao.techcampus.wekiki._core.errors.ErrorCode;
 import com.kakao.techcampus.wekiki.group.Group;
 import com.kakao.techcampus.wekiki.group.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
@@ -57,7 +56,7 @@ public class PostService {
         Post parent = null;
         if(parentPostId != 0) {
             parent = postJPARepository.findById(parentPostId).orElseThrow(
-                    () -> new ApplicationException(ErrorCode.PARENT_POST_NOT_FOUND));
+                    () -> new Exception404("존재하지 않는 상위 글입니다."));
         }
 
         // 6. 같은 pageId를 가진 Post들 중에 입력받은 order보다 높은 모든 Post들의 order를 1씩 증가
@@ -102,7 +101,7 @@ public class PostService {
 
         // 5. 현재 Post랑 내용 같은지 확인
         if(post.getTitle().equals(title) && post.getContent().equals(content)){
-            throw new ApplicationException(ErrorCode.POST_SAME_DATE);
+            throw new Exception400("기존 글과 동일한 글입니다.");
         }
 
         // 6. 다르면 Post 수정후 히스토리 생성 저장
@@ -161,7 +160,7 @@ public class PostService {
 
         // 5. parent로 해당 postId를 가지고 있는 post가 있는지 확인 -> 존재하면 Exception
         if(postJPARepository.existsByParentId(postId)){
-            throw new ApplicationException(ErrorCode.HAVE_CHILD_POST);
+            throw new Exception400("하위 글이 존재하는 글은 삭제가 불가능합니다.");
         }
 
         // 6. child post 존재 안하면 history + post 삭제 시키기
