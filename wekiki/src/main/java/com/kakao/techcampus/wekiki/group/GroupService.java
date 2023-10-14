@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -242,8 +241,8 @@ public class GroupService {
         ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
 
         // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
-        // TODO: 페이지네이션 필요
-        List<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
 
         // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
         return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
