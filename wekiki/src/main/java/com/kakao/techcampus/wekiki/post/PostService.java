@@ -171,10 +171,6 @@ public class PostService {
 
         // 7. order값 앞으로 땡기기
         postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders());
-//        postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders()).stream().forEach(p->p.minusOrder());
-//        for(Post p : posts){
-//            p.minusOrder();
-//        }
 
         // 8. return DTO;
         return response;

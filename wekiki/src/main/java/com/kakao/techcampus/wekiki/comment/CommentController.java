@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
+
 @RestController
 @RequestMapping("/group/{groupid}")
 @RequiredArgsConstructor
@@ -18,9 +20,7 @@ public class CommentController {
                                         @PathVariable Long postid,
                                         @RequestParam(value = "page", defaultValue = "1") int page){
 
-        Long tempUserId = 1L;
-
-        CommentResponse.getCommentDTO response = commentService.getComment(tempUserId, groupid, postid, page-1);
+        CommentResponse.getCommentDTO response = commentService.getComment(currentMember(), groupid, postid, page-1);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -30,9 +30,7 @@ public class CommentController {
                                            @PathVariable Long postid,
                                            @RequestBody CommentRequest.createComment request){
 
-        Long tempUserId = 1L;
-
-        CommentResponse.createCommentDTO response = commentService.createComment(tempUserId, groupid, postid, request.getContent());
+        CommentResponse.createCommentDTO response = commentService.createComment(currentMember(), groupid, postid, request.getContent());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -41,9 +39,7 @@ public class CommentController {
     public ResponseEntity<?> deleteComment(@PathVariable Long groupid,
                               @PathVariable Long commentid){
 
-        Long tempUserId = 1L;
-
-        CommentResponse.deleteCommentDTO response = commentService.deleteComment(tempUserId, groupid, commentid);
+        CommentResponse.deleteCommentDTO response = commentService.deleteComment(currentMember(), groupid, commentid);
 
         return ResponseEntity.ok(ApiUtils.success(response));
 
@@ -54,9 +50,7 @@ public class CommentController {
                               @PathVariable Long commentid,
                               @RequestBody CommentRequest.updateComment request){
 
-        Long tempUserId = 1L;
-
-        CommentResponse.updateCommentDTO response = commentService.updateComment(tempUserId, groupid, commentid, request.getContent());
+        CommentResponse.updateCommentDTO response = commentService.updateComment(currentMember(), groupid, commentid, request.getContent());
 
         return ResponseEntity.ok(ApiUtils.success(response));
 

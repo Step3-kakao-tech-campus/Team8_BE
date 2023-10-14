@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.comment;
 
+import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.post.Post;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,13 +42,15 @@ public class CommentResponse {
         @Getter @Setter
         public static class commentDTO{
             Long commentId;
-            //String nickName;
+            String nickName;
+            int memberLevel;
             String content;
             LocalDateTime createdAt;
 
-            public commentDTO(Comment comment){
+            public commentDTO(Comment comment , GroupMember groupMember){
                 this.commentId = comment.getId();
-                //this.nickName = "temp";
+                this.nickName = groupMember.getNickName();
+                this.memberLevel = groupMember.getMemberLevel();
                 this.content = comment.getContent();
                 this.createdAt = comment.getCreated_at();
             }
