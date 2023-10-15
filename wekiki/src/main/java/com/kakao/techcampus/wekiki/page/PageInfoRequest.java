@@ -8,7 +8,7 @@ public class PageInfoRequest {
     @Getter
     @Setter
     public static class createPageDTO {
-        private String title;
+        private String pageName;
         private Long groupId;
     }
 

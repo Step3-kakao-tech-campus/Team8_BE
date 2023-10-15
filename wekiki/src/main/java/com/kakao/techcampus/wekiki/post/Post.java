@@ -52,6 +52,17 @@ public class Post {
         this.orders++;
     }
 
+    public void minusOrder(){
+        this.orders--;
+    }
+
+    public void modifyPost(GroupMember groupMember, String title, String content){
+        this.groupMember = groupMember;
+        this.title = title;
+        this.content = content;
+        this.created_at = LocalDateTime.now();
+    }
+
     public void updateGroupMember(GroupMember groupMember) {
         this.groupMember = groupMember;
     }
