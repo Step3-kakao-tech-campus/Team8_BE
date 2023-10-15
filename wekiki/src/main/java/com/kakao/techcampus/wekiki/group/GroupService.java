@@ -203,6 +203,7 @@ public class GroupService {
     /*
         그룹 참가 (공통 부분)
      */
+    @Transactional
     public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
         // 회원 정보 확인
         Member member = getMemberById(memberId);
@@ -251,6 +252,7 @@ public class GroupService {
     /*
         그룹 내 마이 페이지 정보 수정
      */
+    @Transactional
     public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
         // 회원 정보 확인
         Member member = getMemberById(memberId);
@@ -273,6 +275,7 @@ public class GroupService {
     /*
         그룹 탈퇴
      */
+    @Transactional
     public void leaveGroup(Long groupId, Long memberId) {
         // 회원 정보 확인
         Member member = getMemberById(memberId);
