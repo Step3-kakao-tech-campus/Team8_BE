@@ -3,7 +3,6 @@ package com.kakao.techcampus.wekiki.member;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -62,7 +61,7 @@ public class MemberService {
     }
 
     public void getMyInfo() {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        Optional<Member> member = memberRepository.findById(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
         // member 안의 groupMember를 뽑아낸 뒤, 그걸로 Response를 제작
@@ -71,14 +70,14 @@ public class MemberService {
     }
 
     public void cancel() {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        Optional<Member> member = memberRepository.findById(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
         memberRepository.delete(member.get());
     }
 
     public void changePassword(MemberRequest.changePasswordRequestDTO changePasswordDTO) {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        Optional<Member> member = memberRepository.findById(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
         if(!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.get().getPassword()))
@@ -87,7 +86,7 @@ public class MemberService {
     }
 
     public void sendEmail(String email) {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        Optional<Member> member = memberRepository.findById(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
         Integer authNumber = makeEmailAuthNum();
@@ -103,7 +102,7 @@ public class MemberService {
     }
 
     public void checkPNUEmail(MemberRequest.checkPNUEmailRequestDTO pnuEmailRequestDTO) {
-        Optional<Member> member = memberRepository.findByEmail(currentMember());
+        Optional<Member> member = memberRepository.findById(currentMember());
         if(member.isEmpty())
             throw new Exception404("없는 회원입니다.");
         if(redisUtility.getValues(pnuEmailRequestDTO.getEmail()).equals(pnuEmailRequestDTO.getCertificationNumber())){
