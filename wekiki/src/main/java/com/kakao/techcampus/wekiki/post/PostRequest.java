@@ -24,4 +24,12 @@ public class PostRequest {
                     '}';
         }
     }
+
+    @Getter
+    @Setter
+    public static class modifyPostDTO{
+        private Long postId;
+        private String title;
+        private String content;
+    }
 }

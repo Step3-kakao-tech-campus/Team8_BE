@@ -28,7 +28,7 @@ public class CustomUserDetail implements UserDetailsService {
     public UserDetails createUserDetails(Member member) {
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
         return User.builder()
-                .username(member.getEmail())
+                .username(member.getId().toString())
                 .password(member.getPassword())
                 .authorities(grantedAuthority)
                 .build();

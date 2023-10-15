@@ -8,46 +8,38 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
+
 @RestController
-@RequestMapping
+@RequestMapping("/group/{groupid}/page")
 @RequiredArgsConstructor
 public class PageRestController {
 
     private final PageService pageService;
 
     /*
-     페이지 + 글 조회 기능
+     페이지 ID로 페이지 + 글 조회 기능
 
      */
 
-    @GetMapping("/page/{pageid}")
-    public void getPageFromId(@PathVariable Long pageid) {
+    @GetMapping("/{pageid}")
+    public ResponseEntity<?> getPageFromId(@PathVariable Long groupid,@PathVariable Long pageid) {
 
+        PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromId(currentMember(), groupid, pageid);
 
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
-    /*
-     페이지 목차 조회
-     */
-
-    @GetMapping("/page/index/{pageid}")
-    public void getIndex(@PathVariable Long pageid) {
-
-
-    }
 
     /*
      페이지 생성 기능
 
      */
 
-    @PostMapping("/page/create")
-    public ResponseEntity<?> createPage(@RequestBody PageInfoRequest.createPageDTO request) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createPage(@PathVariable Long groupid,@RequestBody PageInfoRequest.createPageDTO request) {
 
-        // TODO : JWT에서 userId 꺼내도록 수정
-        Long tempUserId = 1L;
-
-        PageInfoResponse.createPageDTO response = pageService.createPage(request.getTitle(), request.getGroupId(), tempUserId);
+        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), request.getGroupId(), currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -57,10 +49,12 @@ public class PageRestController {
 
      */
 
-    @DeleteMapping("/page/{pageid}")
-    public void deletePage(@PathVariable Long pageid) {
+    @DeleteMapping("/{pageid}")
+    public ResponseEntity<?> deletePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
+        PageInfoResponse.deletePageDTO response = pageService.deletePage(currentMember(),groupid, pageid);
 
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
@@ -68,13 +62,10 @@ public class PageRestController {
 
      */
 
-    @PostMapping("/page/{pageid}/like")
-    public ResponseEntity<?> likePage(@PathVariable Long pageid) {
+    @PostMapping("/{pageid}/like")
+    public ResponseEntity<?> likePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
-        // TODO : JWT에서 userId 꺼내도록 수정
-        Long tempUserId = 1L;
-
-        PageInfoResponse.likePageDTO response = pageService.likePage(pageid, tempUserId);
+        PageInfoResponse.likePageDTO response = pageService.likePage(pageid, groupid, currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -84,38 +75,56 @@ public class PageRestController {
 
      */
 
-    @PostMapping("/page/{pageid}/hate")
-    public ResponseEntity<?> hatePage(@PathVariable Long pageid) {
+    @PostMapping("/{pageid}/hate")
+    public ResponseEntity<?> hatePage(@PathVariable Long groupid,@PathVariable Long pageid) {
 
-        // TODO : JWT에서 userId 꺼내도록 수정
-        Long tempUserId = 1L;
-
-        PageInfoResponse.hatePageDTO response = pageService.hatePage(pageid, tempUserId);
+        PageInfoResponse.hatePageDTO response = pageService.hatePage(pageid, groupid, currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
 
     }
 
     /*
+    페이지 목차 조회 기능
+
+     */
+
+    @GetMapping("/{pageid}/index")
+    public ResponseEntity<?> getPageIndex(@PathVariable Long groupid,@PathVariable Long pageid) {
+
+        PageInfoResponse.getPageIndexDTO response = pageService.getPageIndex(groupid,currentMember(), pageid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+
+
+    // ========================================================================
+
+    /*
       페이지 제목으로 페이지 조회
 
      */
-    @GetMapping("/group/{groupid}/page")
-    public void getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
+    @GetMapping
+    public ResponseEntity<?> getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
 
+        PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromTitle(currentMember(), groupid,title);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
 
     }
-
 
     /*
      페이지 키워드 검색 기능
 
      */
 
-    @GetMapping("/group/{groupid}/page/search")
-    public ResponseEntity<?> searchPage(@PathVariable Long groupid,@RequestParam(value = "keyword" , defaultValue = "") String keyword, @RequestParam(value = "page", defaultValue = "1") int page) {
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPage(@PathVariable Long groupid,
+                                        @RequestParam(value = "keyword" , defaultValue = "") String keyword,
+                                        @RequestParam(value = "page", defaultValue = "1") int page) {
 
-        List<PageInfoResponse.searchPageDTO> response = pageService.searchPage(page-1, keyword);
+        PageInfoResponse.searchPageDTO response = pageService.searchPage(groupid, currentMember(),page - 1, keyword);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -125,9 +134,12 @@ public class PageRestController {
 
 
      */
-    @GetMapping("/group/{groupid}/page/recent")
-    public void getRecentPage(@PathVariable Long groupid){
+    @GetMapping("/recent")
+    public ResponseEntity<?> getRecentPage(@PathVariable Long groupid){
 
+        PageInfoResponse.getRecentPageDTO response = pageService.getRecentPage(currentMember(), groupid);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
@@ -135,9 +147,12 @@ public class PageRestController {
 
 
      */
-    @GetMapping("/group/{groupid}/page/link")
-    public void getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
+    @GetMapping("/link")
+    public ResponseEntity<?> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
 
+        PageInfoResponse.getPageLinkDTO response = pageService.getPageLink(currentMember(), groupid, title);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
 
