@@ -253,6 +253,26 @@ public class GroupService {
     }
 
     /*
+        내 문서 기여 목록 전체 보기
+     */
+    public MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
+        // 회원 정보 확인
+        Member member = getMemberById(memberId);
+
+        // 그룹 정보 확인
+        // TODO: Redis 활용
+        Group group = groupJPARepository.findById(groupId).orElse(null);
+
+        // 그룹 멤버 확인
+        ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
+
+        return  new MyGroupHistoryResponseDTO(myHistoryList);
+    }
+
+    /*
         그룹 내 마이 페이지 정보 수정
      */
     @Transactional

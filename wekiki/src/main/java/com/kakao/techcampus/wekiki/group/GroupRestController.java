@@ -162,6 +162,22 @@ public class GroupRestController {
         
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
+
+    /*
+        내 문서 기여 목록
+     */
+    @GetMapping("/{groupId}/myInfo/myHistory")
+    public ResponseEntity<?> myGroupHistoryPage(@PathVariable("groupId") Long groupId,
+                                                @RequestParam(value = "page", defaultValue = "0") int page,
+                                                @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        // TODO: JWT Token에서 memberId 획득
+        Long tempMemberId = 1L;
+
+        MyGroupHistoryResponseDTO responseDTO = groupService.getMyGroupHistory(groupId, tempMemberId, page, size);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
     
     /*
         그룹 탈퇴
