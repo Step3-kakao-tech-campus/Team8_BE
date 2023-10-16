@@ -191,6 +191,9 @@ public class GroupService {
         return new SearchGroupInfoDTO(group);
     }
 
+    /*
+        비공식 공개 그룹 입장
+     */
     public void groupEntry(Long groupId, String entrancePassword) {
         UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
 
@@ -210,7 +213,7 @@ public class GroupService {
         
         // 그룹 정보 확인
         // TODO: Redis 활용
-        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+        Group group = groupJPARepository.findById(groupId).orElse(null);
 
         // 재가입 회원인지 확인
         InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
@@ -236,7 +239,7 @@ public class GroupService {
 
         // 그룹 정보 확인
         // TODO: Redis 활용
-        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+        Group group = groupJPARepository.findById(groupId).orElse(null);
 
         // 그룹 멤버 확인
         ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
@@ -259,7 +262,7 @@ public class GroupService {
 
         // 그룹 정보 확인
         // TODO: Redis 활용
-        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+        Group group = groupJPARepository.findById(groupId).orElse(null);
 
         // 그룹 멤버 확인
         // TODO: Redis 활용
@@ -282,7 +285,7 @@ public class GroupService {
 
         // 그룹 정보 확인
         // TODO: Redis 활용
-        UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+        Group group = groupJPARepository.findById(groupId).orElse(null);
 
         // 그룹 멤버 확인
         // TODO: Redis 활용
