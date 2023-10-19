@@ -404,4 +404,39 @@ public class GroupService {
     protected Group getGroupById(Long groupId) {
         return groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
     }
+
+    // RedisCache를 통한 getMember, getGroup -> 근데 성능 개선에 도움이 될까?
+    /*
+        protected Member getMemberById(Long memberId) {
+            try {
+                String memberKey = "member:" + memberId;
+                ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+                if(redisTemplate.hasKey(memberKey)) {
+                    return (Member) operations.get(memberKey);
+                } else {
+                    Member member = memberJPARepository.findById(memberId).orElseThrow(() -> new Exception404("해당 사용자를 찾을 수 없습니다."));
+                    operations.set(memberKey, member);
+                    return member;
+                }
+            } catch (Exception e) {
+                throw new Exception500("서버 에러가 발생했습니다.");
+            }
+        }
+
+        protected Group getGroupById(Long groupId) {
+            try {
+                String groupKey = "group:" + groupId;
+                ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+                if(redisTemplate.hasKey(groupKey)) {
+                    return (Group) operations.get(groupKey);
+                } else {
+                    Group group = groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
+                    operations.set(groupKey, group);
+                    return group;
+                }
+            } catch (Exception e) {
+                throw new Exception500("서버 에러가 발생했습니다.");
+            }
+        }
+     */
 }
