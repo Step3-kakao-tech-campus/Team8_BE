@@ -66,6 +66,7 @@ public class GroupService {
 
             // return
             return new CreateUnOfficialGroupResponseDTO(group);
+
         } catch (Exception400 e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -144,6 +145,7 @@ public class GroupService {
             Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
 
             return new SearchOfficialGroupResponseDTO(officialGroups);
+
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -200,6 +202,7 @@ public class GroupService {
             }
 
             return new ValidateInvitationResponseDTO(groupId);
+
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -213,6 +216,7 @@ public class GroupService {
         try {
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
             return new SearchGroupInfoDTO(group);
+
         } catch (EntityNotFoundException e) {
             throw new Exception404("그룹을 찾을 수 없습니다.");
         } catch (Exception e) {
@@ -232,13 +236,13 @@ public class GroupService {
             if(!group.getEntrancePassword().equals(entrancePassword)) {
                 throw new Exception400("비밀번호가 틀렸습니다.");
             }
+
         } catch (EntityNotFoundException e) {
             throw new Exception400("그룹을 찾을 수 없습니다.");
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
-
 
     /*
         그룹 참가 (공통 부분)
@@ -392,7 +396,6 @@ public class GroupService {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
-
 
     protected Member getMemberById(Long memberId) {
         return memberJPARepository.findById(memberId).orElseThrow(() -> new Exception404("해당 사용자를 찾을 수 없습니다."));
