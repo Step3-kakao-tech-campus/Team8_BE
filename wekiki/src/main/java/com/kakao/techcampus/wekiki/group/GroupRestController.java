@@ -30,10 +30,7 @@ public class GroupRestController {
     public ResponseEntity<?> createUnOfficialGroup(
             @RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, Errors errors) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
+        CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -43,8 +40,7 @@ public class GroupRestController {
      */
     @GetMapping("/search")
     public ResponseEntity<?> searchGroup(@RequestParam(value = "keyword", required = false) String keyword) {
-        
-        // TODO: 페이지네이션 필요
+
         SearchGroupDTO responseDTO = groupService.searchGroupByKeyword(keyword);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
