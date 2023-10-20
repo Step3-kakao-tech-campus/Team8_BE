@@ -68,6 +68,10 @@ public class GroupService {
             return new CreateUnOfficialGroupResponseDTO(group);
 
         } catch (Exception400 e) {
+            throw e;
+        } catch (Exception404 e) {
+            throw e;
+        }   catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -203,6 +207,8 @@ public class GroupService {
 
             return new ValidateInvitationResponseDTO(groupId);
 
+        } catch (Exception400 e) {
+            throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -237,8 +243,10 @@ public class GroupService {
                 throw new Exception400("비밀번호가 틀렸습니다.");
             }
 
-        } catch (EntityNotFoundException e) {
-            throw new Exception400("그룹을 찾을 수 없습니다.");
+        } catch (Exception400 e) {
+            throw e;
+        }  catch (EntityNotFoundException e) {
+            throw new Exception404("그룹을 찾을 수 없습니다.");
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -271,7 +279,9 @@ public class GroupService {
             // GroupMember 저장
             groupMemberJPARepository.save(groupMember);
 
-        } catch (Exception e) {
+        } catch (Exception404 e) {
+            throw e;
+        }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -298,7 +308,9 @@ public class GroupService {
             // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
             return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
 
-        } catch (Exception e) {
+        } catch (Exception404 e) {
+            throw e;
+        }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -324,7 +336,9 @@ public class GroupService {
 
             return new MyGroupHistoryResponseDTO(myHistoryList);
 
-        } catch (Exception e) {
+        } catch (Exception404 e) {
+            throw e;
+        }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -353,7 +367,9 @@ public class GroupService {
             // 저장
             groupMemberJPARepository.save(groupMember);
 
-        } catch (Exception e) {
+        } catch (Exception404 e) {
+            throw e;
+        }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -392,6 +408,8 @@ public class GroupService {
             groupMemberJPARepository.save(inactiveGroupMember);
             historyJPARepository.saveAll(historyList);
 
+        } catch (Exception404 e) {
+            throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
