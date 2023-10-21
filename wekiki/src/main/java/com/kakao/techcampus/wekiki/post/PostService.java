@@ -6,6 +6,7 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki.group.Group;
 import com.kakao.techcampus.wekiki.group.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
@@ -13,6 +14,8 @@ import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
+import com.kakao.techcampus.wekiki.report.Report;
+import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +36,7 @@ public class PostService {
     private final MemberJPARepository memberJPARepository;
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final GroupJPARepository groupJPARepository;
-
+    private final ReportJPARepository reportJPARepository;
     final int HISTORY_COUNT = 5;
 
     @Transactional
@@ -175,6 +178,39 @@ public class PostService {
         return response;
 
     }
+
+    @Transactional
+    public PostResponse.createReportDTO createReport(Long memberId, Long groupId, Long postId , String content){
+
+        // 1. memberId로 Member 객체 가져오기
+        checkMemberFromMemberId(memberId);
+
+        // 2. 존재하는 group인지 확인하기
+        checkGroupFromGroupId(groupId);
+
+        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
+        GroupMember groupMember = checkGroupMember(memberId, groupId);
+
+        // 4. postId로 post 엔티티 가져오기
+        checkPostFromPostId(postId);
+
+        // 5. postId의 최근 히스토리 가져오기
+        List<History> historyByPostId = historyJPARepository.findHistoryByPostId(postId, PageRequest.of(0, 1));
+
+        // 6. report 생성
+        Report report = Report.builder()
+                .groupMember(groupMember)
+                .history(historyByPostId.get(0))
+                .content(content)
+                .created_at(LocalDateTime.now())
+                .build();
+        Report savedReport = reportJPARepository.save(report);
+
+        // 7. return DTO
+        return new PostResponse.createReportDTO(savedReport);
+
+    }
+
 
     public Member checkMemberFromMemberId(Long memberId){
         return memberJPARepository.findById(memberId)
