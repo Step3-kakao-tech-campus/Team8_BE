@@ -6,6 +6,7 @@ import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +20,7 @@ public class MyGroupInfoResponseDTO {
     private String groupNickName;
     private List<MyHistoryDTO> myHistoryDTOS;
 
-    public MyGroupInfoResponseDTO(Group group, GroupMember groupMember, List<History> histories) {
+    public MyGroupInfoResponseDTO(Group group, GroupMember groupMember, Page<History> histories) {
         this.groupName = group.getGroupName();
         this.groupNickName = groupMember.getNickName();
         this.myHistoryDTOS = histories.stream().map(MyHistoryDTO::new).collect(Collectors.toList());

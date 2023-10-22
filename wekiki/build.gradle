@@ -57,6 +57,9 @@ dependencies {
 	// 유효성 검사
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+
 	// 개발 편의용
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

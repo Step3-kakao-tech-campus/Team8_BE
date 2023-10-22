@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface MemberJPARepository extends JpaRepository<Member, UUID> {
+public interface MemberJPARepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.email=:email")
     Optional<Member> findByEmail(@Param("email") String email);
 }

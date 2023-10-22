@@ -3,10 +3,8 @@ package com.kakao.techcampus.wekiki.group;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
+import com.kakao.techcampus.wekiki.group.invitation.Invitation;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
@@ -20,11 +18,13 @@ import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -37,6 +37,7 @@ public class GroupService {
     private final MemberJPARepository memberJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+
     /*
         비공식 그룹 생성
      */
@@ -54,7 +55,7 @@ public class GroupService {
 
         // MemberId로부터 Member 찾기
         // TODO: 예외 처리 구현
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
         // GroupMember 생성
         ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
 
@@ -110,22 +111,75 @@ public class GroupService {
     /*
         공식 그룹 리스트, 비공식 공개 그룹 리스트 그룹
         - keyword가 포함된 모든 그룹 그룹별 리스트
-        - 이름 정렬 후 반환
      */
     public SearchGroupDTO searchGroupByKeyword(String keyword) {
 
-        // 공식 그룹 리스트
-        List<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword);
-        // 비공식 공개 그룹 리스트
-        List<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        // 정렬
-        officialGroups.sort(Comparator.comparing(OfficialGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
-        unOfficialOpenedGroups.sort(Comparator.comparing(UnOfficialOpenedGroup::getGroupName, String.CASE_INSENSITIVE_ORDER));
-        
-        // TODO: 페이지네이션 필요
+        // 공식 그룹 리스트
+        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
+        // 비공식 공개 그룹 리스트
+        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
 
         return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+    }
+
+    /*
+        공식 그룹 추가 리스트
+     */
+    public SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 비공식 공개 그룹 리스트
+        Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
+
+        return new SearchOfficialGroupResponseDTO(officialGroups);
+    }
+
+    /*
+        비공식 공개 그룹 추가 리스트
+     */
+    public SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // 비공식 공개 그룹 리스트
+        Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
+
+        return new SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
+    }
+
+    /*
+        초대 링크 확인
+     */
+    public GetInvitationLinkResponseDTO getGroupInvitationLink(Long groupId) {
+
+        Invitation invitation = groupJPARepository.findInvitationLinkByGroupId(groupId);
+
+        return new GetInvitationLinkResponseDTO(invitation);
+    }
+
+    /*
+        비공식 비공개 그룹 초대 링크 확인
+        - 확인 후 해당하는 그룹 Id 반환
+        - 가입 url 생성 후 그룹 가입 API
+     */
+    public ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
+
+        String[] invitation = invitationLink.split("/");
+
+        Long groupId = Long.parseLong(invitation[0]);
+        String invitationCode = invitation[1];
+
+        UnOfficialClosedGroup group = groupJPARepository.findUnOfficialClosedGroupById(groupId);
+
+        // 초대 코드가 틀린 경우
+        if(!group.getInvitation().getInvitationCode().equals(invitationCode)) {
+            // 예외 처리
+        }
+
+        return new ValidateInvitationResponseDTO(groupId);
     }
 
     /*
@@ -149,9 +203,10 @@ public class GroupService {
     /*
         그룹 참가 (공통 부분)
      */
+    @Transactional
     public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
         
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -177,7 +232,7 @@ public class GroupService {
      */
     public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -187,8 +242,8 @@ public class GroupService {
         ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
 
         // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
-        // TODO: 페이지네이션 필요
-        List<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
 
         // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
         return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
@@ -197,9 +252,10 @@ public class GroupService {
     /*
         그룹 내 마이 페이지 정보 수정
      */
+    @Transactional
     public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -219,9 +275,10 @@ public class GroupService {
     /*
         그룹 탈퇴
      */
+    @Transactional
     public void leaveGroup(Long groupId, Long memberId) {
         // 회원 정보 확인
-        Member member = memberJPARepository.findById(memberId).orElse(null);
+        Member member = getMemberById(memberId);
 
         // 그룹 정보 확인
         // TODO: Redis 활용
@@ -247,5 +304,9 @@ public class GroupService {
         groupMemberJPARepository.delete(activeGroupMember);
         groupMemberJPARepository.save(inactiveGroupMember);
         historyJPARepository.saveAll(historyList);
+    }
+
+    public Member getMemberById(Long memberId) {
+        return memberJPARepository.findById(memberId).orElse(null);
     }
 }

@@ -4,10 +4,7 @@ import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.CreateUnOfficialGroupResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.MyGroupInfoResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.SearchGroupInfoDTO;
+import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +43,35 @@ public class GroupRestController {
     public ResponseEntity<?> searchGroup(@RequestParam(value = "keyword", required = false) String keyword) {
         
         // TODO: 페이지네이션 필요
-        SearchGroupDTO response = groupService.searchGroupByKeyword(keyword);
+        SearchGroupDTO responseDTO = groupService.searchGroupByKeyword(keyword);
 
-        return ResponseEntity.ok().body(ApiUtils.success(response));
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
+
+    /*
+        그룹 추가 검색 - 공식 그룹
+     */
+    @GetMapping("/search/officialGroup")
+    public ResponseEntity<?> searchOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
+                                                   @RequestParam(value = "page", defaultValue = "1") int page,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page, size);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
+
+    /*
+        그룹 추가 검색 - 비공식 공개 그룹
+     */
+    @GetMapping("/search/unOfficialGroup")
+    public ResponseEntity<?> searchUnOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
+                                                   @RequestParam(value = "page", defaultValue = "1") int page,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page, size);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
     
     /*
@@ -86,10 +109,28 @@ public class GroupRestController {
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
-    
+
     /*
-        그룹 초대
+        그룹 초대링크 확인
      */
+    @GetMapping("/{groupId}/invitationLink")
+    public ResponseEntity<?> getInvitationLink(@PathVariable("groupId") Long groupId) {
+
+        GetInvitationLinkResponseDTO responseDTO = groupService.getGroupInvitationLink(groupId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
+
+    /*
+        그룹 초대링크 유효성 검사(?)
+     */
+    @GetMapping("/{invitationLink}")
+    public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
+
+        ValidateInvitationResponseDTO responseDTO = groupService.ValidateInvitation(invitationLink);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
     
     /*
         그룹 내 본인 정보 조회
