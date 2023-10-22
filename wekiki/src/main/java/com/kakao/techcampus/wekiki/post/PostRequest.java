@@ -13,16 +13,6 @@ public class PostRequest {
         private String title;
         private String content;
 
-        @Override
-        public String toString() {
-            return "createPostDTO{" +
-                    "pageId=" + pageId +
-                    ", parentPostId=" + parentPostId +
-                    ", order=" + order +
-                    ", title='" + title + '\'' +
-                    ", content='" + content + '\'' +
-                    '}';
-        }
     }
 
     @Getter
@@ -30,6 +20,13 @@ public class PostRequest {
     public static class modifyPostDTO{
         private Long postId;
         private String title;
+        private String content;
+    }
+
+    @Getter
+    @Setter
+    public static class createReportDTO{
+        private Long postId;
         private String content;
     }
 }
