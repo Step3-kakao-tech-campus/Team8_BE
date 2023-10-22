@@ -4,6 +4,8 @@ package com.kakao.techcampus.wekiki.post;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
+import com.kakao.techcampus.wekiki.report.Report;
+import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +54,16 @@ public class PostRestController {
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
+
+    @PostMapping("/report")
+    public ResponseEntity<?> createReport(@PathVariable Long groupid , @RequestBody PostRequest.createReportDTO request){
+
+        PostResponse.createReportDTO response = postService.createReport(currentMember(), groupid, request.getPostId(), request.getContent());
+
+        return ResponseEntity.ok(ApiUtils.success(response));
+    }
+
+
 
 
 }

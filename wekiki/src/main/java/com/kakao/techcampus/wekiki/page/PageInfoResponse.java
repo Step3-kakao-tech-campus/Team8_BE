@@ -178,8 +178,8 @@ public class PageInfoResponse {
     public static class getPageLinkDTO{
         Long pageId;
 
-        public getPageLinkDTO(PageInfo pageInfo){
-            this.pageId = pageInfo.getId();
+        public getPageLinkDTO(Long pageId){
+            this.pageId = pageId;
         }
     }
 

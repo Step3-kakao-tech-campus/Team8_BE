@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.post;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
+import com.kakao.techcampus.wekiki.report.Report;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -89,5 +90,17 @@ public class PostResponse {
 
         }
     }
+
+    @Getter
+    @Setter
+    public static class createReportDTO{
+
+        Long reportId;
+
+        public createReportDTO(Report report){
+            this.reportId = report.getId();
+        }
+    }
+
 
 }
