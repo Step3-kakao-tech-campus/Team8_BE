@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/group")
@@ -28,10 +30,7 @@ public class GroupRestController {
     public ResponseEntity<?> createUnOfficialGroup(
             @RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, Errors errors) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, tempMemberId);
+        CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
@@ -41,8 +40,7 @@ public class GroupRestController {
      */
     @GetMapping("/search")
     public ResponseEntity<?> searchGroup(@RequestParam(value = "keyword", required = false) String keyword) {
-        
-        // TODO: 페이지네이션 필요
+
         SearchGroupDTO responseDTO = groupService.searchGroupByKeyword(keyword);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
@@ -102,10 +100,8 @@ public class GroupRestController {
     @PostMapping("/{groupId}/join")
     public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, JoinGroupRequestDTO requestDTO) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
 
-        groupService.joinGroup(groupId, tempMemberId, requestDTO);
+        groupService.joinGroup(groupId, currentMember(), requestDTO);
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
@@ -141,10 +137,7 @@ public class GroupRestController {
     @GetMapping("/{groupId}/myInfo")
     public ResponseEntity<?> myGroupPage(@PathVariable("groupId") Long groupId) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        MyGroupInfoResponseDTO responseDTO = groupService.getMyGroupInfo(groupId, tempMemberId);
+        MyGroupInfoResponseDTO responseDTO = groupService.getMyGroupInfo(groupId, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -155,12 +148,23 @@ public class GroupRestController {
     @PatchMapping("/{groupId}/myInfo")
     public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, UpdateMyGroupPageDTO requestDTO) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        groupService.updateMyGroupPage(groupId, tempMemberId, requestDTO);
+        groupService.updateMyGroupPage(groupId, currentMember(), requestDTO);
         
         return ResponseEntity.ok().body(ApiUtils.success(null));
+    }
+
+    /*
+        내 문서 기여 목록
+     */
+    @GetMapping("/{groupId}/myInfo/myHistory")
+    public ResponseEntity<?> myGroupHistoryPage(@PathVariable("groupId") Long groupId,
+                                                @RequestParam(value = "page", defaultValue = "0") int page,
+                                                @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+
+        MyGroupHistoryResponseDTO responseDTO = groupService.getMyGroupHistory(groupId, currentMember(), page, size);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
     
     /*
@@ -169,10 +173,7 @@ public class GroupRestController {
     @DeleteMapping("/{groupId}/myInfo")
     public ResponseEntity<?> leaveGroup(@PathVariable("groupId") Long groupId) {
 
-        // TODO: JWT Token에서 memberId 획득
-        Long tempMemberId = 1L;
-
-        groupService.leaveGroup(groupId, tempMemberId);
+        groupService.leaveGroup(groupId, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
