@@ -57,7 +57,7 @@ dependencies {
 	// 유효성 검사
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+	// Random String
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
 	// 개발 편의용

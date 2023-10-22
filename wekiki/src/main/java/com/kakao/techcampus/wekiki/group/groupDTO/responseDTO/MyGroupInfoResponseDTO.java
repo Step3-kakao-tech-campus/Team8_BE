@@ -28,7 +28,7 @@ public class MyGroupInfoResponseDTO {
 
     @Getter
     @Setter
-    public class MyHistoryDTO {
+    public static class MyHistoryDTO {
         private String content;
         private LocalDateTime created_at;
 
