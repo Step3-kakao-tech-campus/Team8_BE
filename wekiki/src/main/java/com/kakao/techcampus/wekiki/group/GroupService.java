@@ -85,7 +85,6 @@ public class GroupService {
         return UnOfficialClosedGroup.unOfficialClosedGroupBuilder()
                 .groupName(requestDTO.groupName())
                 .groupProfileImage(requestDTO.groupImage())
-                .memberCount(1)
                 .created_at(LocalDateTime.now())
                 .build();
     }
@@ -98,7 +97,6 @@ public class GroupService {
         return UnOfficialOpenedGroup.unOfficialOpenedGroupBuilder()
                 .groupName(requestDTO.groupName())
                 .groupProfileImage(requestDTO.groupImage())
-                .memberCount(1)
                 .created_at(LocalDateTime.now())
                 .introduction(requestDTO.introduction())
                 .entranceHint(requestDTO.entranceHint())

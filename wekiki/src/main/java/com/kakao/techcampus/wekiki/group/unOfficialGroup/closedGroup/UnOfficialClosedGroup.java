@@ -20,8 +20,8 @@ public class UnOfficialClosedGroup extends Group {
     private Invitation invitation;
 
     @Builder(builderMethodName = "unOfficialClosedGroupBuilder")
-    public UnOfficialClosedGroup(Long id, String groupName, String groupProfileImage, int memberCount, LocalDateTime created_at) {
-        super(id, groupName, groupProfileImage, memberCount, created_at);
+    public UnOfficialClosedGroup(Long id, String groupName, String groupProfileImage, LocalDateTime created_at) {
+        super(id, groupName, groupProfileImage, created_at);
         this.invitation = Invitation.builder().group(this).build();
     }
 }

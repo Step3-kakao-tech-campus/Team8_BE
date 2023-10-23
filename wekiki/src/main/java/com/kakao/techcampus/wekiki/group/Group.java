@@ -25,11 +25,11 @@ public class Group {
     private LocalDateTime created_at;
 
     @Builder
-    public Group(Long id, String groupName, String groupProfileImage, int memberCount, LocalDateTime created_at) {
+    public Group(Long id, String groupName, String groupProfileImage, LocalDateTime created_at) {
         this.id = id;
         this.groupName = groupName;
         this.groupProfileImage = groupProfileImage;
-        this.memberCount = memberCount;
+        this.memberCount = 1;
         this.created_at = created_at;
     }
 }
