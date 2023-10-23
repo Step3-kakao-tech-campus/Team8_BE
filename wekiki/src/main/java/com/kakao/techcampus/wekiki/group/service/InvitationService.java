@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.group.service;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.GetInvitationLinkResponseDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.ValidateInvitationResponseDTO;
@@ -53,7 +54,22 @@ public class InvitationService {
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결
     public ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
 
-        return null;
+        // 초대 링크를 통해 groupId와 invitation 찾기
+        Long groupId = redisGroupId.opsForValue().get(INVITATION_PREFIX + invitationLink);
+
+        // 해당하는 groupId가 없는 경우 예외 처리
+        if (groupId == null) {
+            throw new Exception404("잘못된 접근입니다.");
+        }
+
+        // 초대 링크 기간 확인
+        Invitation invitation = redisInvitation.opsForValue().get(groupId);
+
+        if (invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
+            throw new Exception400("이미 만료된 초대 링크입니다.");
+        }
+
+        return new ValidateInvitationResponseDTO(groupId);
     }
 
     /*
@@ -76,7 +92,7 @@ public class InvitationService {
 
     // 2주마다 화요일 새벽 4시에 Redis 검사 후 만료된 초대 링크 확인하고 삭제
     @Scheduled(cron = "0 0 4 */14 * 2")
-    public void removeExpiredInvitationsJob() {
+    private void removeExpiredInvitationsJob() {
         removeExpiredInvitations();
     }
 }
