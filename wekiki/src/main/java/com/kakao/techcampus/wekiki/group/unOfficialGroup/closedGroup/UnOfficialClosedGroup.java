@@ -16,12 +16,8 @@ import java.time.LocalDateTime;
 @DiscriminatorValue("un_official_closed_group")
 public class UnOfficialClosedGroup extends Group {
 
-    @OneToOne
-    private Invitation invitation;
-
     @Builder(builderMethodName = "unOfficialClosedGroupBuilder")
     public UnOfficialClosedGroup(Long id, String groupName, String groupProfileImage, LocalDateTime created_at) {
         super(id, groupName, groupProfileImage, created_at);
-        this.invitation = Invitation.builder().group(this).build();
     }
 }

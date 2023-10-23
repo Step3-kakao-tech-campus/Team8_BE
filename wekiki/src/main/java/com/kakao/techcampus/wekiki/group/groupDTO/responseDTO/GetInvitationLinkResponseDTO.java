@@ -10,6 +10,6 @@ public class GetInvitationLinkResponseDTO {
     private String invitationLink;
 
     public GetInvitationLinkResponseDTO(Invitation invitation) {
-        this.invitationLink = invitation.getInvitationLink();
+        this.invitationLink = invitation.code();
     }
 }

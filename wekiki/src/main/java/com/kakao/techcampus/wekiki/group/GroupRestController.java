@@ -5,6 +5,8 @@ import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGro
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
+import com.kakao.techcampus.wekiki.group.service.GroupService;
+import com.kakao.techcampus.wekiki.group.service.InvitationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMembe
 public class GroupRestController {
 
     private final GroupService groupService;
+    private final InvitationService invitationService;
 
     /*
         공개, 비공개 그룹 생성
@@ -112,7 +115,7 @@ public class GroupRestController {
     @GetMapping("/{groupId}/invitationLink")
     public ResponseEntity<?> getInvitationLink(@PathVariable("groupId") Long groupId) {
 
-        GetInvitationLinkResponseDTO responseDTO = groupService.getGroupInvitationLink(groupId);
+        GetInvitationLinkResponseDTO responseDTO = invitationService.getGroupInvitationCode(groupId);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -123,7 +126,7 @@ public class GroupRestController {
     @GetMapping("/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
 
-        ValidateInvitationResponseDTO responseDTO = groupService.ValidateInvitation(invitationLink);
+        ValidateInvitationResponseDTO responseDTO = invitationService.ValidateInvitation(invitationLink);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }

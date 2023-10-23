@@ -1,13 +1,14 @@
-package com.kakao.techcampus.wekiki.group;
+package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
+import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
-import com.kakao.techcampus.wekiki.group.invitation.Invitation;
 import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
@@ -67,11 +68,9 @@ public class GroupService {
             // return
             return new CreateUnOfficialGroupResponseDTO(group);
 
-        } catch (Exception400 e) {
+        } catch (Exception400 | Exception404 e) {
             throw e;
-        } catch (Exception404 e) {
-            throw e;
-        }   catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
@@ -169,49 +168,6 @@ public class GroupService {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
-
-    /*
-        초대 링크 확인
-     */
-    public GetInvitationLinkResponseDTO getGroupInvitationLink(Long groupId) {
-        try {
-            Invitation invitation = groupJPARepository.findInvitationLinkByGroupId(groupId);
-
-            return new GetInvitationLinkResponseDTO(invitation);
-
-        } catch (Exception e) {
-            throw new Exception500("서버 에러가 발생했습니다.");
-        }
-    }
-
-    /*
-        비공식 비공개 그룹 초대 링크 확인
-        - 확인 후 해당하는 그룹 Id 반환
-        - 가입 url 생성 후 그룹 가입 API
-     */
-    public ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
-        try {
-            String[] invitation = invitationLink.split("/");
-
-            Long groupId = Long.parseLong(invitation[0]);
-            String invitationCode = invitation[1];
-
-            UnOfficialClosedGroup group = groupJPARepository.findUnOfficialClosedGroupById(groupId);
-
-            // 초대 코드가 틀린 경우
-            if (!group.getInvitation().getInvitationCode().equals(invitationCode)) {
-                throw new Exception400("초대 코드가 일치하지 않습니다.");
-            }
-
-            return new ValidateInvitationResponseDTO(groupId);
-
-        } catch (Exception400 e) {
-            throw e;
-        } catch (Exception e) {
-            throw new Exception500("서버 에러가 발생했습니다.");
-        }
-    }
-
 
     /*
         비공식 공개 그룹 상세 정보 조회

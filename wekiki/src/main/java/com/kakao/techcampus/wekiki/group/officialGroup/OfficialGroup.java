@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class OfficialGroup extends Group {
 
     @Builder(builderMethodName = "officialGroupBuilder")
-    public OfficialGroup(Long id, String groupName, String groupProfileImage, int memberCount, LocalDateTime created_at) {
-        super(id, groupName, groupProfileImage, memberCount, created_at);
+    public OfficialGroup(Long id, String groupName, String groupProfileImage, LocalDateTime created_at) {
+        super(id, groupName, groupProfileImage, created_at);
     }
 }

@@ -1,36 +1,29 @@
 package com.kakao.techcampus.wekiki.group.invitation;
 
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
-import jakarta.persistence.*;
-import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "invitation_tb")
-public class Invitation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private UnOfficialClosedGroup group;
-
-    @Column(unique = true)
-    private String invitationCode;
-    private String invitationLink;
-
+public record Invitation(
+        Long groupId,
+        LocalDateTime expiresAt,
+        String code
+) {
+    private static final long DEFAULT_EXPIRED_DAYS = 7L;
     private static final int INVITE_CODE_LENGTH = 32;
 
-    @Builder
-    public Invitation(UnOfficialClosedGroup group) {
-        this.group = group;
-        this.invitationCode = RandomStringUtils.randomAlphanumeric(INVITE_CODE_LENGTH);
-        this.invitationLink = group.getId() + "/" + invitationCode;
+    public static Invitation create(final Long groupId) {
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(Duration.ofDays(DEFAULT_EXPIRED_DAYS).toMinutes());
+        String code = RandomStringUtils.randomAlphanumeric(INVITE_CODE_LENGTH);
+        return new Invitation(groupId, expiresAt, code);
+    }
+
+    public boolean isUsableAt(final LocalDateTime now) {
+        return now.isBefore(expiresAt);
+    }
+
+    public Duration remainDuration(final LocalDateTime now) {
+        return Duration.between(now, expiresAt);
     }
 }
