@@ -1,6 +1,8 @@
 package com.kakao.techcampus.wekiki.post;
 
+import com.kakao.techcampus.wekiki.comment.Comment;
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,10 +29,16 @@ public class Post {
 
     private int orders;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private PageInfo pageInfo;
+
+    @OneToMany(mappedBy = "post")
+    private List<History> historys  = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments  = new ArrayList<>();
 
     private String title;
     private String content;

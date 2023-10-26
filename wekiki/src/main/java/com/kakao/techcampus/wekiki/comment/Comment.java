@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.comment;
 
 import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
@@ -10,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -20,10 +23,12 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
+
+
     private String content;
     private LocalDateTime created_at;
 
