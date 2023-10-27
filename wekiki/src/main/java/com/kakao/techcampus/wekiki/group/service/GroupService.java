@@ -219,7 +219,7 @@ public class GroupService {
             Group group = getGroupById(groupId);
 
             // 이미 가입한 상태일 시 예외 처리
-            if (groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
+            if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
                 throw new Exception400("이미 가입된 회원입니다.");
             }
 
@@ -265,21 +265,16 @@ public class GroupService {
      */
     public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         try {
-            // 회원 정보 확인
-            Member member = getMemberById(memberId);
-
-            // 그룹 정보 확인
-            Group group = getGroupById(groupId);
-
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
             // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
             Pageable pageable = PageRequest.of(0, 10);
             Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
 
             // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
-            return new MyGroupInfoResponseDTO(group, groupMember, myHistoryList);
+            return new MyGroupInfoResponseDTO(groupMember.getGroup(), groupMember, myHistoryList);
 
         } catch (Exception404 e) {
             throw e;
@@ -294,14 +289,9 @@ public class GroupService {
     @Transactional
     public MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
         try {
-            // 회원 정보 확인
-            Member member = getMemberById(memberId);
-
-            // 그룹 정보 확인
-            Group group = getGroupById(groupId);
-
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
             Pageable pageable = PageRequest.of(page, size);
             Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
@@ -322,14 +312,9 @@ public class GroupService {
     @Transactional
     public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
         try {
-            // 회원 정보 확인
-            Member member = getMemberById(memberId);
-
-            // 그룹 정보 확인
-            Group group = getGroupById(groupId);
-
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
             // 그룹 닉네임 변경
             groupMember.update(requestDTO.groupNickName());
@@ -351,14 +336,9 @@ public class GroupService {
     @Transactional
     public void leaveGroup(Long groupId, Long memberId) {
         try {
-            // 회원 정보 확인
-            Member member = getMemberById(memberId);
-
-            // 그룹 정보 확인
-            Group group = getGroupById(groupId);
-
             // 그룹 멤버 확인
-            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId);
+            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
             // 탈퇴 그룹 회원 생성
             InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);

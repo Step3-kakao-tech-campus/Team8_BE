@@ -349,7 +349,7 @@ public class PageService {
     }
 
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
-        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
 
