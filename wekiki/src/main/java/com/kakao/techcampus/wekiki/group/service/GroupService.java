@@ -241,6 +241,22 @@ public class GroupService {
     }
 
     /*
+        그룹 내 그룹원 리스트 조회
+     */
+    public GetGroupMembersResponseDTO getGroupMembers(Long groupId) {
+        try {
+            Group group = getGroupById(groupId);
+
+            return new GetGroupMembersResponseDTO(group);
+
+        } catch (Exception404 e) {
+            throw e;
+        }  catch (Exception e) {
+            throw new Exception500("서버 에러가 발생했습니다.");
+        }
+    }
+
+    /*
         그룹 내 마이 페이지
      */
     public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
@@ -264,7 +280,7 @@ public class GroupService {
 
         } catch (Exception404 e) {
             throw e;
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }

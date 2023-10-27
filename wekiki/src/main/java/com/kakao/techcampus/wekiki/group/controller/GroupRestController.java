@@ -130,6 +130,16 @@ public class GroupRestController {
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
+
+    /*
+        그룹 내 그룹원 리스트 조회
+     */
+    @GetMapping("{groupId}/groupMembers")
+    public ResponseEntity<?> getGroupMembers(@PathVariable("groupId") Long groupId) {
+        GetGroupMembersResponseDTO responseDTO = groupService.getGroupMembers(groupId);
+
+        return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
+    }
     
     /*
         그룹 내 본인 정보 조회
