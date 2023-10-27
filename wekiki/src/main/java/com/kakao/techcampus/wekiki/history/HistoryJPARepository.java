@@ -25,5 +25,5 @@ public interface HistoryJPARepository extends JpaRepository<History, Long> {
     Page<History> findHistoryWithMemberByPostId(@Param("postId") Long postId, Pageable pageable);
 
     @Query("SELECT h FROM History h WHERE h.post.id = :postId ORDER BY h.created_at DESC")
-    Page<History> findHistoryByPostId(@Param("postId") Long postId, Pageable pageable);
+    List<History> findHistoryByPostId(@Param("postId") Long postId, Pageable pageable);
 }
