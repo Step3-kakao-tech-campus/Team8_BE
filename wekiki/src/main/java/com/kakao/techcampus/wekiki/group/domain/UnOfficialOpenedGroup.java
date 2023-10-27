@@ -1,6 +1,5 @@
-package com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup;
+package com.kakao.techcampus.wekiki.group.domain;
 
-import com.kakao.techcampus.wekiki.group.Group;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;

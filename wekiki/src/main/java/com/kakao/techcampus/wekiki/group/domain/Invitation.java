@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.group.invitation;
+package com.kakao.techcampus.wekiki.group.domain;
 
 import org.apache.commons.lang3.RandomStringUtils;
 

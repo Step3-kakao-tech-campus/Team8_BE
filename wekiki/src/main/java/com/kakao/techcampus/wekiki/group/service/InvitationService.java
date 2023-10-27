@@ -2,9 +2,9 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.GetInvitationLinkResponseDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.ValidateInvitationResponseDTO;
-import com.kakao.techcampus.wekiki.group.invitation.Invitation;
+import com.kakao.techcampus.wekiki.group.dto.responseDTO.GetInvitationLinkResponseDTO;
+import com.kakao.techcampus.wekiki.group.dto.responseDTO.ValidateInvitationResponseDTO;
+import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -92,7 +92,7 @@ public class InvitationService {
 
     // 2주마다 화요일 새벽 4시에 Redis 검사 후 만료된 초대 링크 확인하고 삭제
     @Scheduled(cron = "0 0 4 */14 * 2")
-    private void removeExpiredInvitationsJob() {
+    protected void removeExpiredInvitationsJob() {
         removeExpiredInvitations();
     }
 }

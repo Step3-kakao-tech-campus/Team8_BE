@@ -1,6 +1,9 @@
-package com.kakao.techcampus.wekiki.group.member;
+package com.kakao.techcampus.wekiki.group.repository;
 
-import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

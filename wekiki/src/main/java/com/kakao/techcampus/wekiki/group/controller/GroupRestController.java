@@ -1,10 +1,10 @@
-package com.kakao.techcampus.wekiki.group;
+package com.kakao.techcampus.wekiki.group.controller;
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
-import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.CreateUnOfficialGroupRequestDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.JoinGroupRequestDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.requestDTO.UpdateMyGroupPageDTO;
-import com.kakao.techcampus.wekiki.group.groupDTO.responseDTO.*;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.JoinGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.UpdateMyGroupPageDTO;
+import com.kakao.techcampus.wekiki.group.dto.responseDTO.*;
 import com.kakao.techcampus.wekiki.group.service.GroupService;
 import com.kakao.techcampus.wekiki.group.service.InvitationService;
 import jakarta.validation.Valid;

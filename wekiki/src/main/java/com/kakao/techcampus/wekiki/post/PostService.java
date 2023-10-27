@@ -3,11 +3,11 @@ package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;

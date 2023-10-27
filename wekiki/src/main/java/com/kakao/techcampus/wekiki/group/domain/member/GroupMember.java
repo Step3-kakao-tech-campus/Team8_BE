@@ -1,6 +1,6 @@
-package com.kakao.techcampus.wekiki.group.member;
+package com.kakao.techcampus.wekiki.group.domain.member;
 
-import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.member.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Entity

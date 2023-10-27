@@ -1,8 +1,8 @@
-package com.kakao.techcampus.wekiki.group.groupDTO.responseDTO;
+package com.kakao.techcampus.wekiki.group.dto.responseDTO;
 
 
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import lombok.Getter;
 import lombok.Setter;

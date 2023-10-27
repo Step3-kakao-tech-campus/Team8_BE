@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.group.groupDTO.responseDTO;
+package com.kakao.techcampus.wekiki.group.dto.responseDTO;
 
 import lombok.Getter;
 import lombok.Setter;

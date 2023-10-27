@@ -1,18 +1,12 @@
-package com.kakao.techcampus.wekiki.group;
+package com.kakao.techcampus.wekiki.group.repository;
 
-import com.kakao.techcampus.wekiki.group.invitation.Invitation;
-import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup.UnOfficialClosedGroup;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
+import com.kakao.techcampus.wekiki.group.domain.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.Comparator;
-import java.util.List;
 
 @Repository
 public interface GroupJPARepository extends JpaRepository<Group, Long> {

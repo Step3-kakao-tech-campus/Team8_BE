@@ -1,6 +1,6 @@
-package com.kakao.techcampus.wekiki.group.groupDTO.responseDTO;
+package com.kakao.techcampus.wekiki.group.dto.responseDTO;
 
-import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 
 public record CreateUnOfficialGroupResponseDTO(
         String groupName,

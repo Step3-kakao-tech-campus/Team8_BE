@@ -1,12 +1,10 @@
-package com.kakao.techcampus.wekiki.group.unOfficialGroup.closedGroup;
+package com.kakao.techcampus.wekiki.group.domain;
 
-import com.kakao.techcampus.wekiki.group.Group;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import com.kakao.techcampus.wekiki.group.invitation.Invitation;
 
 import java.time.LocalDateTime;
 

@@ -1,8 +1,8 @@
-package com.kakao.techcampus.wekiki.group.groupDTO.responseDTO;
+package com.kakao.techcampus.wekiki.group.dto.responseDTO;
 
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.OfficialGroup;
+import com.kakao.techcampus.wekiki.group.domain.UnOfficialOpenedGroup;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;

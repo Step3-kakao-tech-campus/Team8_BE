@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.member;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
