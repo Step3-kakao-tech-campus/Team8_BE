@@ -5,10 +5,7 @@ import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,6 +28,8 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     private PageInfo pageInfo;
 
@@ -64,11 +63,20 @@ public class Post {
         this.orders--;
     }
 
-    public void modifyPost(GroupMember groupMember, String title, String content){
+    public History modifyPost(GroupMember groupMember, String title, String content){
         this.groupMember = groupMember;
         this.title = title;
         this.content = content;
         this.created_at = LocalDateTime.now();
+
+        History newHistory = History.builder()
+                .post(this)
+                .build();
+
+        this.historys.add(newHistory);
+        newHistory.setPost(this);
+
+        return newHistory;
     }
 
     public void updateGroupMember(GroupMember groupMember) {
@@ -78,5 +86,10 @@ public class Post {
     public void addComment(Comment comment){
         this.comments.add(comment);
         comment.setPost(this);
+    }
+
+    public void addHistory(History history){
+        this.historys.add(history);
+        history.setPost(this);
     }
 }

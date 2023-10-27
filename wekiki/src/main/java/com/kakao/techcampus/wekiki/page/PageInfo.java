@@ -58,5 +58,10 @@ public class PageInfo {
         this.updated_at = LocalDateTime.now();
     }
 
+    public void addPost(Post post){
+        this.posts.add(post);
+        post.setPageInfo(this);
+    }
+
 
 }
