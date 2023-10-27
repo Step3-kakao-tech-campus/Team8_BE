@@ -1,7 +1,9 @@
 package com.kakao.techcampus.wekiki.group.controller;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
 import com.kakao.techcampus.wekiki.group.dto.requestDTO.CreateUnOfficialGroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.GroupEntryRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.requestDTO.JoinGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.dto.responseDTO.*;
@@ -10,6 +12,7 @@ import com.kakao.techcampus.wekiki.group.service.InvitationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,14 +33,18 @@ public class GroupRestController {
         - 그룹 생성 시 기본 페이지 생성은 어떻게 하는게 좋을까
      */
     @PostMapping("/create")
-    public ResponseEntity<?> createUnOfficialGroup(
-            @RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, Errors errors) {
+    public ResponseEntity<?> createUnOfficialGroup(@RequestBody @Valid CreateUnOfficialGroupRequestDTO requestDTO, BindingResult result) {
+        // 유효성 검사
+        if (result.hasErrors()) {
+            throw new Exception400(result.getFieldError().getDefaultMessage());
+        }
 
         CreateUnOfficialGroupResponseDTO response = groupService.createUnOfficialGroup(requestDTO, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(response));
     }
-    
+
+
     /*
         그룹 검색
      */
@@ -90,9 +97,9 @@ public class GroupRestController {
         - 그 후 그룹 참가로 이동
      */
     @PostMapping("/{groupId}/entry")
-    public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, @RequestParam("entrancePassword") String entrancePassword) {
+    public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, GroupEntryRequestDTO requestDTO) {
 
-        groupService.groupEntry(groupId, entrancePassword);
+        groupService.groupEntry(groupId, requestDTO);
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
@@ -101,8 +108,12 @@ public class GroupRestController {
         그룹 참가
      */
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, JoinGroupRequestDTO requestDTO) {
+    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, JoinGroupRequestDTO requestDTO, BindingResult result) {
 
+        // 유효성 검사
+        if (result.hasErrors()) {
+            throw new Exception400(result.getFieldError().getDefaultMessage());
+        }
 
         groupService.joinGroup(groupId, currentMember(), requestDTO);
 
@@ -159,7 +170,12 @@ public class GroupRestController {
         그룹 내 본인 정보 수정
      */
     @PatchMapping("/{groupId}/myInfo")
-    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, UpdateMyGroupPageDTO requestDTO) {
+    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, UpdateMyGroupPageDTO requestDTO, BindingResult result) {
+
+        // 유효성 검사
+        if (result.hasErrors()) {
+            throw new Exception400(result.getFieldError().getDefaultMessage());
+        }
 
         groupService.updateMyGroupPage(groupId, currentMember(), requestDTO);
         

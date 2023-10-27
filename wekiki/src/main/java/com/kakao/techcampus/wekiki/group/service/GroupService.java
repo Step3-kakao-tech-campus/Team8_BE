@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
 import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.GroupEntryRequestDTO;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.dto.requestDTO.CreateUnOfficialGroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.requestDTO.JoinGroupRequestDTO;
@@ -21,7 +22,6 @@ import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -174,11 +174,12 @@ public class GroupService {
      */
     public SearchGroupInfoDTO getGroupInfo(Long groupId) {
         try {
-            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
-            return new SearchGroupInfoDTO(group);
+            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
+                    .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
 
-        } catch (EntityNotFoundException e) {
-            throw new Exception404("그룹을 찾을 수 없습니다.");
+            return new SearchGroupInfoDTO(group);
+        } catch (Exception404 e) {
+            throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -188,19 +189,18 @@ public class GroupService {
     /*
         비공식 공개 그룹 입장
      */
-    public void groupEntry(Long groupId, String entrancePassword) {
+    public void groupEntry(Long groupId, GroupEntryRequestDTO requestDTO) {
         try {
-            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId);
+            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
+                    .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
 
             // 틀린 경우, 에러 핸들링
-            if(!group.getEntrancePassword().equals(entrancePassword)) {
+            if(!group.getEntrancePassword().equals(requestDTO.entrancePassword())) {
                 throw new Exception400("비밀번호가 틀렸습니다.");
             }
 
-        } catch (Exception400 e) {
+        } catch (Exception400 | Exception404 e) {
             throw e;
-        }  catch (EntityNotFoundException e) {
-            throw new Exception404("그룹을 찾을 수 없습니다.");
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -216,7 +216,6 @@ public class GroupService {
             Member member = getMemberById(memberId);
 
             // 그룹 정보 확인
-            // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
             // 이미 가입한 상태일 시 예외 처리
@@ -270,7 +269,6 @@ public class GroupService {
             Member member = getMemberById(memberId);
 
             // 그룹 정보 확인
-            // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
             // 그룹 멤버 확인
@@ -300,7 +298,6 @@ public class GroupService {
             Member member = getMemberById(memberId);
 
             // 그룹 정보 확인
-            // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
             // 그룹 멤버 확인
@@ -329,11 +326,9 @@ public class GroupService {
             Member member = getMemberById(memberId);
 
             // 그룹 정보 확인
-            // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
             // 그룹 멤버 확인
-            // TODO: Redis 활용
             ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
 
             // 그룹 닉네임 변경
@@ -360,12 +355,10 @@ public class GroupService {
             Member member = getMemberById(memberId);
 
             // 그룹 정보 확인
-            // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
             // 그룹 멤버 확인
-            // TODO: Redis 활용
-            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberAndGroup(member, group);
+            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId);
 
             // 탈퇴 그룹 회원 생성
             InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);

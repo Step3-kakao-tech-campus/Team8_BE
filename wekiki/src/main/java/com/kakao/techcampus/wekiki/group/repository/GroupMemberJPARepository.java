@@ -20,4 +20,6 @@ public interface GroupMemberJPARepository extends JpaRepository<GroupMember, Lon
 
     @Query("SELECT agm FROM ActiveGroupMember agm WHERE agm.member.id = :memberId AND agm.group.id = :groupId")
     Optional<ActiveGroupMember> findGroupMemberByMemberIdAndGroupId(Long memberId, Long groupId);
+
+    ActiveGroupMember findActiveGroupMemberByMemberIdAndGroupId(Long memberId, Long groupId);
 }
