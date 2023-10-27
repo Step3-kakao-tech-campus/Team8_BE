@@ -34,10 +34,10 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     private PageInfo pageInfo;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<History> historys  = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments  = new ArrayList<>();
 
     private String title;
@@ -73,5 +73,10 @@ public class Post {
 
     public void updateGroupMember(GroupMember groupMember) {
         this.groupMember = groupMember;
+    }
+
+    public void addComment(Comment comment){
+        this.comments.add(comment);
+        comment.setPost(this);
     }
 }
