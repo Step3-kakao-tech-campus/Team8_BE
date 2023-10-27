@@ -219,6 +219,11 @@ public class GroupService {
             // TODO: Redis 활용
             Group group = getGroupById(groupId);
 
+            // 이미 가입한 상태일 시 예외 처리
+            if (groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
+                throw new Exception400("이미 가입된 회원입니다.");
+            }
+
             // 재가입 회원인지 확인
             InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
 
@@ -233,9 +238,9 @@ public class GroupService {
             // GroupMember 저장
             groupMemberJPARepository.save(groupMember);
 
-        } catch (Exception404 e) {
+        } catch (Exception400 | Exception404 e) {
             throw e;
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
     }
