@@ -39,7 +39,7 @@ public class PageRestController {
     @PostMapping("/create")
     public ResponseEntity<?> createPage(@PathVariable Long groupid,@RequestBody PageInfoRequest.createPageDTO request) {
 
-        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), request.getGroupId(), currentMember());
+        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), groupid, currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
