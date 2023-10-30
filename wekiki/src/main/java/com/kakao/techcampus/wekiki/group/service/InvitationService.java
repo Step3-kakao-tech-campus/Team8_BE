@@ -2,8 +2,7 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.dto.responseDTO.GetInvitationLinkResponseDTO;
-import com.kakao.techcampus.wekiki.group.dto.responseDTO.ValidateInvitationResponseDTO;
+import com.kakao.techcampus.wekiki.group.dto.responseDTO.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,7 +28,7 @@ public class InvitationService {
         - 기존에 없으면 새로 생성
         - new GetInvitationLinkResponseDTO(Invitation invitation)
      */
-    public GetInvitationLinkResponseDTO getGroupInvitationCode(Long groupId) {
+    public GroupResponseDTO.GetInvitationLinkResponseDTO getGroupInvitationCode(Long groupId) {
 
         String groupKey = GROUP_ID_PREFIX + groupId;
 
@@ -48,11 +47,11 @@ public class InvitationService {
         }
 
         // 있으면 해당 초대 링크로 requestDTO 생성
-        return new GetInvitationLinkResponseDTO(invitation);
+        return new GroupResponseDTO.GetInvitationLinkResponseDTO(invitation);
     }
 
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결
-    public ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
+    public GroupResponseDTO.ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
 
         // 초대 링크를 통해 groupId와 invitation 찾기
         Long groupId = redisGroupId.opsForValue().get(INVITATION_PREFIX + invitationLink);
@@ -69,7 +68,7 @@ public class InvitationService {
             throw new Exception400("이미 만료된 초대 링크입니다.");
         }
 
-        return new ValidateInvitationResponseDTO(groupId);
+        return new GroupResponseDTO.ValidateInvitationResponseDTO(groupId);
     }
 
     /*

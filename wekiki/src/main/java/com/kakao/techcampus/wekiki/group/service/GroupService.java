@@ -4,11 +4,8 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
 import com.kakao.techcampus.wekiki.group.domain.Group;
-import com.kakao.techcampus.wekiki.group.dto.requestDTO.GroupEntryRequestDTO;
+import com.kakao.techcampus.wekiki.group.dto.requestDTO.*;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.dto.requestDTO.CreateUnOfficialGroupRequestDTO;
-import com.kakao.techcampus.wekiki.group.dto.requestDTO.JoinGroupRequestDTO;
-import com.kakao.techcampus.wekiki.group.dto.requestDTO.UpdateMyGroupPageDTO;
 import com.kakao.techcampus.wekiki.group.dto.responseDTO.*;
 import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
@@ -47,7 +44,7 @@ public class GroupService {
         비공식 그룹 생성
      */
     @Transactional
-    public CreateUnOfficialGroupResponseDTO createUnOfficialGroup(CreateUnOfficialGroupRequestDTO requestDTO, Long memberId) {
+    public GroupResponseDTO.CreateUnOfficialGroupResponseDTO createUnOfficialGroup(GroupRequestDTO.CreateUnOfficialGroupRequestDTO requestDTO, Long memberId) {
         try {
             // Group 생성
             Group group = switch (requestDTO.groupType()) {
@@ -66,7 +63,7 @@ public class GroupService {
             groupMemberJPARepository.save(groupMember);
 
             // return
-            return new CreateUnOfficialGroupResponseDTO(group);
+            return new GroupResponseDTO.CreateUnOfficialGroupResponseDTO(group);
 
         } catch (Exception400 | Exception404 e) {
             throw e;
@@ -79,7 +76,7 @@ public class GroupService {
     /*
         비공식 비공개 그룹 생성 후 반환
      */
-    protected UnOfficialClosedGroup buildUnOfficialClosedGroup(CreateUnOfficialGroupRequestDTO requestDTO) {
+    protected UnOfficialClosedGroup buildUnOfficialClosedGroup(GroupRequestDTO.CreateUnOfficialGroupRequestDTO requestDTO) {
         // Group 생성
         return UnOfficialClosedGroup.unOfficialClosedGroupBuilder()
                 .groupName(requestDTO.groupName())
@@ -91,7 +88,7 @@ public class GroupService {
     /*
         비공식 공개 그룹 생성 후 반환
      */
-    protected UnOfficialOpenedGroup buildUnOfficialOpenedGroup(CreateUnOfficialGroupRequestDTO requestDTO) {
+    protected UnOfficialOpenedGroup buildUnOfficialOpenedGroup(GroupRequestDTO.CreateUnOfficialGroupRequestDTO requestDTO) {
         // Group 생성
         return UnOfficialOpenedGroup.unOfficialOpenedGroupBuilder()
                 .groupName(requestDTO.groupName())
@@ -119,7 +116,7 @@ public class GroupService {
         공식 그룹 리스트, 비공식 공개 그룹 리스트 그룹
         - keyword가 포함된 모든 그룹 그룹별 리스트
      */
-    public SearchGroupDTO searchGroupByKeyword(String keyword) {
+    public GroupResponseDTO.SearchGroupDTO searchGroupByKeyword(String keyword) {
         try {
             Pageable pageable = PageRequest.of(0, 10);
 
@@ -128,7 +125,7 @@ public class GroupService {
             // 비공식 공개 그룹 리스트
             Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
 
-            return new SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
+            return new GroupResponseDTO.SearchGroupDTO(officialGroups, unOfficialOpenedGroups);
 
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
@@ -138,14 +135,14 @@ public class GroupService {
     /*
         공식 그룹 추가 리스트
      */
-    public SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page, int size) {
+    public GroupResponseDTO.SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
 
             // 비공식 공개 그룹 리스트
             Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
 
-            return new SearchOfficialGroupResponseDTO(officialGroups);
+            return new GroupResponseDTO.SearchOfficialGroupResponseDTO(officialGroups);
 
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
@@ -155,14 +152,14 @@ public class GroupService {
     /*
         비공식 공개 그룹 추가 리스트
      */
-    public SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page, int size) {
+    public GroupResponseDTO.SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page, int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
 
             // 비공식 공개 그룹 리스트
             Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
 
-            return new SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
+            return new GroupResponseDTO.SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
 
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
@@ -172,12 +169,12 @@ public class GroupService {
     /*
         비공식 공개 그룹 상세 정보 조회
      */
-    public SearchGroupInfoDTO getGroupInfo(Long groupId) {
+    public GroupResponseDTO.SearchGroupInfoDTO getGroupInfo(Long groupId) {
         try {
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
                     .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
 
-            return new SearchGroupInfoDTO(group);
+            return new GroupResponseDTO.SearchGroupInfoDTO(group);
         } catch (Exception404 e) {
             throw e;
         } catch (Exception e) {
@@ -189,7 +186,7 @@ public class GroupService {
     /*
         비공식 공개 그룹 입장
      */
-    public void groupEntry(Long groupId, GroupEntryRequestDTO requestDTO) {
+    public void groupEntry(Long groupId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
         try {
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
                     .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
@@ -210,7 +207,7 @@ public class GroupService {
         그룹 참가 (공통 부분)
      */
     @Transactional
-    public void joinGroup(Long groupId, Long memberId, JoinGroupRequestDTO requestDTO) {
+    public void joinGroup(Long groupId, Long memberId, GroupRequestDTO.JoinGroupRequestDTO requestDTO) {
         try {
             // 회원 정보 확인
             Member member = getMemberById(memberId);
@@ -247,11 +244,11 @@ public class GroupService {
     /*
         그룹 내 그룹원 리스트 조회
      */
-    public GetGroupMembersResponseDTO getGroupMembers(Long groupId) {
+    public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId) {
         try {
             Group group = getGroupById(groupId);
 
-            return new GetGroupMembersResponseDTO(group);
+            return new GroupResponseDTO.GetGroupMembersResponseDTO(group);
 
         } catch (Exception404 e) {
             throw e;
@@ -263,7 +260,7 @@ public class GroupService {
     /*
         그룹 내 마이 페이지
      */
-    public MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
+    public GroupResponseDTO.MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         try {
             // 그룹 멤버 확인
             ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
@@ -274,7 +271,7 @@ public class GroupService {
             Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
 
             // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
-            return new MyGroupInfoResponseDTO(groupMember.getGroup(), groupMember, myHistoryList);
+            return new GroupResponseDTO.MyGroupInfoResponseDTO(groupMember.getGroup(), groupMember, myHistoryList);
 
         } catch (Exception404 e) {
             throw e;
@@ -287,7 +284,7 @@ public class GroupService {
         내 문서 기여 목록 전체 보기
      */
     @Transactional
-    public MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
+    public GroupResponseDTO.MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
         try {
             // 그룹 멤버 확인
             ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
@@ -296,7 +293,7 @@ public class GroupService {
             Pageable pageable = PageRequest.of(page, size);
             Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
 
-            return new MyGroupHistoryResponseDTO(myHistoryList);
+            return new GroupResponseDTO.MyGroupHistoryResponseDTO(myHistoryList);
 
         } catch (Exception404 e) {
             throw e;
@@ -310,7 +307,7 @@ public class GroupService {
         그룹 내 마이 페이지 정보 수정
      */
     @Transactional
-    public void updateMyGroupPage(Long groupId, Long memberId, UpdateMyGroupPageDTO requestDTO) {
+    public void updateMyGroupPage(Long groupId, Long memberId, GroupRequestDTO.UpdateMyGroupPageDTO requestDTO) {
         try {
             // 그룹 멤버 확인
             ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
