@@ -208,37 +208,30 @@ public class GroupService {
      */
     @Transactional
     public void joinGroup(Long groupId, Long memberId, GroupRequestDTO.JoinGroupRequestDTO requestDTO) {
-        try {
-            // 회원 정보 확인
-            Member member = getMemberById(memberId);
+        // 회원 정보 확인
+        Member member = getMemberById(memberId);
 
-            // 그룹 정보 확인
-            Group group = getGroupById(groupId);
+        // 그룹 정보 확인
+        Group group = getGroupById(groupId);
 
-            // 이미 가입한 상태일 시 예외 처리
-            if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
-                throw new Exception400("이미 가입된 회원입니다.");
-            }
-
-            // 재가입 회원인지 확인
-            InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
-
-            // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
-            ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
-
-            // 그룹 멤버 잔재 삭제
-            if(wasGroupMember != null) {
-                groupMemberJPARepository.delete(wasGroupMember);
-            }
-
-            // GroupMember 저장
-            groupMemberJPARepository.save(groupMember);
-
-        } catch (Exception400 | Exception404 e) {
-            throw e;
-        } catch (Exception e) {
-            throw new Exception500("서버 에러가 발생했습니다.");
+        // 이미 가입한 상태일 시 예외 처리
+        if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
+            throw new Exception400("이미 가입된 회원입니다.");
         }
+
+        // 재가입 회원인지 확인
+        InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
+
+        // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
+        ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
+
+        // 그룹 멤버 잔재 삭제
+        if(wasGroupMember != null) {
+            groupMemberJPARepository.delete(wasGroupMember);
+        }
+
+        // GroupMember 저장
+        groupMemberJPARepository.save(groupMember);
     }
 
     /*

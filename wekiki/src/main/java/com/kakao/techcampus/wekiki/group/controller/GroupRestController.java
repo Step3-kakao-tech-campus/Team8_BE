@@ -93,7 +93,7 @@ public class GroupRestController {
         - 그 후 그룹 참가로 이동
      */
     @PostMapping("/{groupId}/entry")
-    public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
+    public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
 
         groupService.groupEntry(groupId, requestDTO);
 
@@ -104,7 +104,7 @@ public class GroupRestController {
         그룹 참가
      */
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, GroupRequestDTO.JoinGroupRequestDTO requestDTO, BindingResult result) {
+    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.JoinGroupRequestDTO requestDTO, BindingResult result) {
 
         // 유효성 검사
         if (result.hasErrors()) {
@@ -166,7 +166,7 @@ public class GroupRestController {
         그룹 내 본인 정보 수정
      */
     @PatchMapping("/{groupId}/myInfo")
-    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, GroupRequestDTO.UpdateMyGroupPageDTO requestDTO, BindingResult result) {
+    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.UpdateMyGroupPageDTO requestDTO, BindingResult result) {
 
         // 유효성 검사
         if (result.hasErrors()) {

@@ -7,6 +7,7 @@ import com.kakao.techcampus.wekiki.group.domain.member.InactiveGroupMember;
 import com.kakao.techcampus.wekiki.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,5 +18,5 @@ public interface GroupMemberJPARepository extends JpaRepository<GroupMember, Lon
     InactiveGroupMember findInactiveGroupMemberByMemberAndGroup(Member member, Group group);
 
     @Query("SELECT agm FROM ActiveGroupMember agm WHERE agm.member.id = :memberId AND agm.group.id = :groupId")
-    Optional<ActiveGroupMember> findActiveGroupMemberByMemberIdAndGroupId(Long memberId, Long groupId);
+    Optional<ActiveGroupMember> findActiveGroupMemberByMemberIdAndGroupId(@Param("memberId") Long memberId, @Param("groupId") Long groupId);
 }
