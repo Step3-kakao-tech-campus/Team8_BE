@@ -130,7 +130,7 @@ public class GroupRestController {
     /*
         그룹 초대링크 유효성 검사(?)
      */
-    @GetMapping("/{invitationLink}")
+    @GetMapping("/invitation/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
 
         GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.ValidateInvitation(invitationLink);

@@ -2,10 +2,10 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +16,7 @@ import java.util.Set;
 @Service
 public class InvitationService {
 
-    private final RedisTemplate<String, Invitation> redisInvitation;
-    private final RedisTemplate<String, Long> redisGroupId;
+    private final RedisUtils redisUtils;
 
     private static final String GROUP_ID_PREFIX = "group_id:";
     private static final String INVITATION_PREFIX = "invitation:";
@@ -33,7 +32,7 @@ public class InvitationService {
         String groupKey = GROUP_ID_PREFIX + groupId;
 
         // 기존 초대 링크 여부 확인
-        Invitation invitation = redisInvitation.opsForValue().get(groupKey);
+        Invitation invitation = (Invitation) redisUtils.getValues(groupKey);
 
         // 없으면 새로 생성 후 Redis 저장
         /*
@@ -42,8 +41,8 @@ public class InvitationService {
          */
         if(invitation == null) {
             invitation = Invitation.create(groupId);
-            redisInvitation.opsForValue().set(groupKey, invitation, invitation.remainDuration(LocalDateTime.now()));
-            redisGroupId.opsForValue().set(INVITATION_PREFIX + invitation.code(), groupId, invitation.remainDuration(LocalDateTime.now()));
+            redisUtils.setInvitationValues(groupKey, invitation, invitation.remainDuration(LocalDateTime.now()));
+            redisUtils.setGroupIdValues(INVITATION_PREFIX + invitation.code(), groupId, invitation.remainDuration(LocalDateTime.now()));
         }
 
         // 있으면 해당 초대 링크로 requestDTO 생성
@@ -54,7 +53,7 @@ public class InvitationService {
     public GroupResponseDTO.ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
 
         // 초대 링크를 통해 groupId와 invitation 찾기
-        Long groupId = redisGroupId.opsForValue().get(INVITATION_PREFIX + invitationLink);
+        Long groupId = (Long) redisUtils.getValues(INVITATION_PREFIX + invitationLink);
 
         // 해당하는 groupId가 없는 경우 예외 처리
         if (groupId == null) {
@@ -62,7 +61,7 @@ public class InvitationService {
         }
 
         // 초대 링크 기간 확인
-        Invitation invitation = redisInvitation.opsForValue().get(groupId);
+        Invitation invitation = (Invitation) redisUtils.getValues(String.valueOf(groupId));
 
         if (invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
             throw new Exception400("이미 만료된 초대 링크입니다.");
@@ -76,15 +75,15 @@ public class InvitationService {
         - redisInvitation, redisGroupId는 같은 수명을 가지기 때문에 하나만 확인해서 둘 다 삭제
      */
     private void removeExpiredInvitations() {
-        Set<String> keys = redisInvitation.keys(GROUP_ID_PREFIX + "*");
+        Set<String> keys = redisUtils.getKeys(GROUP_ID_PREFIX + "*");
 
         for (String key : keys) {
-            Invitation invitation = redisInvitation.opsForValue().get(key);
+            Invitation invitation = (Invitation) redisUtils.getValues(key);
 
             // 초대 링크 수명이 다하면 삭제
             if (invitation != null && !invitation.isUsableAt(LocalDateTime.now())) {
-                redisInvitation.delete(key);
-                redisGroupId.delete(INVITATION_PREFIX + invitation.code());
+                redisUtils.deleteValues(key);
+                redisUtils.deleteValues(INVITATION_PREFIX + invitation.code());
             }
         }
     }
