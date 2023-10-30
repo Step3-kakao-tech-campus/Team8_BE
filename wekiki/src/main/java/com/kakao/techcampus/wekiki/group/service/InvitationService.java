@@ -2,7 +2,7 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.dto.responseDTO.GroupResponseDTO;
+import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

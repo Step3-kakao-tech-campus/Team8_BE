@@ -2,8 +2,8 @@ package com.kakao.techcampus.wekiki.group.controller;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
-import com.kakao.techcampus.wekiki.group.dto.requestDTO.*;
-import com.kakao.techcampus.wekiki.group.dto.responseDTO.*;
+import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
+import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.service.GroupService;
 import com.kakao.techcampus.wekiki.group.service.InvitationService;
 import jakarta.validation.Valid;

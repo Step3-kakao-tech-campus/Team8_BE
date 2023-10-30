@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.group.dto.responseDTO;
+package com.kakao.techcampus.wekiki.group.dto;
 
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
@@ -23,7 +23,7 @@ public class GroupResponseDTO {
     public record MyGroupInfoResponseDTO(
             String groupName,
             String groupNickName,
-            List<MyHistoryDTO> myHistoryDTOS
+            List<MyHistoryDTO> myHistorgiyDTOS
     ) {
         public MyGroupInfoResponseDTO(Group group, GroupMember groupMember, Page<History> histories) {
             this(group.getGroupName(), groupMember.getNickName(), histories.stream().map(MyHistoryDTO::new).collect(Collectors.toList()));

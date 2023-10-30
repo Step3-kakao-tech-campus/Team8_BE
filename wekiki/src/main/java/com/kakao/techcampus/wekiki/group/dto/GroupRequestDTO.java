@@ -1,4 +1,4 @@
-package com.kakao.techcampus.wekiki.group.dto.requestDTO;
+package com.kakao.techcampus.wekiki.group.dto;
 
 import com.kakao.techcampus.wekiki.group.GroupType;
 import jakarta.validation.constraints.NotNull;
