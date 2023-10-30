@@ -10,12 +10,14 @@ import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
+import com.kakao.techcampus.wekiki.member.MemberResponse;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
@@ -41,6 +44,35 @@ public class PageService {
     private final RedisUtility redisUtility;
 
     final int PAGE_COUNT = 10;
+    @Transactional
+    public PageInfoResponse.mainPageDTO getMainPage() {
+        if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
+            // 로그인 안한 사람
+            System.out.println("로그인 안함");
+            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
+                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .collect(Collectors.toList());
+            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
+                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .collect(Collectors.toList());
+            return new PageInfoResponse.mainPageDTO(officialGroupList, unOfficialGroupList);
+        }
+        else {
+            System.out.println("로그인 함");
+            Optional<Member> member = memberJPARepository.findById(currentMember());
+            List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupList = member.get().getGroupMembers().stream()
+                    .map(groupMember -> {
+                        return new PageInfoResponse.mainPageDTO.GroupDTO(groupMember.getGroup());
+                    }).toList();
+            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
+                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .collect(Collectors.toList());
+            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
+                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .collect(Collectors.toList());
+            return new PageInfoResponse.mainPageDTO(myGroupList, officialGroupList, unOfficialGroupList);
+        }
+    }
 
     @Transactional
     public PageInfoResponse.getPageIndexDTO getPageIndex(Long groupId,Long memberId, Long pageId){

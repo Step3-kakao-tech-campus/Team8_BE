@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki.member.MemberResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,7 +63,7 @@ public class JWTTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
+        } catch (SecurityException | MalformedJwtException | SignatureException e) {
             log.info("올바르지 않은 서명의 JWT Token 입니다.", e);
         } catch (ExpiredJwtException e) {
             log.info("만료된 JWT Token 입니다.", e);
