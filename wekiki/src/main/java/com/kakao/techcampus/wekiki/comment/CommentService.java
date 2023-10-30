@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -51,7 +52,7 @@ public class CommentService {
 
         // 5. postId로 Comment 다 가져오기
         Pageable pageable = PageRequest.of(pageNo, COMMENT_COUNT);
-        Page<Comment> comments = commentJPARepository.findCommentsByPostId(postId, pageable); // TODO : fetch join (comment랑 groupmember)
+        Page<Comment> comments = commentJPARepository.findCommentsByPostIdWithGroupMembers(postId, pageable);
 
         // 6. return DTO
         List<CommentResponse.getCommentDTO.commentDTO> commentDTOs = comments.getContent()
@@ -78,10 +79,10 @@ public class CommentService {
         // 4. comment 생성
         Comment comment = Comment.builder()
                 .groupMember(groupMember)
-                .post(post)
                 .content(content)
                 .created_at(LocalDateTime.now())
                 .build();
+        post.addComment(comment);
         Comment savedComment = commentJPARepository.save(comment);
 
         // 5. return DTO
@@ -170,8 +171,9 @@ public class CommentService {
     }
 
     public Comment checkCommentFromCommentId(Long commentId){
-        return commentJPARepository.findById(commentId)
-                .orElseThrow(() -> new Exception404("존재하지 않는 댓글 입니다."));
+        return commentJPARepository.findCommentWithGroupMember(commentId).
+                orElseThrow(() -> new Exception404("존재하지 않는 댓글 입니다."));
+
     }
 
 }
