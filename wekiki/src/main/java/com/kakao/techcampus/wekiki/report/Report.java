@@ -20,10 +20,10 @@ public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private GroupMember fromMember;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private History history;
     private String content;
 
@@ -37,5 +37,6 @@ public class Report {
         this.content = content;
         this.created_at = created_at;
     }
+
 
 }

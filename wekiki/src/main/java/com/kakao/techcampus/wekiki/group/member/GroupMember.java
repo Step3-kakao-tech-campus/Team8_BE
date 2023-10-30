@@ -17,17 +17,15 @@ import java.util.UUID;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "group_member_tb")
 @DiscriminatorColumn(name = "member_status", discriminatorType = DiscriminatorType.STRING)
-public class
-GroupMember {
+public class GroupMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Member member;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Group group;
-
     private String nickName;
     private int memberLevel;
     private LocalDateTime created_at;

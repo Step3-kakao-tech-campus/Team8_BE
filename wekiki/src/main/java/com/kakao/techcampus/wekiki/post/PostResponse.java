@@ -77,7 +77,7 @@ public class PostResponse {
             Long historyId;
             String title;
             String content;
-            LocalDateTime createdAt;
+            LocalDateTime created_at;
 
             public historyDTO(GroupMember groupMember,History history){
                 this.memberId = groupMember.getId();
@@ -85,7 +85,7 @@ public class PostResponse {
                 this.historyId = history.getId();
                 this.title = history.getTitle();
                 this.content = history.getContent();
-                this.createdAt = history.getCreated_at();
+                this.created_at = history.getCreated_at();
             }
 
         }

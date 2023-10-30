@@ -20,10 +20,9 @@ public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private GroupMember groupMember;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="POST_ID")
+    @ManyToOne
     private Post post;
 
     private String title;

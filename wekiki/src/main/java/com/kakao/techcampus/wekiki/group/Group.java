@@ -1,6 +1,5 @@
 package com.kakao.techcampus.wekiki.group;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Entity
@@ -24,10 +21,6 @@ public class Group {
     private Long id;
     private String groupName;
     private String groupProfileImage;
-
-    @OneToMany(mappedBy = "group")
-    private List<GroupMember> groupMembers = new ArrayList<>();
-
     private int memberCount;
     private LocalDateTime created_at;
 

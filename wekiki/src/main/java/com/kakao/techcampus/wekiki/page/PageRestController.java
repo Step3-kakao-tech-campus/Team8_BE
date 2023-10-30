@@ -22,8 +22,6 @@ public class PageRestController {
 
      */
 
-
-
     @GetMapping("/{pageid}")
     public ResponseEntity<?> getPageFromId(@PathVariable Long groupid,@PathVariable Long pageid) {
 

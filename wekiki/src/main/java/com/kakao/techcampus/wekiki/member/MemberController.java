@@ -25,8 +25,8 @@ public class MemberController {
 
     @GetMapping("/myinfo")
     public ResponseEntity<?> myPage() {
-        MemberResponse.myInfoResponseDTO response = memberService.getMyInfo();
-        return ResponseEntity.ok(ApiUtils.success(response));
+        memberService.getMyInfo();
+        return ResponseEntity.ok(true);
     }
 
     @DeleteMapping("/delete")
