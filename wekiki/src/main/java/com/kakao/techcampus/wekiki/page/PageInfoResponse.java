@@ -140,11 +140,20 @@ public class PageInfoResponse {
             String postTitle;
             String content;
 
+            int order;
+            Long parentPostId;
+
             public postDTO(Post post, String index){
                 this.postId = post.getId();
                 this.index = index;
                 this.postTitle = post.getTitle();
                 this.content = post.getContent();
+                this.order = post.getOrders();
+                if(post.getParent() != null){
+                    this.parentPostId = post.getParent().getId();
+                }else{
+                    this.parentPostId = 0L;
+                }
             }
         }
     }

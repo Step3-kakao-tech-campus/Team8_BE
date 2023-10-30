@@ -9,7 +9,6 @@ public class PageInfoRequest {
     @Setter
     public static class createPageDTO {
         private String pageName;
-        private Long groupId;
     }
 
 

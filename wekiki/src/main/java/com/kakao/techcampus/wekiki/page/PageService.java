@@ -53,10 +53,11 @@ public class PageService {
         checkGroupMember(memberId, groupId);
 
         // 4. pageId로 PageInfo 객체 들고오기
-        PageInfo pageInfo = checkPageFromPageId(pageId);
+        PageInfo pageInfo = pageJPARepository.findByPageIdWithPosts(pageId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
 
         // 5. 해당 groupId를 들고 있는 모든 페이지 Order 순으로 들고오기
-        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(pageId);
+        List<Post> posts = pageInfo.getPosts();
 
         // 6. 목차 생성하기
         HashMap<Long, String> indexs = indexUtils.createIndex(posts);
@@ -114,11 +115,12 @@ public class PageService {
         // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
         checkGroupMember(memberId, groupId);
 
-        // 4. 존재하는 페이지 인지 체크
-        PageInfo pageInfo = checkPageFromPageId(pageId);
+        // 4. pageId로 PageInfo 객체 들고오기
+        PageInfo pageInfo = pageJPARepository.findByPageIdWithPosts(pageId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
 
         // 5. 해당 groupId를 들고 있는 모든 페이지 Order 순으로 들고오기
-        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(pageId);
+        List<Post> posts = pageInfo.getPosts();
 
         // 6. 목차 생성하기
         HashMap<Long, String> indexs = indexUtils.createIndex(posts);
@@ -144,8 +146,8 @@ public class PageService {
         // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
         checkGroupMember(memberId, groupId);
 
-        // 4. 그룹 내 동일한 title의 Page가 존재하는지 체크 (TODO : where 문에 groupId 추가)
-        if(pageJPARepository.findByTitle(title).isPresent()){
+        // 4. 그룹 내 동일한 title의 Page가 존재하는지 체크
+        if(pageJPARepository.findByTitle(groupId,title).isPresent()){
             throw new Exception400("이미 존재하는 페이지입니다.");
         }
 
@@ -232,24 +234,23 @@ public class PageService {
         // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
         checkGroupMember(memberId, groupId);
 
-        // 4. keyword로 존재하는 page title에 keyword를 가지고 있는 페이지들 다 가져오기 (TODO : group 추가)
-        PageRequest pageRequest = PageRequest.of(pageNo, PAGE_COUNT);
-        Page<PageInfo> pages = pageJPARepository.findPagesByTitleContainingKeyword(keyword, pageRequest);
+        // 4. keyword로 존재하는 page title에 keyword를 가지고 있는 페이지들 다 가져오기
+        // (TODO : fetch join이랑 Pagination 함께 쓰면 페이지네이션을 애플리케이션에 들고온 다음 하게됨)
+        Page<PageInfo> pages = pageJPARepository.findPagesWithPosts(groupId, keyword, PageRequest.of(pageNo, PAGE_COUNT));
 
-        // 해당 Page들을 FK로 가지고 있는 Post들 중에 Orders가 1인 Post들 가져오기
+        // 5. 해당 Page들을 FK로 가지고 있는 Post들 중에 Orders가 1인 Post들 가져오기
         List<PageInfoResponse.searchPageDTO.pageDTO> res = new ArrayList<>();
+
         for(PageInfo p : pages.getContent()){
-            List<Post> posts = postJPARepository.findFirstPost(p.getId());
+            List<Post> posts = p.getPosts();
             if(posts.size() == 0){
                 res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,""));
             }else{
                 res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,posts.get(0).getContent()));
             }
-            // TODO : 성능 개선이 필요하긴 할듯
-            //  posts.get(0)가 존재하면 DTO 만들어서 던지기 + 고려할 점 : post의 contents만 들고 오는 방식? (흠..)
         }
 
-        // 4. pages로 DTO return
+        // 6. pages로 DTO return
         return new PageInfoResponse.searchPageDTO(res);
     }
 
@@ -265,10 +266,9 @@ public class PageService {
         // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
         checkGroupMember(memberId, groupId);
 
-        // 4. 특정 groupId를 가진 Page들 order by로 updated_at이 최신인 10개 Page 조회 (TODO : where 문에 groupId 추가)
+        // 4. 특정 groupId를 가진 Page들 order by로 updated_at이 최신인 10개 Page 조회
         Pageable pageable = PageRequest.of(0, 10);
-        List<PageInfo> recentPage = pageJPARepository.findOrderByUpdatedAtDesc(pageable);
-        //List<PageInfo> recentPage = pageJPARepository.findByGroupIdOrderByUpdatedAtDesc(groupId, pageable);
+        List<PageInfo> recentPage = pageJPARepository.findByGroupIdOrderByUpdatedAtDesc(groupId, pageable);
 
         // 5. return DTO
         List<PageInfoResponse.getRecentPageDTO.RecentPageDTO> collect = recentPage.stream().map(pageInfo ->
@@ -289,13 +289,12 @@ public class PageService {
         // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
         checkGroupMember(memberId, groupId);
 
-        // 4. groupId랑 title로 Page있는지 확인 (TODO : where 문에 groupId 추가)
-        PageInfo page = pageJPARepository.findByTitle(title).
+        // 4. groupId랑 title로 Page있는지 확인 (fetch join으로 post들 가져오기)
+        PageInfo page = pageJPARepository.findByTitleWithPosts(groupId,title).
                 orElseThrow(() -> new Exception404("존재하지 않는 페이지 입니다."));
 
-
         // 5. 해당 pageId를 들고있는 모든 페이지 Order 순으로 들고오기
-        List<Post> posts = postJPARepository.findPostsByPageIdOrderByOrderAsc(page.getId());
+        List<Post> posts = page.getPosts();
 
         // 6. 목차 생성하기
         HashMap<Long, String> indexs = indexUtils.createIndex(posts);
@@ -349,6 +348,15 @@ public class PageService {
     }
 
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
+
+        /*
+            TODO : groupMember 들고올때 fetch join으로 member랑 group도 들고오기
+            여기서
+            if(activeGroupMember.getMember() != null) throw new Exception404("존재하지 않는 회원입니다.");
+            if(activeGroupMember.getGroup() != null) throw new Exception404("존재하지 않는 그룹입니다.");
+            체크 추가해주기
+         */
+
         return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
