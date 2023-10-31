@@ -7,15 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface GroupJPARepository extends JpaRepository<Group, Long> {
-
     /*
         그룹 검색 용
      */
+    @Query("select g from OfficialGroup g")
+    List<OfficialGroup> findAllOfficialGroup();
+    @Query("select g from UnOfficialOpenedGroup g")
+    List<UnOfficialOpenedGroup> findAllUnOfficialOpenGroup();
     @Query("SELECT g FROM OfficialGroup g WHERE g.groupName LIKE CONCAT('%', :keyword, '%')")
     Page<OfficialGroup> findOfficialGroupsByKeyword(@Param("keyword") String keyword, Pageable pageable);
     @Query("SELECT g FROM UnOfficialOpenedGroup g WHERE g.groupName LIKE CONCAT('%', :keyword, '%')")
