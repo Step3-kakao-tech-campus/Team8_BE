@@ -1,6 +1,5 @@
-package com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup;
+package com.kakao.techcampus.wekiki.group.domain;
 
-import com.kakao.techcampus.wekiki.group.Group;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -21,8 +20,8 @@ public class UnOfficialOpenedGroup extends Group {
     private String entrancePassword;
 
     @Builder(builderMethodName = "unOfficialOpenedGroupBuilder")
-    public UnOfficialOpenedGroup(Long id, String groupName, String groupProfileImage, int memberCount, LocalDateTime created_at, String introduction, String entranceHint, String entrancePassword) {
-        super(id, groupName, groupProfileImage, memberCount, created_at);
+    public UnOfficialOpenedGroup(Long id, String groupName, String groupProfileImage, LocalDateTime created_at, String introduction, String entranceHint, String entrancePassword) {
+        super(id, groupName, groupProfileImage, created_at);
         this.introduction = introduction;
         this.entranceHint = entranceHint;
         this.entrancePassword = entrancePassword;

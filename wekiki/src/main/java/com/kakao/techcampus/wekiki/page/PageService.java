@@ -4,10 +4,10 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @RequiredArgsConstructor
 @Service
@@ -358,7 +357,7 @@ public class PageService {
             체크 추가해주기
          */
 
-        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
 

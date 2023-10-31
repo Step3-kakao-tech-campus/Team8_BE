@@ -2,14 +2,12 @@ package com.kakao.techcampus.wekiki.comment;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
-import com.kakao.techcampus.wekiki.page.PageInfo;
-import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
@@ -161,7 +159,7 @@ public class CommentService {
     }
 
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
-        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
 
