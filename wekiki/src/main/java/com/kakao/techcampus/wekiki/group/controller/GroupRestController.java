@@ -133,7 +133,7 @@ public class GroupRestController {
     @GetMapping("/invitation/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
 
-        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.ValidateInvitation(invitationLink);
+        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.validateInvitation(invitationLink);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }

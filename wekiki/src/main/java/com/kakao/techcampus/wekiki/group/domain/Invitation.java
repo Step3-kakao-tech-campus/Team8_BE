@@ -1,5 +1,9 @@
 package com.kakao.techcampus.wekiki.group.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.Duration;
@@ -7,6 +11,8 @@ import java.time.LocalDateTime;
 
 public record Invitation(
         Long groupId,
+        @JsonSerialize(using = LocalDateTimeSerializer.class)
+        @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         LocalDateTime expiresAt,
         String code
 ) {

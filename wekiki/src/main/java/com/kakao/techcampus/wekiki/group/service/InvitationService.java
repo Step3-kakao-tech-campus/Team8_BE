@@ -1,6 +1,5 @@
 package com.kakao.techcampus.wekiki.group.service;
 
-import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
@@ -10,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -50,24 +50,21 @@ public class InvitationService {
     }
 
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결
-    public GroupResponseDTO.ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
+    public GroupResponseDTO.ValidateInvitationResponseDTO validateInvitation(String invitationLink) {
 
         // 초대 링크를 통해 groupId와 invitation 찾기
-        Long groupId = (Long) redisUtils.getValues(INVITATION_PREFIX + invitationLink);
-
-        // 해당하는 groupId가 없는 경우 예외 처리
-        if (groupId == null) {
-            throw new Exception404("잘못된 접근입니다.");
-        }
+        // groupId는 현재 Integer 타입
+        Object groupId = Optional.ofNullable(redisUtils.getValues(INVITATION_PREFIX + invitationLink))
+                .orElseThrow(() -> new Exception404("잘못된 접근입니다."));
 
         // 초대 링크 기간 확인
-        Invitation invitation = (Invitation) redisUtils.getValues(String.valueOf(groupId));
+        Invitation invitation = (Invitation) redisUtils.getValues(GROUP_ID_PREFIX + groupId);
 
-        if (invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
-            throw new Exception400("이미 만료된 초대 링크입니다.");
+        if(invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
+            throw new Exception404("이미 만료된 초대 링크입니다.");
         }
 
-        return new GroupResponseDTO.ValidateInvitationResponseDTO(groupId);
+        return new GroupResponseDTO.ValidateInvitationResponseDTO(((Integer) groupId).longValue());
     }
 
     /*
