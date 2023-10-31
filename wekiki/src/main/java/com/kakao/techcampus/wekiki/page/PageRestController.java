@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMember;
 
 @RestController
@@ -25,7 +23,7 @@ public class PageRestController {
 
 
     @GetMapping("/{pageid}")
-    public ResponseEntity<?> getPageFromId(@PathVariable Long groupid,@PathVariable Long pageid) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getPageFromIdDTO>> getPageFromId(@PathVariable Long groupid, @PathVariable Long pageid) {
 
         PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromId(currentMember(), groupid, pageid);
 
@@ -39,9 +37,9 @@ public class PageRestController {
      */
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPage(@PathVariable Long groupid,@RequestBody PageInfoRequest.createPageDTO request) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.createPageDTO>> createPage(@PathVariable Long groupid, @RequestBody PageInfoRequest.createPageDTO request) {
 
-        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), request.getGroupId(), currentMember());
+        PageInfoResponse.createPageDTO response = pageService.createPage(request.getPageName(), groupid, currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -52,7 +50,7 @@ public class PageRestController {
      */
 
     @DeleteMapping("/{pageid}")
-    public ResponseEntity<?> deletePage(@PathVariable Long groupid,@PathVariable Long pageid) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.deletePageDTO>> deletePage(@PathVariable Long groupid, @PathVariable Long pageid) {
 
         PageInfoResponse.deletePageDTO response = pageService.deletePage(currentMember(),groupid, pageid);
 
@@ -65,7 +63,7 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/like")
-    public ResponseEntity<?> likePage(@PathVariable Long groupid,@PathVariable Long pageid) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.likePageDTO>> likePage(@PathVariable Long groupid, @PathVariable Long pageid) {
 
         PageInfoResponse.likePageDTO response = pageService.likePage(pageid, groupid, currentMember());
 
@@ -78,12 +76,11 @@ public class PageRestController {
      */
 
     @PostMapping("/{pageid}/hate")
-    public ResponseEntity<?> hatePage(@PathVariable Long groupid,@PathVariable Long pageid) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.hatePageDTO>> hatePage(@PathVariable Long groupid, @PathVariable Long pageid) {
 
         PageInfoResponse.hatePageDTO response = pageService.hatePage(pageid, groupid, currentMember());
 
         return ResponseEntity.ok(ApiUtils.success(response));
-
     }
 
     /*
@@ -92,7 +89,7 @@ public class PageRestController {
      */
 
     @GetMapping("/{pageid}/index")
-    public ResponseEntity<?> getPageIndex(@PathVariable Long groupid,@PathVariable Long pageid) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getPageIndexDTO>> getPageIndex(@PathVariable Long groupid, @PathVariable Long pageid) {
 
         PageInfoResponse.getPageIndexDTO response = pageService.getPageIndex(groupid,currentMember(), pageid);
 
@@ -108,7 +105,7 @@ public class PageRestController {
 
      */
     @GetMapping
-    public ResponseEntity<?> getPageFromTitle(@PathVariable Long groupid,@RequestParam(value = "title") String title) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getPageFromIdDTO>> getPageFromTitle(@PathVariable Long groupid, @RequestParam(value = "title") String title) {
 
         PageInfoResponse.getPageFromIdDTO response = pageService.getPageFromTitle(currentMember(), groupid,title);
 
@@ -122,9 +119,9 @@ public class PageRestController {
      */
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchPage(@PathVariable Long groupid,
-                                        @RequestParam(value = "keyword" , defaultValue = "") String keyword,
-                                        @RequestParam(value = "page", defaultValue = "1") int page) {
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.searchPageDTO>> searchPage(@PathVariable Long groupid,
+                                                                                         @RequestParam(value = "keyword" , defaultValue = "") String keyword,
+                                                                                         @RequestParam(value = "page", defaultValue = "1") int page) {
 
         PageInfoResponse.searchPageDTO response = pageService.searchPage(groupid, currentMember(),page - 1, keyword);
 
@@ -137,7 +134,7 @@ public class PageRestController {
 
      */
     @GetMapping("/recent")
-    public ResponseEntity<?> getRecentPage(@PathVariable Long groupid){
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getRecentPageDTO>> getRecentPage(@PathVariable Long groupid){
 
         PageInfoResponse.getRecentPageDTO response = pageService.getRecentPage(currentMember(), groupid);
 
@@ -150,12 +147,10 @@ public class PageRestController {
 
      */
     @GetMapping("/link")
-    public ResponseEntity<?> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
+    public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getPageLinkDTO>> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
 
         PageInfoResponse.getPageLinkDTO response = pageService.getPageLink(currentMember(), groupid, title);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
-
-
 }

@@ -1,7 +1,6 @@
 package com.kakao.techcampus.wekiki.page;
 
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -56,6 +55,11 @@ public class PageInfo {
 
     public void updatePage(){
         this.updated_at = LocalDateTime.now();
+    }
+
+    public void addPost(Post post){
+        this.posts.add(post);
+        post.setPageInfo(this);
     }
 
 

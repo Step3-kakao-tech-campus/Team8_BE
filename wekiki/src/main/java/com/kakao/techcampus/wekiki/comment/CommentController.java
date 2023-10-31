@@ -16,9 +16,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/post/{postid}/comment")
-    public ResponseEntity<?> getComment(@PathVariable Long groupid,
-                                        @PathVariable Long postid,
-                                        @RequestParam(value = "page", defaultValue = "1") int page){
+    public ResponseEntity<ApiUtils.ApiResult<CommentResponse.getCommentDTO>> getComment(@PathVariable Long groupid,
+                                                                                        @PathVariable Long postid,
+                                                                                        @RequestParam(value = "page", defaultValue = "1") int page){
 
         CommentResponse.getCommentDTO response = commentService.getComment(currentMember(), groupid, postid, page-1);
 
@@ -26,9 +26,9 @@ public class CommentController {
     }
 
     @PostMapping("/post/{postid}/comment")
-    public ResponseEntity<?> createComment(@PathVariable Long groupid,
-                                           @PathVariable Long postid,
-                                           @RequestBody CommentRequest.createComment request){
+    public ResponseEntity<ApiUtils.ApiResult<CommentResponse.createCommentDTO>> createComment(@PathVariable Long groupid,
+                                                                                              @PathVariable Long postid,
+                                                                                              @RequestBody CommentRequest.createComment request){
 
         CommentResponse.createCommentDTO response = commentService.createComment(currentMember(), groupid, postid, request.getContent());
 
@@ -36,8 +36,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/comment/{commentid}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long groupid,
-                              @PathVariable Long commentid){
+    public ResponseEntity<ApiUtils.ApiResult<CommentResponse.deleteCommentDTO>> deleteComment(@PathVariable Long groupid,
+                                                                                              @PathVariable Long commentid){
 
         CommentResponse.deleteCommentDTO response = commentService.deleteComment(currentMember(), groupid, commentid);
 
@@ -46,9 +46,9 @@ public class CommentController {
     }
 
     @PatchMapping("/comment/{commentid}")
-    public ResponseEntity<?> updateComment(@PathVariable Long groupid,
-                              @PathVariable Long commentid,
-                              @RequestBody CommentRequest.updateComment request){
+    public ResponseEntity<ApiUtils.ApiResult<CommentResponse.updateCommentDTO>> updateComment(@PathVariable Long groupid,
+                                                                                              @PathVariable Long commentid,
+                                                                                              @RequestBody CommentRequest.updateComment request){
 
         CommentResponse.updateCommentDTO response = commentService.updateComment(currentMember(), groupid, commentid, request.getContent());
 

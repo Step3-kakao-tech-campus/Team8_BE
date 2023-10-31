@@ -2,14 +2,12 @@ package com.kakao.techcampus.wekiki.comment;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
-import com.kakao.techcampus.wekiki.page.PageInfo;
-import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -51,7 +50,7 @@ public class CommentService {
 
         // 5. postId로 Comment 다 가져오기
         Pageable pageable = PageRequest.of(pageNo, COMMENT_COUNT);
-        Page<Comment> comments = commentJPARepository.findCommentsByPostId(postId, pageable); // TODO : fetch join (comment랑 groupmember)
+        Page<Comment> comments = commentJPARepository.findCommentsByPostIdWithGroupMembers(postId, pageable);
 
         // 6. return DTO
         List<CommentResponse.getCommentDTO.commentDTO> commentDTOs = comments.getContent()
@@ -78,10 +77,10 @@ public class CommentService {
         // 4. comment 생성
         Comment comment = Comment.builder()
                 .groupMember(groupMember)
-                .post(post)
                 .content(content)
                 .created_at(LocalDateTime.now())
                 .build();
+        post.addComment(comment);
         Comment savedComment = commentJPARepository.save(comment);
 
         // 5. return DTO
@@ -160,7 +159,7 @@ public class CommentService {
     }
 
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
-        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
 
@@ -170,8 +169,9 @@ public class CommentService {
     }
 
     public Comment checkCommentFromCommentId(Long commentId){
-        return commentJPARepository.findById(commentId)
-                .orElseThrow(() -> new Exception404("존재하지 않는 댓글 입니다."));
+        return commentJPARepository.findCommentWithGroupMember(commentId).
+                orElseThrow(() -> new Exception404("존재하지 않는 댓글 입니다."));
+
     }
 
 }

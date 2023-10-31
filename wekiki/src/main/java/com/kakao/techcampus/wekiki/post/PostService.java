@@ -3,11 +3,11 @@ package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
-import com.kakao.techcampus.wekiki.group.member.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
@@ -70,17 +70,18 @@ public class PostService {
                 .parent(parent)
                 .orders(order)
                 .groupMember(groupMember)
-                .pageInfo(pageInfo)
                 .title(title)
                 .content(content)
                 .created_at(LocalDateTime.now())
                 .build();
+        pageInfo.addPost(newPost);
         Post savedPost = postJPARepository.save(newPost);
 
         // 8. 히스토리 생성
         History newHistory = History.builder()
                 .post(savedPost)
                 .build();
+        savedPost.addHistory(newHistory);
         historyJPARepository.save(newHistory);
 
         // 9. return DTO
@@ -108,11 +109,7 @@ public class PostService {
         }
 
         // 6. 다르면 Post 수정후 히스토리 생성 저장
-        post.modifyPost(groupMember,title,content);
-
-        History newHistory = History.builder()
-                .post(post)
-                .build();
+        History newHistory = post.modifyPost(groupMember, title, content);
         historyJPARepository.save(newHistory);
 
         // 7. return DTO
@@ -168,11 +165,11 @@ public class PostService {
 
         // 6. child post 존재 안하면 history + post 삭제 시키기
         PostResponse.deletePostDTO response = new PostResponse.deletePostDTO(post);
-        historyJPARepository.deleteByPostId(postId);
         postJPARepository.deleteById(postId);
 
         // 7. order값 앞으로 땡기기
-        postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders());
+        postJPARepository.findPostsByPageIdAndOrderGreaterThan(post.getPageInfo().getId(), post.getOrders())
+                .stream().forEach(p -> p.minusOrder());
 
         // 8. return DTO;
         return response;
@@ -223,7 +220,7 @@ public class PostService {
     }
 
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
-        return groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId,groupId)
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
     }
 
