@@ -3,8 +3,6 @@ package com.kakao.techcampus.wekiki.member;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;

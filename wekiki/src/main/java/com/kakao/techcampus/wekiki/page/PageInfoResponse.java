@@ -1,8 +1,6 @@
 package com.kakao.techcampus.wekiki.page;
 
-import com.kakao.techcampus.wekiki.group.Group;
-import com.kakao.techcampus.wekiki.group.officialGroup.OfficialGroup;
-import com.kakao.techcampus.wekiki.group.unOfficialGroup.openedGroup.UnOfficialOpenedGroup;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.post.Post;
 import lombok.Getter;
 import lombok.Setter;
