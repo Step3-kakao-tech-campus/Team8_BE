@@ -11,6 +11,20 @@ import java.util.Date;
 import java.util.List;
 
 public class MemberResponse {
+    @Getter
+    @AllArgsConstructor
+    public static class KakaoTokenDTO{
+        private String token_type;
+        private String access_token;
+        private int expires_in;
+        private String refresh_token;
+        private String refresh_token_expires_in;
+    }
+
+    public static class KakaoInfoDTO {
+
+    }
+
     //아직 RefreshToken은 안만들었습니다
     @Getter
     @AllArgsConstructor

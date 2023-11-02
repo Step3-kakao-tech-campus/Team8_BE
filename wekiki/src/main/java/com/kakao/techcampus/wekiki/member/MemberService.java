@@ -1,10 +1,20 @@
 package com.kakao.techcampus.wekiki.member;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.json.JSONParser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +24,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +47,10 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
     private final JavaMailSender javaMailSender;
+    @Value("${kakao.client.id}")
+    private String KAKAO_CLIENT_ID;
+    @Value("${kakao.redirect.uri}")
+    private String KAKAO_REDIRECT_URI;
 
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
@@ -195,4 +212,64 @@ public class MemberService {
         return member.get();
     }
 
+    public void getKakaoInfo(String code) {
+
+        String accessToken = "";
+
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-type", "application/x-www-form-urlencoded");
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", KAKAO_CLIENT_ID);
+            params.add("code", code);
+            params.add("redirect_uri", KAKAO_REDIRECT_URI);
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://kauth.kakao.com/oauth/token",
+                    HttpMethod.POST,
+                    httpEntity,
+                    String.class
+            );
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
+            accessToken = kakaoTokenDTO.getAccess_token();
+
+        }  catch (JsonProcessingException e) {
+            throw new Exception500("Json 파싱 에러입니다." + e);
+        }
+        getUserInfoWithToken(accessToken);
+    }
+
+    private void getUserInfoWithToken(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v2/user/me",
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        System.out.println(response.getBody());
+
+        /*ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.readValue(response.getBody());
+
+        } catch (JsonProcessingException e) {
+            throw new Exception500("Json 파싱 에러입니다." + e);
+        }*/
+    }
 }

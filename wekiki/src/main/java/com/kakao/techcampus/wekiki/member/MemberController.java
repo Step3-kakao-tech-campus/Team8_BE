@@ -23,6 +23,12 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtils.success(response));
     }
 
+    @GetMapping("/kakao/signin")
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code) {
+        memberService.getKakaoInfo(code);
+        return ResponseEntity.ok(true);
+    }
+
     @GetMapping("/myinfo")
     public ResponseEntity<?> myPage() {
         MemberResponse.myInfoResponseDTO response = memberService.getMyInfo();
