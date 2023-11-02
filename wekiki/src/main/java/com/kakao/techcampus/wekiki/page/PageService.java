@@ -5,6 +5,7 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
 import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
@@ -60,17 +61,21 @@ public class PageService {
         else {
             System.out.println("로그인 함");
             Optional<Member> member = memberJPARepository.findById(currentMember());
-            List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupList = member.get().getGroupMembers().stream()
-                    .map(groupMember -> {
-                        return new PageInfoResponse.mainPageDTO.GroupDTO(groupMember.getGroup());
-                    }).toList();
+            if(member.isEmpty())
+                throw new Exception400("없는 회원입니다.");
+            List<Group> myGroupList = member.get().getGroupMembers().stream().map(GroupMember::getGroup).toList();
+            List<Long> myGroupIdList = myGroupList.stream().map(Group::getId).toList();
+            List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupListDTO = myGroupList.stream()
+                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .collect(Collectors.toList());
             List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
                     .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
                     .collect(Collectors.toList());
             List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
+                    .filter(tempGroup -> !myGroupIdList.contains(tempGroup.getId()))
                     .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
                     .collect(Collectors.toList());
-            return new PageInfoResponse.mainPageDTO(myGroupList, officialGroupList, unOfficialGroupList);
+            return new PageInfoResponse.mainPageDTO(myGroupListDTO, officialGroupList, unOfficialGroupList);
         }
     }
 
