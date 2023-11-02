@@ -26,11 +26,11 @@ public class PageInfoResponse {
         }
         @Getter
         public static class GroupDTO {
-            Long id;
+            Long groupId;
             String groupImage;
             String groupName;
             public GroupDTO(Group group) {
-                this.id = group.getId();
+                this.groupId = group.getId();
                 this.groupImage =group.getGroupProfileImage();
                 this.groupName = group.getGroupName();
             }
