@@ -38,7 +38,7 @@ public class GroupResponseDTO {
     }
 
     // 내 문서 기여 목록 조회
-    public record MyGroupHistoryResponseDTO(List<MyGroupInfoResponseDTO.MyHistoryDTO> myHistoryDTOS) {
+    public record MyGroupHistoryResponseDTO(List<MyGroupInfoResponseDTO.MyHistoryDTO> historyList) {
         public MyGroupHistoryResponseDTO(Page<History> histories) {
             this(histories.stream().map(MyGroupInfoResponseDTO.MyHistoryDTO::new).collect(Collectors.toList()));
         }
@@ -58,33 +58,20 @@ public class GroupResponseDTO {
     // 그룹 검색
     public record SearchGroupDTO(
             List<GroupInfoDTO> officialGroups,
-            List<OpenedGroupInfoDTO> unofficialOpenedGroups
+            List<GroupInfoDTO> unofficialOpenedGroups
     ) {
         public SearchGroupDTO(Page<OfficialGroup> officialGroups, Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
-            this(officialGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList()),
-                    unofficialOpenedGroups.stream().map(OpenedGroupInfoDTO::new).collect(Collectors.toList()));
+            this(officialGroups.stream().map(SearchGroupDTO.GroupInfoDTO::new).collect(Collectors.toList()),
+                    unofficialOpenedGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList()));
         }
 
         public record GroupInfoDTO(
                 Long groupId,
                 String groupName,
-                String groupProfileImage,
-                int memberCount
+                String groupProfileImage
         ) {
             public GroupInfoDTO(Group group) {
-                this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), group.getMemberCount());
-            }
-        }
-
-        public record OpenedGroupInfoDTO(
-                Long groupId,
-                String groupName,
-                String groupProfileImage,
-                int memberCount,
-                String introduction
-        ) {
-            public OpenedGroupInfoDTO(UnOfficialOpenedGroup openedGroup) {
-                this(openedGroup.getId(), openedGroup.getGroupName(), openedGroup.getGroupProfileImage(), openedGroup.getMemberCount(), openedGroup.getIntroduction());
+                this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
             }
         }
     }
@@ -97,14 +84,15 @@ public class GroupResponseDTO {
     }
 
     // 비공식 공개 그룹 추가 조회
-    public record SearchUnOfficialGroupResponseDTO(List<SearchGroupDTO.OpenedGroupInfoDTO> unofficialOpenedGroups) {
+    public record SearchUnOfficialGroupResponseDTO(List<SearchGroupDTO.GroupInfoDTO> unofficialOpenedGroups) {
         public SearchUnOfficialGroupResponseDTO(Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
-            this(unofficialOpenedGroups.stream().map(SearchGroupDTO.OpenedGroupInfoDTO::new).collect(Collectors.toList()));
+            this(unofficialOpenedGroups.stream().map(SearchGroupDTO.GroupInfoDTO::new).collect(Collectors.toList()));
         }
     }
 
     // 그룹 정보 상세 조회
     public record SearchGroupInfoDTO(
+            Long groupId,
             String groupName,
             String groupImage,
             String introduction,
@@ -113,16 +101,16 @@ public class GroupResponseDTO {
             String entranceHint
     ) {
         public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
-            this(group.getGroupName(), group.getGroupProfileImage(), group.getIntroduction(), group.getMemberCount(), group.getCreated_at(), group.getEntranceHint());
+            this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), group.getIntroduction(), group.getMemberCount(), group.getCreated_at(), group.getEntranceHint());
         }
     }
 
     // 그룹 내 그룹원 리스트 조회
-    public record GetGroupMembersResponseDTO(List<ActiveGroupMember> activeGroupMemberList) {
+    public record GetGroupMembersResponseDTO(List<String> nickNames) {
         public GetGroupMembersResponseDTO(Group group) {
             this(group.getGroupMembers().stream()
                     .filter(groupMember -> groupMember instanceof ActiveGroupMember)
-                    .map(groupMember -> (ActiveGroupMember) groupMember)
+                    .map(groupMember -> groupMember.getNickName())
                     .collect(Collectors.toList()));
         }
     }

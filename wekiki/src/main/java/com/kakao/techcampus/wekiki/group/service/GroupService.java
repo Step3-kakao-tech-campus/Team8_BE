@@ -59,7 +59,11 @@ public class GroupService {
             ActiveGroupMember groupMember = buildGroupMember(member, group, requestDTO.groupNickName());
 
             // Entity 저장
+            group.addGroupMember(groupMember);
+            member.getGroupMembers().add(groupMember);
+
             groupJPARepository.save(group);
+            memberJPARepository.save(member);
             groupMemberJPARepository.save(groupMember);
 
             // return
@@ -142,8 +146,14 @@ public class GroupService {
             // 비공식 공개 그룹 리스트
             Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
 
+            if (officialGroups.isEmpty()) {
+                throw new Exception404("마지막 페이지입니다.");
+            }
+
             return new GroupResponseDTO.SearchOfficialGroupResponseDTO(officialGroups);
 
+        } catch (Exception404 e) {
+            throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -159,8 +169,14 @@ public class GroupService {
             // 비공식 공개 그룹 리스트
             Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
 
+            if (unOfficialOpenedGroups.isEmpty()) {
+                throw new Exception404("마지막 페이지입니다.");
+            }
+
             return new GroupResponseDTO.SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
 
+        } catch (Exception404 e) {
+            throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
@@ -231,6 +247,11 @@ public class GroupService {
         }
 
         // GroupMember 저장
+        group.addGroupMember(groupMember);
+        member.getGroupMembers().add(groupMember);
+
+        groupJPARepository.save(group);
+        memberJPARepository.save(member);
         groupMemberJPARepository.save(groupMember);
     }
 
@@ -240,7 +261,6 @@ public class GroupService {
     public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId, Long memberId) {
         try {
             Group group = getGroupById(groupId);
-            Member member = getMemberById(memberId);
 
             if(groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isEmpty()) {
                 throw new Exception400("해당 그룹에 대한 권한이 없습니다.");
@@ -281,7 +301,6 @@ public class GroupService {
     /*
         내 문서 기여 목록 전체 보기
      */
-    @Transactional
     public GroupResponseDTO.MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
         try {
             // 그룹 멤버 확인
@@ -311,13 +330,25 @@ public class GroupService {
             ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
                     .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
+            // 변경할 닉네임 확인
+            String newNickName = requestDTO.groupNickName();
+
+            // 빈칸이거나 기존 닉네임과 같을 시 예외 처리
+            if(newNickName.isEmpty()) {
+                throw new Exception400("공백은 닉네임이 될 수 없습니다.");
+            }
+
+            if(groupMember.getNickName().equals(newNickName)) {
+                throw new Exception400("기존 닉네임과 같은 닉네임입니다.");
+            }
+
             // 그룹 닉네임 변경
             groupMember.update(requestDTO.groupNickName());
 
             // 저장
             groupMemberJPARepository.save(groupMember);
 
-        } catch (Exception404 e) {
+        } catch (Exception400 | Exception404 e) {
             throw e;
         }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");

@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ public class InvitationService {
 
     private final RedisUtils redisUtils;
 
+    private final GroupService groupService;
+
     private static final String GROUP_ID_PREFIX = "group_id:";
     private static final String INVITATION_PREFIX = "invitation:";
 
@@ -28,6 +31,8 @@ public class InvitationService {
         - new GetInvitationLinkResponseDTO(Invitation invitation)
      */
     public GroupResponseDTO.GetInvitationLinkResponseDTO getGroupInvitationCode(Long groupId) {
+
+        groupService.getGroupById(groupId);
 
         String groupKey = GROUP_ID_PREFIX + groupId;
 
