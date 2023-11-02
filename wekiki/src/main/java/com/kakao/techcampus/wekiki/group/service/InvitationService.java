@@ -46,7 +46,7 @@ public class InvitationService {
         }
 
         // 있으면 해당 초대 링크로 requestDTO 생성
-        return new GroupResponseDTO.GetInvitationLinkResponseDTO(invitation);
+        return new GroupResponseDTO.GetInvitationLinkResponseDTO(groupId, invitation);
     }
 
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결

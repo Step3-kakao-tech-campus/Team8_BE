@@ -237,13 +237,18 @@ public class GroupService {
     /*
         그룹 내 그룹원 리스트 조회
      */
-    public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId) {
+    public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId, Long memberId) {
         try {
             Group group = getGroupById(groupId);
+            Member member = getMemberById(memberId);
+
+            if(groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isEmpty()) {
+                throw new Exception400("해당 그룹에 대한 권한이 없습니다.");
+            }
 
             return new GroupResponseDTO.GetGroupMembersResponseDTO(group);
 
-        } catch (Exception404 e) {
+        } catch (Exception400 | Exception404 e) {
             throw e;
         }  catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");

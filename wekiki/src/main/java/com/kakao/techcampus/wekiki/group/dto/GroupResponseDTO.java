@@ -14,47 +14,96 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GroupResponseDTO {
-    public record GetInvitationLinkResponseDTO(String invitationLink) {
-        public GetInvitationLinkResponseDTO(Invitation invitation) {
-            this(invitation.code());
-        }
-    }
-
+    
+    // 그룹 내 본인 정보 조회
     public record MyGroupInfoResponseDTO(
+            Long groupId,
             String groupName,
             String groupNickName,
-            List<MyHistoryDTO> myHistorgiyDTOS
+            List<MyHistoryDTO> myHistoryDTOS
     ) {
         public MyGroupInfoResponseDTO(Group group, GroupMember groupMember, Page<History> histories) {
-            this(group.getGroupName(), groupMember.getNickName(), histories.stream().map(MyHistoryDTO::new).collect(Collectors.toList()));
+            this(group.getId(), group.getGroupName(), groupMember.getNickName(), histories.stream().map(MyHistoryDTO::new).collect(Collectors.toList()));
         }
 
         public record MyHistoryDTO(
+                Long historyId,
                 String content,
                 LocalDateTime created_at
         ) {
             public MyHistoryDTO(History history) {
-                this(history.getContent(), history.getCreated_at());
+                this(history.getId(), history.getContent(), history.getCreated_at());
             }
         }
     }
 
-    public record SearchUnOfficialGroupResponseDTO(List<SearchGroupDTO.GroupInfoDTO> unofficialOpenedGroups) {
-        public SearchUnOfficialGroupResponseDTO(Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
-            this(unofficialOpenedGroups.stream().map(SearchGroupDTO.GroupInfoDTO::new).collect(Collectors.toList()));
-        }
-    }
-
+    // 내 문서 기여 목록 조회
     public record MyGroupHistoryResponseDTO(List<MyGroupInfoResponseDTO.MyHistoryDTO> myHistoryDTOS) {
         public MyGroupHistoryResponseDTO(Page<History> histories) {
             this(histories.stream().map(MyGroupInfoResponseDTO.MyHistoryDTO::new).collect(Collectors.toList()));
         }
     }
+    
+    // 초대 링크 조회
+    public record GetInvitationLinkResponseDTO(Long groupId, String invitationLink) {
+        public GetInvitationLinkResponseDTO(Long groupId, Invitation invitation) {
+            this(groupId, invitation.code());
+        }
+    }
 
+    // 초대 링크를 통한 접근
     public record ValidateInvitationResponseDTO(Long groupId) {
     }
 
+    // 그룹 검색
+    public record SearchGroupDTO(
+            List<GroupInfoDTO> officialGroups,
+            List<OpenedGroupInfoDTO> unofficialOpenedGroups
+    ) {
+        public SearchGroupDTO(Page<OfficialGroup> officialGroups, Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
+            this(officialGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList()),
+                    unofficialOpenedGroups.stream().map(OpenedGroupInfoDTO::new).collect(Collectors.toList()));
+        }
 
+        public record GroupInfoDTO(
+                Long groupId,
+                String groupName,
+                String groupProfileImage,
+                int memberCount
+        ) {
+            public GroupInfoDTO(Group group) {
+                this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), group.getMemberCount());
+            }
+        }
+
+        public record OpenedGroupInfoDTO(
+                Long groupId,
+                String groupName,
+                String groupProfileImage,
+                int memberCount,
+                String introduction
+        ) {
+            public OpenedGroupInfoDTO(UnOfficialOpenedGroup openedGroup) {
+                this(openedGroup.getId(), openedGroup.getGroupName(), openedGroup.getGroupProfileImage(), openedGroup.getMemberCount(), openedGroup.getIntroduction());
+            }
+        }
+    }
+
+    // 공식 그룹 추가 조회
+    public record SearchOfficialGroupResponseDTO(List<SearchGroupDTO.GroupInfoDTO> officialOpenedGroups) {
+        public SearchOfficialGroupResponseDTO(Page<OfficialGroup> officialOpenedGroups) {
+            this(officialOpenedGroups.stream().map(SearchGroupDTO.GroupInfoDTO::new).collect(Collectors.toList()));
+        }
+    }
+
+    // 비공식 공개 그룹 추가 조회
+    public record SearchUnOfficialGroupResponseDTO(List<SearchGroupDTO.OpenedGroupInfoDTO> unofficialOpenedGroups) {
+        public SearchUnOfficialGroupResponseDTO(Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
+            this(unofficialOpenedGroups.stream().map(SearchGroupDTO.OpenedGroupInfoDTO::new).collect(Collectors.toList()));
+        }
+    }
+
+    // 그룹 정보 상세 조회
     public record SearchGroupInfoDTO(
             String groupName,
             String groupImage,
@@ -68,12 +117,7 @@ public class GroupResponseDTO {
         }
     }
 
-    public record SearchOfficialGroupResponseDTO(List<SearchGroupDTO.GroupInfoDTO> officialOpenedGroups) {
-        public SearchOfficialGroupResponseDTO(Page<OfficialGroup> officialOpenedGroups) {
-            this(officialOpenedGroups.stream().map(SearchGroupDTO.GroupInfoDTO::new).collect(Collectors.toList()));
-        }
-    }
-
+    // 그룹 내 그룹원 리스트 조회
     public record GetGroupMembersResponseDTO(List<ActiveGroupMember> activeGroupMemberList) {
         public GetGroupMembersResponseDTO(Group group) {
             this(group.getGroupMembers().stream()
@@ -83,28 +127,10 @@ public class GroupResponseDTO {
         }
     }
 
-    public record CreateUnOfficialGroupResponseDTO(String groupName, String groupImage) {
+    // 비공식 그룹 생성
+    public record CreateUnOfficialGroupResponseDTO(Long groupId, String groupName, String groupImage) {
         public CreateUnOfficialGroupResponseDTO(Group group) {
-            this(group.getGroupName(), group.getGroupProfileImage());
-        }
-    }
-
-    public record SearchGroupDTO(
-            List<GroupInfoDTO> officialGroups,
-            List<GroupInfoDTO> unofficialOpenedGroups
-    ) {
-        public SearchGroupDTO(Page<OfficialGroup> officialGroups, Page<UnOfficialOpenedGroup> unofficialOpenedGroups) {
-            this(officialGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList()), unofficialOpenedGroups.stream().map(GroupInfoDTO::new).collect(Collectors.toList()));
-        }
-
-        public record GroupInfoDTO(
-                String groupName,
-                String groupProfileImage,
-                int memberCount
-        ) {
-            public GroupInfoDTO(Group group) {
-                this(group.getGroupName(), group.getGroupProfileImage(), group.getMemberCount());
-            }
+            this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
         }
     }
 }

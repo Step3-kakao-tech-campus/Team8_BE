@@ -81,7 +81,7 @@ public class GroupRestController {
     /*
         특정 공개 그룹 정보 조회
      */
-    @GetMapping("/search/{grouId}")
+    @GetMapping("/search/{groupId}")
     public ResponseEntity<?> searchGroupInfo(@PathVariable("groupId") Long groupId) {
         GroupResponseDTO.SearchGroupInfoDTO response = groupService.getGroupInfo(groupId);
 
@@ -143,7 +143,7 @@ public class GroupRestController {
      */
     @GetMapping("{groupId}/groupMembers")
     public ResponseEntity<?> getGroupMembers(@PathVariable("groupId") Long groupId) {
-        GroupResponseDTO.GetGroupMembersResponseDTO responseDTO = groupService.getGroupMembers(groupId);
+        GroupResponseDTO.GetGroupMembersResponseDTO responseDTO = groupService.getGroupMembers(groupId, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
