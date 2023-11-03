@@ -15,6 +15,7 @@ import com.kakao.techcampus.wekiki.member.MemberResponse;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import static com.kakao.techcampus.wekiki._core.utils.SecurityUtils.currentMembe
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class PageService {
 
     private final PageJPARepository pageJPARepository;
@@ -41,7 +43,6 @@ public class PageService {
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final GroupJPARepository groupJPARepository;
     private final IndexUtils indexUtils;
-
     private final RedisUtility redisUtility;
 
     final int PAGE_COUNT = 10;
@@ -49,7 +50,7 @@ public class PageService {
     public PageInfoResponse.mainPageDTO getMainPage() {
         if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
             // 로그인 안한 사람
-            System.out.println("로그인 안함");
+            log.info("로그인하지 않은 사람의 메인 페이지 조회");
             List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
                     .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
                     .collect(Collectors.toList());
@@ -59,10 +60,13 @@ public class PageService {
             return new PageInfoResponse.mainPageDTO(officialGroupList, unOfficialGroupList);
         }
         else {
-            System.out.println("로그인 함");
+            //로그인을 한 사람
+            log.info("로그인을 한 사람의 메인 페이지 조회");
             Optional<Member> member = memberJPARepository.findById(currentMember());
-            if(member.isEmpty())
+            if(member.isEmpty()) {
+                log.error("회원이 존재하지 않습니다.");
                 throw new Exception400("없는 회원입니다.");
+            }
             List<Group> myGroupList = member.get().getGroupMembers().stream().map(GroupMember::getGroup).toList();
             List<Long> myGroupIdList = myGroupList.stream().map(Group::getId).toList();
             List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupListDTO = myGroupList.stream()
@@ -70,10 +74,12 @@ public class PageService {
                     .collect(Collectors.toList());
             List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
                     .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .limit(5)
                     .collect(Collectors.toList());
             List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
                     .filter(tempGroup -> !myGroupIdList.contains(tempGroup.getId()))
                     .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                    .limit(5)
                     .collect(Collectors.toList());
             return new PageInfoResponse.mainPageDTO(myGroupListDTO, officialGroupList, unOfficialGroupList);
         }

@@ -25,6 +25,11 @@ public class MemberRequest {
     }
 
     @Getter
+    public static class changeNickNameRequestDTO {
+        private String newNickName;
+    }
+
+    @Getter
     public static class PNUEmailRequestDTO {
         private String email;
     }

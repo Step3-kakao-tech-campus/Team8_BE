@@ -114,6 +114,17 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
+    public void changeNickName(MemberRequest.changeNickNameRequestDTO nickNameRequestDTO) {
+        Member member;
+        try {
+            member = findMember();
+        } catch (Exception404 e) {
+            log.error("Access Token에서 뽑아낸 회원이 존재하지 않는 회원입니다. (전체 닉네임 변경)");
+            throw e;
+        }
+        member.changeNickName(nickNameRequestDTO.getNewNickName());
+    }
+
     public void changePassword(MemberRequest.changePasswordRequestDTO changePasswordDTO) {
         Member member;
         try {
@@ -122,11 +133,6 @@ public class MemberService {
             log.error("Access Token에서 뽑아낸 회원이 존재하지 않는 회원입니다. (비밀번호 변경)");
             throw e;
         }
-        /*Optional<Member> member = memberRepository.findById(currentMember());
-        if(member.isEmpty()) {
-            log.error("Access Token에서 뽑아낸 회원이 존재하지 않는 회원입니다. (비밀번호 변경)");
-            throw new Exception404("없는 회원입니다.");
-        }*/
         if(!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), member.getPassword())) {
             log.error("비밀번호 변경 요청에서의 비밀번호 확인이 틀렸습니다. User Id : " + member.getEmail());
             throw new Exception400("비밀번호가 틀렸습니다.");

@@ -51,6 +51,12 @@ public class MemberController {
         return ResponseEntity.ok(true);
     }
 
+    @PatchMapping("/changename")
+    public ResponseEntity<?> changeNickName(@RequestBody MemberRequest.changeNickNameRequestDTO nickNameRequestDTO) {
+        memberService.changeNickName(nickNameRequestDTO);
+        return ResponseEntity.ok(true);
+    }
+
     @PostMapping("/pusanuniv")
     public ResponseEntity<?> sendMail(@RequestBody MemberRequest.PNUEmailRequestDTO PNUemailRequestDTO) {
         memberService.sendEmail(PNUemailRequestDTO.getEmail());
