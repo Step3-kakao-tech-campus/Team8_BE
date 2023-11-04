@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
@@ -69,7 +70,9 @@ public class InvitationService {
             throw new Exception404("이미 만료된 초대 링크입니다.");
         }
 
-        return new GroupResponseDTO.ValidateInvitationResponseDTO(((Integer) groupId).longValue());
+        Group group = groupJPARepository.getReferenceById((Long) groupId);
+
+        return new GroupResponseDTO.ValidateInvitationResponseDTO(((Integer) groupId).longValue(), group.getGroupName());
     }
 
     /*

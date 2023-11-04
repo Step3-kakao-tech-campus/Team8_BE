@@ -42,6 +42,8 @@ public class GroupService {
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
 
+    private static final int GROUP_SEARCH_SIZE = 16;
+
     /*
         비공식 그룹 생성
      */
@@ -124,7 +126,7 @@ public class GroupService {
      */
     public GroupResponseDTO.SearchGroupDTO searchGroupByKeyword(String keyword) {
         try {
-            Pageable pageable = PageRequest.of(0, 10);
+            Pageable pageable = PageRequest.of(0, GROUP_SEARCH_SIZE);
 
             // 공식 그룹 리스트
             Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
@@ -141,9 +143,9 @@ public class GroupService {
     /*
         공식 그룹 추가 리스트
      */
-    public GroupResponseDTO.SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page, int size) {
+    public GroupResponseDTO.SearchOfficialGroupResponseDTO searchOfficialGroupByKeyword(String keyword, int page) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, GROUP_SEARCH_SIZE);
 
             // 비공식 공개 그룹 리스트
             Page<OfficialGroup> officialGroups = groupJPARepository.findOfficialGroupsByKeyword(keyword, pageable);
@@ -164,9 +166,9 @@ public class GroupService {
     /*
         비공식 공개 그룹 추가 리스트
      */
-    public GroupResponseDTO.SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page, int size) {
+    public GroupResponseDTO.SearchUnOfficialGroupResponseDTO searchUnOfficialGroupByKeyword(String keyword, int page) {
         try {
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(page, GROUP_SEARCH_SIZE);
 
             // 비공식 공개 그룹 리스트
             Page<UnOfficialOpenedGroup> unOfficialOpenedGroups = groupJPARepository.findUnOfficialOpenedGroupsByKeyword(keyword, pageable);
@@ -233,9 +235,7 @@ public class GroupService {
         Group group = getGroupById(groupId);
 
         // 그룹 내 닉네임 중복 예외 처리
-        if(groupMemberJPARepository.findGroupMemberByNickName(groupId, requestDTO.nickName()).isPresent()) {
-            throw new Exception400("해당 닉네임은 이미 사용중입니다.");
-        }
+        groupNickNameCheck(groupId, requestDTO.nickName());
 
         // 이미 가입한 상태일 시 예외 처리
         if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
@@ -340,14 +340,18 @@ public class GroupService {
             // 변경할 닉네임 확인
             String newNickName = requestDTO.groupNickName();
 
-            // 빈칸이거나 기존 닉네임과 같을 시 예외 처리
+            // 빈칸일 경우 예외 처리
             if(newNickName.isEmpty()) {
                 throw new Exception400("공백은 닉네임이 될 수 없습니다.");
             }
 
+            // 기존 닉네임과 같은 경우 예외 처리
             if(groupMember.getNickName().equals(newNickName)) {
                 throw new Exception400("기존 닉네임과 같은 닉네임입니다.");
             }
+
+            // 이미 있는 경우 예외 처리
+            groupNickNameCheck(groupId, requestDTO.groupNickName());
 
             // 그룹 닉네임 변경
             groupMember.update(requestDTO.groupNickName());
@@ -402,5 +406,11 @@ public class GroupService {
 
     protected Group getGroupById(Long groupId) {
         return groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
+    }
+
+    protected void groupNickNameCheck(Long groupId, String groupNickName) {
+        if(groupMemberJPARepository.findGroupMemberByNickName(groupId, groupNickName).isPresent()) {
+            throw new Exception400("해당 닉네임은 이미 사용중입니다.");
+        }
     }
 }

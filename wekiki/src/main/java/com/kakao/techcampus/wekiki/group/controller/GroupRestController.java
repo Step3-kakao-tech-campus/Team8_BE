@@ -57,10 +57,9 @@ public class GroupRestController {
      */
     @GetMapping("/search/officialGroup")
     public ResponseEntity<?> searchOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                   @RequestParam(value = "page", defaultValue = "1") int page) {
 
-        GroupResponseDTO.SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page, size);
+        GroupResponseDTO.SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -70,10 +69,9 @@ public class GroupRestController {
      */
     @GetMapping("/search/unOfficialGroup")
     public ResponseEntity<?> searchUnOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                   @RequestParam(value = "page", defaultValue = "1") int page) {
 
-        GroupResponseDTO.SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page, size);
+        GroupResponseDTO.SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -195,7 +193,7 @@ public class GroupRestController {
     /*
         그룹 탈퇴
      */
-    @DeleteMapping("/{groupId}/myInfo")
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<?> leaveGroup(@PathVariable("groupId") Long groupId) {
 
         groupService.leaveGroup(groupId, currentMember());

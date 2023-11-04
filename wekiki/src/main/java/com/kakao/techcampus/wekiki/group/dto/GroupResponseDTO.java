@@ -47,14 +47,14 @@ public class GroupResponseDTO {
     }
     
     // 초대 링크 조회
-    public record GetInvitationLinkResponseDTO(Long groupId, String invitationLink) {
+    public record GetInvitationLinkResponseDTO(Long groupId, String inviteCode) {
         public GetInvitationLinkResponseDTO(Long groupId, Invitation invitation) {
             this(groupId, invitation.code());
         }
     }
 
     // 초대 링크를 통한 접근
-    public record ValidateInvitationResponseDTO(Long groupId) {
+    public record ValidateInvitationResponseDTO(Long groupId, String groupName) {
     }
 
     // 그룹 검색
@@ -128,9 +128,9 @@ public class GroupResponseDTO {
     }
 
     // 비공식 그룹 생성
-    public record CreateUnOfficialGroupResponseDTO(Long groupId, String groupName, String groupImage, String invitationLink) {
+    public record CreateUnOfficialGroupResponseDTO(Long groupId, String groupName, String groupImage, String inviteCode) {
         public CreateUnOfficialGroupResponseDTO(Group group, GetInvitationLinkResponseDTO groupInvitationCode) {
-            this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), groupInvitationCode.invitationLink);
+            this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), groupInvitationCode.inviteCode);
         }
     }
 }
