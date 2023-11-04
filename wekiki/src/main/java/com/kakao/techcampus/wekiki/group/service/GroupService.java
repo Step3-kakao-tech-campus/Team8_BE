@@ -230,6 +230,11 @@ public class GroupService {
         // 그룹 정보 확인
         Group group = getGroupById(groupId);
 
+        // 그룹 내 닉네임 중복 예외 처리
+        if(groupMemberJPARepository.findGroupMemberByNickName(groupId, requestDTO.nickName()).isPresent()) {
+            throw new Exception400("해당 닉네임은 이미 사용중입니다.");
+        }
+
         // 이미 가입한 상태일 시 예외 처리
         if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
             throw new Exception400("이미 가입된 회원입니다.");

@@ -19,4 +19,7 @@ public interface GroupMemberJPARepository extends JpaRepository<GroupMember, Lon
 
     @Query("SELECT agm FROM ActiveGroupMember agm WHERE agm.member.id = :memberId AND agm.group.id = :groupId")
     Optional<ActiveGroupMember> findActiveGroupMemberByMemberIdAndGroupId(@Param("memberId") Long memberId, @Param("groupId") Long groupId);
+
+    @Query("SELECT gm FROM GroupMember gm WHERE gm.group.id = :groupId AND gm.nickName = :nickName")
+    Optional<GroupMember> findGroupMemberByNickName(@Param("groupId") Long groupId, @Param("nickName") String nickName);
 }
