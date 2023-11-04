@@ -43,4 +43,8 @@ public class Member {
     public void changePassword(String password) {
         this.password = password;
     }
+
+    public void changeNickName(String name) {
+        this.name = name;
+    }
 }
