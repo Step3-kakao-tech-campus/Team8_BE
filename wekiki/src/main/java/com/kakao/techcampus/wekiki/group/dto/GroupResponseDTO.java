@@ -55,6 +55,9 @@ public class GroupResponseDTO {
 
     // 초대 링크를 통한 접근
     public record ValidateInvitationResponseDTO(Long groupId, String groupName) {
+        public ValidateInvitationResponseDTO(Group group) {
+            this(group.getId(), group.getGroupName());
+        }
     }
 
     // 그룹 검색

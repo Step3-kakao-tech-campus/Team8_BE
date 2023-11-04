@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.group.service;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.domain.Group;
@@ -70,9 +71,11 @@ public class InvitationService {
             throw new Exception404("이미 만료된 초대 링크입니다.");
         }
 
-        Group group = groupJPARepository.getReferenceById((Long) groupId);
+        Group group = groupJPARepository.findById(((Integer) groupId).longValue()).orElseThrow(
+                () -> new Exception400("해당 그룹은 존재하지 않습니다.")
+        );
 
-        return new GroupResponseDTO.ValidateInvitationResponseDTO(((Integer) groupId).longValue(), group.getGroupName());
+        return new GroupResponseDTO.ValidateInvitationResponseDTO(group);
     }
 
     /*
