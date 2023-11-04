@@ -25,6 +25,8 @@ public class History {
     private Post post;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 
