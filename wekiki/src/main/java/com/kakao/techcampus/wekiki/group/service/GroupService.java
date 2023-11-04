@@ -34,6 +34,8 @@ import java.util.List;
 @Service
 public class GroupService {
 
+    private final InvitationService invitationService;
+
     private final GroupJPARepository groupJPARepository;
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
@@ -67,7 +69,7 @@ public class GroupService {
             groupMemberJPARepository.save(groupMember);
 
             // return
-            return new GroupResponseDTO.CreateUnOfficialGroupResponseDTO(group);
+            return new GroupResponseDTO.CreateUnOfficialGroupResponseDTO(group, invitationService.getGroupInvitationCode(group.getId()));
 
         } catch (Exception400 | Exception404 e) {
             throw e;

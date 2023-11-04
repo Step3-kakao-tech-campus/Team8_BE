@@ -116,9 +116,9 @@ public class GroupResponseDTO {
     }
 
     // 비공식 그룹 생성
-    public record CreateUnOfficialGroupResponseDTO(Long groupId, String groupName, String groupImage) {
-        public CreateUnOfficialGroupResponseDTO(Group group) {
-            this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
+    public record CreateUnOfficialGroupResponseDTO(Long groupId, String groupName, String groupImage, String invitationLink) {
+        public CreateUnOfficialGroupResponseDTO(Group group, GetInvitationLinkResponseDTO groupInvitationCode) {
+            this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), groupInvitationCode.invitationLink);
         }
     }
 }
