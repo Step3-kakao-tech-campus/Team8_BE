@@ -3,13 +3,16 @@ package com.kakao.techcampus.wekiki.group.service;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -17,6 +20,8 @@ import java.util.Set;
 public class InvitationService {
 
     private final RedisUtils redisUtils;
+
+    private final GroupJPARepository groupJPARepository;
 
     private static final String GROUP_ID_PREFIX = "group_id:";
     private static final String INVITATION_PREFIX = "invitation:";
@@ -28,6 +33,8 @@ public class InvitationService {
         - new GetInvitationLinkResponseDTO(Invitation invitation)
      */
     public GroupResponseDTO.GetInvitationLinkResponseDTO getGroupInvitationCode(Long groupId) {
+
+        groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
 
         String groupKey = GROUP_ID_PREFIX + groupId;
 
@@ -46,28 +53,29 @@ public class InvitationService {
         }
 
         // 있으면 해당 초대 링크로 requestDTO 생성
-        return new GroupResponseDTO.GetInvitationLinkResponseDTO(invitation);
+        return new GroupResponseDTO.GetInvitationLinkResponseDTO(groupId, invitation);
     }
 
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결
-    public GroupResponseDTO.ValidateInvitationResponseDTO ValidateInvitation(String invitationLink) {
+    public GroupResponseDTO.ValidateInvitationResponseDTO validateInvitation(String invitationLink) {
 
         // 초대 링크를 통해 groupId와 invitation 찾기
-        Long groupId = (Long) redisUtils.getValues(INVITATION_PREFIX + invitationLink);
-
-        // 해당하는 groupId가 없는 경우 예외 처리
-        if (groupId == null) {
-            throw new Exception404("잘못된 접근입니다.");
-        }
+        // groupId는 현재 Integer 타입
+        Object groupId = Optional.ofNullable(redisUtils.getValues(INVITATION_PREFIX + invitationLink))
+                .orElseThrow(() -> new Exception404("잘못된 접근입니다."));
 
         // 초대 링크 기간 확인
-        Invitation invitation = (Invitation) redisUtils.getValues(String.valueOf(groupId));
+        Invitation invitation = (Invitation) redisUtils.getValues(GROUP_ID_PREFIX + groupId);
 
-        if (invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
-            throw new Exception400("이미 만료된 초대 링크입니다.");
+        if(invitation == null || !invitation.isUsableAt(LocalDateTime.now())) {
+            throw new Exception404("이미 만료된 초대 링크입니다.");
         }
 
-        return new GroupResponseDTO.ValidateInvitationResponseDTO(groupId);
+        Group group = groupJPARepository.findById(((Integer) groupId).longValue()).orElseThrow(
+                () -> new Exception400("해당 그룹은 존재하지 않습니다.")
+        );
+
+        return new GroupResponseDTO.ValidateInvitationResponseDTO(group);
     }
 
     /*

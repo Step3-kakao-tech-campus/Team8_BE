@@ -57,10 +57,9 @@ public class GroupRestController {
      */
     @GetMapping("/search/officialGroup")
     public ResponseEntity<?> searchOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                   @RequestParam(value = "page", defaultValue = "1") int page) {
 
-        GroupResponseDTO.SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page, size);
+        GroupResponseDTO.SearchOfficialGroupResponseDTO responseDTO = groupService.searchOfficialGroupByKeyword(keyword, page);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -70,10 +69,9 @@ public class GroupRestController {
      */
     @GetMapping("/search/unOfficialGroup")
     public ResponseEntity<?> searchUnOfficialGroup(@RequestParam(value = "keyword", required = false) String keyword,
-                                                   @RequestParam(value = "page", defaultValue = "1") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+                                                   @RequestParam(value = "page", defaultValue = "1") int page) {
 
-        GroupResponseDTO.SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page, size);
+        GroupResponseDTO.SearchUnOfficialGroupResponseDTO responseDTO = groupService.searchUnOfficialGroupByKeyword(keyword, page);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -81,7 +79,7 @@ public class GroupRestController {
     /*
         특정 공개 그룹 정보 조회
      */
-    @GetMapping("/search/{grouId}")
+    @GetMapping("/search/{groupId}")
     public ResponseEntity<?> searchGroupInfo(@PathVariable("groupId") Long groupId) {
         GroupResponseDTO.SearchGroupInfoDTO response = groupService.getGroupInfo(groupId);
 
@@ -104,7 +102,7 @@ public class GroupRestController {
         그룹 참가
      */
     @PostMapping("/{groupId}/join")
-    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.JoinGroupRequestDTO requestDTO, BindingResult result) {
+    public ResponseEntity<?> joinGroup(@PathVariable("groupId") Long groupId, @RequestBody @Valid GroupRequestDTO.JoinGroupRequestDTO requestDTO, BindingResult result) {
 
         // 유효성 검사
         if (result.hasErrors()) {
@@ -133,7 +131,7 @@ public class GroupRestController {
     @GetMapping("/invitation/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
 
-        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.ValidateInvitation(invitationLink);
+        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.validateInvitation(invitationLink);
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -143,7 +141,7 @@ public class GroupRestController {
      */
     @GetMapping("{groupId}/groupMembers")
     public ResponseEntity<?> getGroupMembers(@PathVariable("groupId") Long groupId) {
-        GroupResponseDTO.GetGroupMembersResponseDTO responseDTO = groupService.getGroupMembers(groupId);
+        GroupResponseDTO.GetGroupMembersResponseDTO responseDTO = groupService.getGroupMembers(groupId, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }
@@ -166,7 +164,7 @@ public class GroupRestController {
         그룹 내 본인 정보 수정
      */
     @PatchMapping("/{groupId}/myInfo")
-    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.UpdateMyGroupPageDTO requestDTO, BindingResult result) {
+    public ResponseEntity<?> updateMyGroupPage(@PathVariable("groupId") Long groupId, @RequestBody @Valid GroupRequestDTO.UpdateMyGroupPageDTO requestDTO, BindingResult result) {
 
         // 유효성 검사
         if (result.hasErrors()) {
@@ -195,7 +193,7 @@ public class GroupRestController {
     /*
         그룹 탈퇴
      */
-    @DeleteMapping("/{groupId}/myInfo")
+    @DeleteMapping("/{groupId}")
     public ResponseEntity<?> leaveGroup(@PathVariable("groupId") Long groupId) {
 
         groupService.leaveGroup(groupId, currentMember());

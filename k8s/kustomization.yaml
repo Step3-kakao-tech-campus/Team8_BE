@@ -1,0 +1,10 @@
+namespace: default
+resources:
+  - nginx.yaml
+  - mariadb.yaml
+  - backend.yaml
+  - redis.yaml
+configMapGenerator:
+  - name: nginx
+    files:
+      - configs/default.conf

@@ -1,9 +1,16 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+
 spring:
   datasource:
-    url: jdbc:h2:mem:test;MODE=MariaDB
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: ${DATABASE_URL}?allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: root
+    password: root
   h2:
     console:
       enabled: true
@@ -19,9 +26,8 @@ spring:
   data:
     storage-type: redis
     redis:
-      host: localhost
+      host: redis-service
       port: 6379
-      password: zinc
   mail:
     host: smtp.gmail.com
     port: 587
@@ -35,15 +41,8 @@ spring:
             enable: true
 jwt:
   secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
-kakao:
-  client:
-    id: 08e6c709229f3b44a8cff2fc7168e1a2
-  redirect:
-    uri: http://3.39.150.229:8080/auth/kakao/signin
+
 logging:
   level:
     '[com.example.kakao]': DEBUG
     '[org.hibernate.type]': TRACE
-  profiles:
-    active:
-      - local
