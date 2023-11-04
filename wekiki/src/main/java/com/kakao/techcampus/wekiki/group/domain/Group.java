@@ -36,7 +36,12 @@ public class Group {
         this.id = id;
         this.groupName = groupName;
         this.groupProfileImage = groupProfileImage;
-        this.memberCount = 1;
+        this.memberCount = 0;
         this.created_at = created_at;
+    }
+
+    public void addGroupMember(GroupMember groupMember) {
+        this.groupMembers.add(groupMember);
+        this.memberCount = this.groupMembers.size();
     }
 }

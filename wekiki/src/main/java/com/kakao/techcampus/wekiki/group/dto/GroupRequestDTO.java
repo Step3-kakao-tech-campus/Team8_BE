@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class GroupRequestDTO {
 
+    // 그룹 생성
     public record CreateUnOfficialGroupRequestDTO(
             @NotNull(message = "그룹 유형을 선택해 주세요.")
             GroupType groupType,

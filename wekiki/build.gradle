@@ -60,6 +60,9 @@ dependencies {
 	// Random String
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 
+	// 날짜/시간 유형 직렬화
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0'
+
 	// 개발 편의용
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
