@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,11 +22,12 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @NotNull
     private String email;
     private String password;
     private LocalDateTime created_at;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @Enumerated(value = EnumType.STRING)
