@@ -43,6 +43,12 @@ spring:
 jwt:
   secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
 
+kakao:
+  client:
+    id: 08e6c709229f3b44a8cff2fc7168e1a2
+  redirect:
+    uri: http://localhost:8080/auth/kakao/signin
+
 logging:
   level:
     '[com.example.kakao]': DEBUG
