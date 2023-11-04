@@ -1,13 +1,9 @@
 package com.kakao.techcampus.wekiki.post;
 
-import com.kakao.techcampus.wekiki.page.PageInfo;
-import com.kakao.techcampus.wekiki.page.PageInfoResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

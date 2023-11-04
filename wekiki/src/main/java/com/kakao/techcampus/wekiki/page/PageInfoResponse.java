@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.page;
 
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.post.Post;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,33 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class PageInfoResponse {
+
+    @Getter
+    public static class mainPageDTO {
+        List<GroupDTO> myGroup;
+        List<GroupDTO> officialGroup;
+        List<GroupDTO> unOfficialGroup;
+        public mainPageDTO(List<GroupDTO> myGroup, List<GroupDTO> officialGroup, List<GroupDTO> unOfficialGroup) {
+            this.myGroup = myGroup;
+            this.officialGroup = officialGroup;
+            this.unOfficialGroup = unOfficialGroup;
+        }
+        public mainPageDTO(List<GroupDTO> officialGroup, List<GroupDTO> unOfficialGroup) {
+            this.officialGroup = officialGroup;
+            this.unOfficialGroup = unOfficialGroup;
+        }
+        @Getter
+        public static class GroupDTO {
+            Long groupId;
+            String groupImage;
+            String groupName;
+            public GroupDTO(Group group) {
+                this.groupId = group.getId();
+                this.groupImage =group.getGroupProfileImage();
+                this.groupName = group.getGroupName();
+            }
+        }
+    }
 
     @Getter @Setter
     public static class deletePageDTO{
@@ -140,11 +168,20 @@ public class PageInfoResponse {
             String postTitle;
             String content;
 
+            int order;
+            Long parentPostId;
+
             public postDTO(Post post, String index){
                 this.postId = post.getId();
                 this.index = index;
                 this.postTitle = post.getTitle();
                 this.content = post.getContent();
+                this.order = post.getOrders();
+                if(post.getParent() != null){
+                    this.parentPostId = post.getParent().getId();
+                }else{
+                    this.parentPostId = 0L;
+                }
             }
         }
     }

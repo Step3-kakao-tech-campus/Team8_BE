@@ -23,10 +23,16 @@ public class MemberController {
         return ResponseEntity.ok(ApiUtils.success(response));
     }
 
+    @GetMapping("/kakao/signin")
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code) {
+        memberService.getKakaoInfo(code);
+        return ResponseEntity.ok(true);
+    }
+
     @GetMapping("/myinfo")
     public ResponseEntity<?> myPage() {
-        memberService.getMyInfo();
-        return ResponseEntity.ok(true);
+        MemberResponse.myInfoResponseDTO response = memberService.getMyInfo();
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     @DeleteMapping("/delete")
@@ -42,6 +48,12 @@ public class MemberController {
     @PatchMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestBody MemberRequest.changePasswordRequestDTO changePasswordRequestDTO) {
         memberService.changePassword(changePasswordRequestDTO);
+        return ResponseEntity.ok(true);
+    }
+
+    @PatchMapping("/changename")
+    public ResponseEntity<?> changeNickName(@RequestBody MemberRequest.changeNickNameRequestDTO nickNameRequestDTO) {
+        memberService.changeNickName(nickNameRequestDTO);
         return ResponseEntity.ok(true);
     }
 

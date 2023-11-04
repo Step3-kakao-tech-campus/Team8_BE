@@ -1,8 +1,7 @@
 package com.kakao.techcampus.wekiki.post;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
-import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.report.Report;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +76,7 @@ public class PostResponse {
             Long historyId;
             String title;
             String content;
-            LocalDateTime created_at;
+            LocalDateTime createdAt;
 
             public historyDTO(GroupMember groupMember,History history){
                 this.memberId = groupMember.getId();
@@ -85,7 +84,7 @@ public class PostResponse {
                 this.historyId = history.getId();
                 this.title = history.getTitle();
                 this.content = history.getContent();
-                this.created_at = history.getCreated_at();
+                this.createdAt = history.getCreated_at();
             }
 
         }

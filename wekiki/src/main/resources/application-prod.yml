@@ -1,0 +1,54 @@
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+  port: 8080
+
+spring:
+  datasource:
+    url: ${DATABASE_URL}?allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: root
+    password: root
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+      default_batch_fetch_size: 100
+    open-in-view: false
+  data:
+    storage-type: redis
+    redis:
+      host: redis-service
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ljh19980823@gmail.com
+    password: yyzdbabwrmhhvyhi
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
+
+kakao:
+  client:
+    id: 08e6c709229f3b44a8cff2fc7168e1a2
+  redirect:
+    uri: ${SERVER_URL}/auth/kakao/signin
+
+logging:
+  level:
+    '[com.example.kakao]': DEBUG
+    '[org.hibernate.type]': TRACE

@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.member;
 
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -7,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -21,6 +24,10 @@ public class Member {
     private String email;
     private String password;
     private LocalDateTime created_at;
+
+    @OneToMany(mappedBy = "member")
+    private List<GroupMember> groupMembers = new ArrayList<>();
+
     @Enumerated(value = EnumType.STRING)
     Authority authority;
 
@@ -35,5 +42,9 @@ public class Member {
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    public void changeNickName(String name) {
+        this.name = name;
     }
 }

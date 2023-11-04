@@ -1,12 +1,11 @@
 package com.kakao.techcampus.wekiki.post;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.comment.Comment;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,12 +26,21 @@ public class Post {
 
     private int orders;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
-    @ManyToOne
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
     private PageInfo pageInfo;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<History> historys  = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments  = new ArrayList<>();
+
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 
@@ -56,14 +64,33 @@ public class Post {
         this.orders--;
     }
 
-    public void modifyPost(GroupMember groupMember, String title, String content){
+    public History modifyPost(GroupMember groupMember, String title, String content){
         this.groupMember = groupMember;
         this.title = title;
         this.content = content;
         this.created_at = LocalDateTime.now();
+
+        History newHistory = History.builder()
+                .post(this)
+                .build();
+
+        this.historys.add(newHistory);
+        newHistory.setPost(this);
+
+        return newHistory;
     }
 
     public void updateGroupMember(GroupMember groupMember) {
         this.groupMember = groupMember;
+    }
+
+    public void addComment(Comment comment){
+        this.comments.add(comment);
+        comment.setPost(this);
+    }
+
+    public void addHistory(History history){
+        this.historys.add(history);
+        history.setPost(this);
     }
 }

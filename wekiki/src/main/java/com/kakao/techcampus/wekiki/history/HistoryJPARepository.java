@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.history;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,5 +25,5 @@ public interface HistoryJPARepository extends JpaRepository<History, Long> {
     Page<History> findHistoryWithMemberByPostId(@Param("postId") Long postId, Pageable pageable);
 
     @Query("SELECT h FROM History h WHERE h.post.id = :postId ORDER BY h.created_at DESC")
-    Page<History> findHistoryByPostId(@Param("postId") Long postId, Pageable pageable);
+    List<History> findHistoryByPostId(@Param("postId") Long postId, Pageable pageable);
 }

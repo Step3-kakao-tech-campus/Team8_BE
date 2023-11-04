@@ -1,13 +1,9 @@
 package com.kakao.techcampus.wekiki.history;
 
-import com.kakao.techcampus.wekiki.group.member.GroupMember;
-import com.kakao.techcampus.wekiki.group.member.InactiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -20,12 +16,17 @@ public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
-    @ManyToOne
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="POST_ID")
     private Post post;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 

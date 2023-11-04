@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.page;
 
-import com.kakao.techcampus.wekiki.group.Group;
+import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -18,9 +21,12 @@ public class PageInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Group group;
     private String pageName;
+
+    @OneToMany(mappedBy = "pageInfo")
+    private List<Post> posts = new ArrayList<>();
     private int goodCount;
     private int badCount;
     private int viewCount;
@@ -49,6 +55,11 @@ public class PageInfo {
 
     public void updatePage(){
         this.updated_at = LocalDateTime.now();
+    }
+
+    public void addPost(Post post){
+        this.posts.add(post);
+        post.setPageInfo(this);
     }
 
 
