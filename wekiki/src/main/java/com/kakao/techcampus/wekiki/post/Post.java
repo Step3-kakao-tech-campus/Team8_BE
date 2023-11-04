@@ -40,6 +40,7 @@ public class Post {
     private List<Comment> comments  = new ArrayList<>();
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 
