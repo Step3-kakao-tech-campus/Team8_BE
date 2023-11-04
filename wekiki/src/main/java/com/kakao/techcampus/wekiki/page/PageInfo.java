@@ -61,6 +61,4 @@ public class PageInfo {
         this.posts.add(post);
         post.setPageInfo(this);
     }
-
-
 }
