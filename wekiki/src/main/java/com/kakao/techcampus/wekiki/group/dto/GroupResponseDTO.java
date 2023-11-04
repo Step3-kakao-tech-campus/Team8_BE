@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.group.dto;
 
+import com.kakao.techcampus.wekiki.group.GroupType;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import com.kakao.techcampus.wekiki.group.domain.OfficialGroup;
@@ -7,6 +8,7 @@ import com.kakao.techcampus.wekiki.group.domain.UnOfficialOpenedGroup;
 import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
+import jakarta.persistence.DiscriminatorValue;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
@@ -98,10 +100,20 @@ public class GroupResponseDTO {
             String introduction,
             int memberCount,
             LocalDateTime created_at,
-            String entranceHint
+            String entranceHint,
+            String groupType
     ) {
         public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
-            this(group.getId(), group.getGroupName(), group.getGroupProfileImage(), group.getIntroduction(), group.getMemberCount(), group.getCreated_at(), group.getEntranceHint());
+            this(
+                    group.getId(),
+                    group.getGroupName(),
+                    group.getGroupProfileImage(),
+                    group.getIntroduction(),
+                    group.getMemberCount(),
+                    group.getCreated_at(),
+                    group.getEntranceHint(),
+                    group.getClass().getAnnotation(DiscriminatorValue.class).value()
+            );
         }
     }
 

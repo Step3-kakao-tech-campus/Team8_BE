@@ -2,9 +2,9 @@ package com.kakao.techcampus.wekiki.group.service;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
-import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
+import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class InvitationService {
 
     private final RedisUtils redisUtils;
 
-    private final GroupService groupService;
+    private final GroupJPARepository groupJPARepository;
 
     private static final String GROUP_ID_PREFIX = "group_id:";
     private static final String INVITATION_PREFIX = "invitation:";
@@ -32,7 +32,7 @@ public class InvitationService {
      */
     public GroupResponseDTO.GetInvitationLinkResponseDTO getGroupInvitationCode(Long groupId) {
 
-        groupService.getGroupById(groupId);
+        groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
 
         String groupKey = GROUP_ID_PREFIX + groupId;
 
