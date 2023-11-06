@@ -86,9 +86,6 @@ public class JWTTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-        if (!validateToken(token)) {
-            throw new Exception400("Token이 잘못되었습니다.");
-        }
         // 권한 정보가 없으면 예외
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 Token 입니다.");
