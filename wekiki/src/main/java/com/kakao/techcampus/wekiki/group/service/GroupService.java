@@ -7,6 +7,7 @@ import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.comment.Comment;
 import com.kakao.techcampus.wekiki.comment.CommentJPARepository;
 import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
@@ -200,7 +201,7 @@ public class GroupService {
     }
 
     /*
-        비공식 공개 그룹 상세 정보 조회
+        그룹 상세 정보 조회
      */
     public GroupResponseDTO.SearchGroupInfoDTO getGroupInfo(Long groupId) {
         try {
@@ -220,6 +221,9 @@ public class GroupService {
      */
     public void groupEntry(Long groupId, Long memberId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
         try {
+            getGroupById(groupId);
+            getMemberById(memberId);
+
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
                     .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
 
@@ -265,9 +269,8 @@ public class GroupService {
             // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
             ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
 
-            // 그룹 멤버 잔재 삭제
             if(wasGroupMember != null) {
-                groupMemberJPARepository.delete(wasGroupMember);
+                changeAuthorization(wasGroupMember, groupMember);
             }
 
             // GroupMember 저장
@@ -329,7 +332,7 @@ public class GroupService {
 
             // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
             Pageable pageable = PageRequest.of(0, 10);
-            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
+            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember.getId(), pageable);
 
             // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
             return new GroupResponseDTO.MyGroupInfoResponseDTO(groupMember.getGroup(), groupMember, myHistoryList);
@@ -351,7 +354,7 @@ public class GroupService {
                     .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
+            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember.getId(), pageable);
 
             return new GroupResponseDTO.MyGroupHistoryResponseDTO(myHistoryList);
 
@@ -413,39 +416,53 @@ public class GroupService {
             ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
                     .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
 
+            Member member = getMemberById(memberId);
+            Group group = getGroupById(groupId);
+
+            member.getGroupMembers().remove(activeGroupMember);
+            group.getGroupMembers().remove(activeGroupMember);
+
             // 탈퇴 그룹 회원 생성
             InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);
 
-            // Post의 그룹 멤버 변경
-            List<Post> postList = postJPARepository.findAllByGroupMember(activeGroupMember);
-            postList.forEach(p -> p.updateGroupMember(inactiveGroupMember));
+            changeAuthorization(activeGroupMember, inactiveGroupMember);
 
-            // History 그룹 멤버 변경
-            List<History> historyList = historyJPARepository.findAllByGroupMember(activeGroupMember);
-            historyList.forEach(h -> h.updateGroupMember(inactiveGroupMember));
-
-            // Comment 그룹 멤버 변경
-            List<Comment> commentList = commentJPARepository.findAllByGroupMember(activeGroupMember);
-            commentList.forEach(c -> c.updateGroupMember(inactiveGroupMember));
-
-            // Reposrt 그룹 멤버 변경
-            List<Report> reportList = reportJPARepository.findAllByFromMember(activeGroupMember);
-            reportList.forEach(r -> r.updateGroupMember(inactiveGroupMember));
-
-            // DB 작업
-            groupMemberJPARepository.delete(activeGroupMember);
             groupMemberJPARepository.save(inactiveGroupMember);
-
-            postJPARepository.saveAll(postList);
-            historyJPARepository.saveAll(historyList);
-            commentJPARepository.saveAll(commentList);
-            reportJPARepository.saveAll(reportList);
 
         } catch (Exception404 e) {
             throw e;
         } catch (Exception e) {
             throw new Exception500("서버 에러가 발생했습니다.");
         }
+    }
+
+    private void changeAuthorization(GroupMember originGroupMember, GroupMember targetGroupMember) {
+
+        Long originGroupMemberId = originGroupMember.getId();
+
+        // Post의 그룹 멤버 변경
+        List<Post> postList = postJPARepository.findAllByGroupMember(originGroupMemberId);
+        postList.forEach(p -> p.updateGroupMember(targetGroupMember));
+
+        // History 그룹 멤버 변경
+        List<History> historyList = historyJPARepository.findAllByGroupMemberId(originGroupMemberId);
+        historyList.forEach(h -> h.updateGroupMember(targetGroupMember));
+
+        // Comment 그룹 멤버 변경
+        List<Comment> commentList = commentJPARepository.findAllByGroupMemberId(originGroupMemberId);
+        commentList.forEach(c -> c.updateGroupMember(targetGroupMember));
+
+        // Reposrt 그룹 멤버 변경
+        List<Report> reportList = reportJPARepository.findAllByFromMemberId(originGroupMemberId);
+        reportList.forEach(r -> r.updateGroupMember(targetGroupMember));
+
+        // DB 작업
+        groupMemberJPARepository.delete(originGroupMember);
+
+        postJPARepository.saveAll(postList);
+        historyJPARepository.saveAll(historyList);
+        commentJPARepository.saveAll(commentList);
+        reportJPARepository.saveAll(reportList);
     }
 
     protected Member getMemberById(Long memberId) {
