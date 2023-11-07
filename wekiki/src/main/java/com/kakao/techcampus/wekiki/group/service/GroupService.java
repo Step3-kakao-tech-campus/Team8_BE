@@ -249,7 +249,6 @@ public class GroupService {
         try {
             // 회원 정보 확인
             Member member = getMemberById(memberId);
-
             // 그룹 정보 확인
             Group group = getGroupById(groupId);
 
@@ -327,8 +326,7 @@ public class GroupService {
     public GroupResponseDTO.MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
             Pageable pageable = PageRequest.of(0, 10);
@@ -350,8 +348,7 @@ public class GroupService {
     public GroupResponseDTO.MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             Pageable pageable = PageRequest.of(page, size);
             Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember.getId(), pageable);
@@ -373,8 +370,7 @@ public class GroupService {
     public void updateMyGroupPage(Long groupId, Long memberId, GroupRequestDTO.UpdateMyGroupPageDTO requestDTO) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             // 변경할 닉네임 확인
             String newNickName = requestDTO.groupNickName();
@@ -412,9 +408,7 @@ public class GroupService {
     @Transactional
     public void leaveGroup(Long groupId, Long memberId) {
         try {
-            // 그룹 멤버 확인
-            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember activeGroupMember = getActiveGroupMember(groupId, memberId);
 
             Member member = getMemberById(memberId);
             Group group = getGroupById(groupId);
@@ -471,6 +465,12 @@ public class GroupService {
 
     protected Group getGroupById(Long groupId) {
         return groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
+    }
+
+    private ActiveGroupMember getActiveGroupMember(Long groupId, Long memberId) {
+        // 그룹 멤버 확인
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
     }
 
     protected void groupNickNameCheck(Long groupId, String groupNickName) {
