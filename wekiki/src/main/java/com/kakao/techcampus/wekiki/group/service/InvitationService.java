@@ -65,7 +65,7 @@ public class InvitationService {
         // 초대 링크를 통해 groupId와 invitation 찾기
         // groupId는 현재 Integer 타입
         Object groupId = Optional.ofNullable(redisUtils.getValues(INVITATION_PREFIX + invitationLink))
-                .orElseThrow(() -> new Exception404("잘못된 접근입니다."));
+                .orElseThrow(() -> new Exception404("존재하지 않는 초대 링크입니다."));
 
         // 초대 링크 기간 확인
         Invitation invitation = (Invitation) redisUtils.getValues(GROUP_ID_PREFIX + groupId);

@@ -306,10 +306,7 @@ public class GroupService {
     public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId, Long memberId) {
         try {
             Group group = getGroupById(groupId);
-
-            if(groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isEmpty()) {
-                throw new Exception400("해당 그룹에 대한 권한이 없습니다.");
-            }
+            getActiveGroupMember(groupId, memberId);
 
             return new GroupResponseDTO.GetGroupMembersResponseDTO(group);
 
@@ -470,7 +467,7 @@ public class GroupService {
     private ActiveGroupMember getActiveGroupMember(Long groupId, Long memberId) {
         // 그룹 멤버 확인
         return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+                .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다"));
     }
 
     protected void groupNickNameCheck(Long groupId, String groupNickName) {
