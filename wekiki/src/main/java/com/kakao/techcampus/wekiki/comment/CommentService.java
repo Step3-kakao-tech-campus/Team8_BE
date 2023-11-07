@@ -54,7 +54,7 @@ public class CommentService {
 
         // 6. return DTO
         List<CommentResponse.getCommentDTO.commentDTO> commentDTOs = comments.getContent()
-                .stream().map(c -> new CommentResponse.getCommentDTO.commentDTO(c , c.getGroupMember()))
+                .stream().map(c -> new CommentResponse.getCommentDTO.commentDTO(c,c.getGroupMember(), c.getGroupMember().getId() == groupMember.getId()))
                 .collect(Collectors.toList());
         return new CommentResponse.getCommentDTO(post,commentDTOs);
     }

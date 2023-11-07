@@ -19,7 +19,6 @@ public class PostRestController {
 
     private final PostService postService;
 
-    private final ReportJPARepository reportJPARepository;
 
     @PostMapping("/create")
     public ResponseEntity<ApiUtils.ApiResult<PostResponse.createPostDTO>> createPost(@PathVariable Long groupid, @RequestBody PostRequest.createPostDTO request) {
