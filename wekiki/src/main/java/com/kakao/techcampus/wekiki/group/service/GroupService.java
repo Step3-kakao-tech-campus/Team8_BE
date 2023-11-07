@@ -204,8 +204,7 @@ public class GroupService {
      */
     public GroupResponseDTO.SearchGroupInfoDTO getGroupInfo(Long groupId) {
         try {
-            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
-                    .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
+            Group group = getGroupById(groupId);
 
             return new GroupResponseDTO.SearchGroupInfoDTO(group);
         } catch (Exception404 e) {
