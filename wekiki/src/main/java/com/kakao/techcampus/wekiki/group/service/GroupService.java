@@ -4,6 +4,8 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.comment.Comment;
+import com.kakao.techcampus.wekiki.comment.CommentJPARepository;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
@@ -20,6 +22,8 @@ import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
+import com.kakao.techcampus.wekiki.report.Report;
+import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,6 +50,8 @@ public class GroupService {
     private final MemberJPARepository memberJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+    private final CommentJPARepository commentJPARepository;
+    private final ReportJPARepository reportJPARepository;
 
     private static final int GROUP_SEARCH_SIZE = 16;
     private static final String MEMBER_ID_PREFIX = "member_id:";
@@ -419,10 +425,22 @@ public class GroupService {
             List<History> historyList = historyJPARepository.findAllByGroupMember(activeGroupMember);
             historyList.forEach(h -> h.updateGroupMember(inactiveGroupMember));
 
+            // Comment 그룹 멤버 변경
+            List<Comment> commentList = commentJPARepository.findAllByGroupMember(activeGroupMember);
+            commentList.forEach(c -> c.updateGroupMember(inactiveGroupMember));
+
+            // Reposrt 그룹 멤버 변경
+            List<Report> reportList = reportJPARepository.findAllByFromMember(activeGroupMember);
+            reportList.forEach(r -> r.updateGroupMember(inactiveGroupMember));
+
             // DB 작업
             groupMemberJPARepository.delete(activeGroupMember);
             groupMemberJPARepository.save(inactiveGroupMember);
+
+            postJPARepository.saveAll(postList);
             historyJPARepository.saveAll(historyList);
+            commentJPARepository.saveAll(commentList);
+            reportJPARepository.saveAll(reportList);
 
         } catch (Exception404 e) {
             throw e;
