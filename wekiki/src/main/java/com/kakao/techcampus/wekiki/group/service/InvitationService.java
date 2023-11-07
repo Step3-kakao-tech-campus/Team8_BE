@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +26,8 @@ public class InvitationService {
 
     private static final String GROUP_ID_PREFIX = "group_id:";
     private static final String INVITATION_PREFIX = "invitation:";
+    private static final String MEMBER_ID_PREFIX = "member_id:";
+    private static final long MEMBER_ID_LIFETIME = 3L;
 
     /*
         InvitationCode 확인
@@ -57,7 +60,7 @@ public class InvitationService {
     }
 
     // 초대 링크를 통한 접근 시 유효한 초대 링크 확인, 해당 그룹으로 연결
-    public GroupResponseDTO.ValidateInvitationResponseDTO validateInvitation(String invitationLink) {
+    public GroupResponseDTO.ValidateInvitationResponseDTO validateInvitation(String invitationLink, Long memberId) {
 
         // 초대 링크를 통해 groupId와 invitation 찾기
         // groupId는 현재 Integer 타입
@@ -71,9 +74,13 @@ public class InvitationService {
             throw new Exception404("이미 만료된 초대 링크입니다.");
         }
 
-        Group group = groupJPARepository.findById(((Integer) groupId).longValue()).orElseThrow(
+        Long lGroupId = ((Integer) groupId).longValue();
+
+        Group group = groupJPARepository.findById(lGroupId).orElseThrow(
                 () -> new Exception400("해당 그룹은 존재하지 않습니다.")
         );
+
+        redisUtils.setGroupIdValues(MEMBER_ID_PREFIX + memberId, lGroupId, Duration.ofHours(MEMBER_ID_LIFETIME));
 
         return new GroupResponseDTO.ValidateInvitationResponseDTO(group);
     }

@@ -3,6 +3,7 @@ package com.kakao.techcampus.wekiki.group.service;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
@@ -26,13 +27,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class GroupService {
+
+    private final RedisUtils redisUtils;
 
     private final InvitationService invitationService;
 
@@ -43,6 +48,8 @@ public class GroupService {
     private final HistoryJPARepository historyJPARepository;
 
     private static final int GROUP_SEARCH_SIZE = 16;
+    private static final String MEMBER_ID_PREFIX = "member_id:";
+    private static final long MEMBER_ID_LIFETIME = 3L;
 
     /*
         비공식 그룹 생성
@@ -206,7 +213,7 @@ public class GroupService {
     /*
         비공식 공개 그룹 입장
      */
-    public void groupEntry(Long groupId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
+    public void groupEntry(Long groupId, Long memberId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
         try {
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
                     .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
@@ -215,6 +222,8 @@ public class GroupService {
             if(!group.getEntrancePassword().equals(requestDTO.entrancePassword())) {
                 throw new Exception400("비밀번호가 틀렸습니다.");
             }
+
+            redisUtils.setGroupIdValues(MEMBER_ID_PREFIX + memberId, groupId, Duration.ofHours(MEMBER_ID_LIFETIME));
 
         } catch (Exception400 | Exception404 e) {
             throw e;
@@ -228,38 +237,60 @@ public class GroupService {
      */
     @Transactional
     public void joinGroup(Long groupId, Long memberId, GroupRequestDTO.JoinGroupRequestDTO requestDTO) {
-        // 회원 정보 확인
-        Member member = getMemberById(memberId);
+        try {
+            // 회원 정보 확인
+            Member member = getMemberById(memberId);
 
-        // 그룹 정보 확인
-        Group group = getGroupById(groupId);
+            // 그룹 정보 확인
+            Group group = getGroupById(groupId);
 
-        // 그룹 내 닉네임 중복 예외 처리
-        groupNickNameCheck(groupId, requestDTO.nickName());
+            checkJoinPermission(memberId, groupId);
 
-        // 이미 가입한 상태일 시 예외 처리
-        if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
-            throw new Exception400("이미 가입된 회원입니다.");
+            // 그룹 내 닉네임 중복 예외 처리
+            groupNickNameCheck(groupId, requestDTO.nickName());
+
+            // 이미 가입한 상태일 시 예외 처리
+            if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
+                throw new Exception400("이미 가입된 회원입니다.");
+            }
+
+            // 재가입 회원인지 확인
+            InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
+
+            // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
+            ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
+
+            // 그룹 멤버 잔재 삭제
+            if(wasGroupMember != null) {
+                groupMemberJPARepository.delete(wasGroupMember);
+            }
+
+            // GroupMember 저장
+            group.addGroupMember(groupMember);
+            member.getGroupMembers().add(groupMember);
+
+            groupJPARepository.save(group);
+            memberJPARepository.save(member);
+            groupMemberJPARepository.save(groupMember);
+
+        } catch (Exception400 | Exception404 e) {
+            throw e;
+        } catch (Exception e) {
+            throw new Exception500("서버 에러가 발생했습니다.");
+        }
+    }
+
+    protected void checkJoinPermission(Long memberId, Long groupId) {
+        Object oGroupId = Optional.ofNullable(redisUtils.getValues(MEMBER_ID_PREFIX + memberId))
+                .orElseThrow(() -> new Exception404("해당 그룹에 가입할 수 없습니다."));
+
+        Long lGroupId = ((Integer) oGroupId).longValue();
+
+        if(!lGroupId.equals(groupId)) {
+            throw new Exception400("현재 그룹에 가입할 수 없습니다.");
         }
 
-        // 재가입 회원인지 확인
-        InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
-
-        // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
-        ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
-
-        // 그룹 멤버 잔재 삭제
-        if(wasGroupMember != null) {
-            groupMemberJPARepository.delete(wasGroupMember);
-        }
-
-        // GroupMember 저장
-        group.addGroupMember(groupMember);
-        member.getGroupMembers().add(groupMember);
-
-        groupJPARepository.save(group);
-        memberJPARepository.save(member);
-        groupMemberJPARepository.save(groupMember);
+        redisUtils.deleteValues(MEMBER_ID_PREFIX + memberId);
     }
 
     /*
