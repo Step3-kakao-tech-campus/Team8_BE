@@ -46,6 +46,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
     private final JavaMailSender javaMailSender;
+    private final RestTemplate restTemplate;
     @Value("${kakao.client.id}")
     private String KAKAO_CLIENT_ID;
     @Value("${kakao.redirect.uri}")
@@ -240,6 +241,7 @@ public class MemberService {
             params.add("redirect_uri", KAKAO_REDIRECT_URI);
 
             RestTemplate restTemplate = new RestTemplate();
+            System.out.println(restTemplate.getClass());
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -248,6 +250,7 @@ public class MemberService {
                     httpEntity,
                     String.class
             );
+
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
@@ -281,6 +284,8 @@ public class MemberService {
     private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
         MemberResponse.KakaoInfoDTO kakaoInfo = null;
         RestTemplate restTemplate = new RestTemplate();
+        System.out.println(restTemplate.getClass());
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
@@ -294,8 +299,6 @@ public class MemberService {
                 httpEntity,
                 String.class
         );
-
-        System.out.println(response.getBody());
 
         ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
