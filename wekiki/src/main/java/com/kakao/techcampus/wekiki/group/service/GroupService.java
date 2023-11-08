@@ -257,7 +257,6 @@ public class GroupService {
 
             // 그룹 내 닉네임 중복 예외 처리
             String groupNickName = requestDTO.nickName();
-            groupNickNameCheck(groupId, groupNickName);
 
             GroupMember wasGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId, groupId);
 
@@ -273,8 +272,12 @@ public class GroupService {
                 // GroupMember 저장
                 saveGroupMember(member, group, wasGroupMember);
             } else {
+                groupNickNameCheck(groupId, groupNickName);
+
                 saveGroupMember(member, group, buildGroupMember(member, group, groupNickName));
             }
+
+            redisUtils.deleteValues(MEMBER_ID_PREFIX + memberId);
 
         } catch (Exception400 | Exception404 e) {
             throw e;
@@ -302,8 +305,6 @@ public class GroupService {
         if(!lGroupId.equals(groupId)) {
             throw new Exception400("현재 그룹에 가입할 수 없습니다.");
         }
-
-        redisUtils.deleteValues(MEMBER_ID_PREFIX + memberId);
     }
 
     /*
@@ -418,6 +419,10 @@ public class GroupService {
             group.minusMemberCount();
             groupMember.changeStatus();
 
+            Member member = getMemberById(memberId);
+            member.getGroupMembers().remove(groupMember);
+            memberJPARepository.save(member);
+
             groupJPARepository.save(group);
             groupMemberJPARepository.save(groupMember);
 
@@ -432,11 +437,11 @@ public class GroupService {
         for (GroupMember groupMember : groupMemberList) {
             Long groupMemberId = groupMember.getId();
 
-            List<History> historyList = historyJPARepository.findAllByGroupMemberId(groupMemberId);
-            historyJPARepository.deleteAll(historyList);
-
             List<Report> reportList = reportJPARepository.findAllByFromMemberId(groupMemberId);
             reportJPARepository.deleteAll(reportList);
+
+            List<History> historyList = historyJPARepository.findAllByGroupMemberId(groupMemberId);
+            historyJPARepository.deleteAll(historyList);
 
             List<Comment> commentList = commentJPARepository.findAllByGroupMemberId(groupMemberId);
             commentJPARepository.deleteAll(commentList);
