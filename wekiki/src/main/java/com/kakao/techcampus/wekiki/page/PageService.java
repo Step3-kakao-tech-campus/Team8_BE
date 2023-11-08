@@ -80,14 +80,14 @@ public class PageService {
     private List<PageInfoResponse.mainPageDTO.GroupDTO> getOfficialGroupList () {
         return groupJPARepository.findAllOfficialGroup().stream()
                 .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                .limit(5)
+                .limit(3)
                 .collect(Collectors.toList());
     }
 
     private List<PageInfoResponse.mainPageDTO.GroupDTO> getUnLoginUnOfficialGroupList() {
         return groupJPARepository.findAllUnOfficialOpenGroup().stream()
                 .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                .limit(5)
+                .limit(8)
                 .collect(Collectors.toList());
     }
 
@@ -95,7 +95,7 @@ public class PageService {
         return groupJPARepository.findAllUnOfficialOpenGroup().stream()
                 .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
                 .filter(tempGroup -> !myGroupIdList.contains(tempGroup.getGroupId()))
-                .limit(5)
+                .limit(8)
                 .toList();
     }
 

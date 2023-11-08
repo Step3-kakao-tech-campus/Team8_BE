@@ -99,6 +99,7 @@ public class MemberService {
             throw e;
         }
         List<MemberResponse.myInfoResponseDTO.myInfoGroupDTO> infoGroupDTOList = member.getGroupMembers().stream()
+                .filter(GroupMember::isActiveStatus)
                 .map(groupMember -> {
                     return new MemberResponse.myInfoResponseDTO.myInfoGroupDTO(groupMember, groupMember.getGroup());
                 }).collect(Collectors.toList());
@@ -118,6 +119,7 @@ public class MemberService {
         for (GroupMember g : member.getGroupMembers()) {
             g.update("알수없음");
             g.changeMember(cancelMember);
+            g.changeStatus();
         }
         //member.delete(passwordEncoder.encode(makeRandomPassword()));
         memberRepository.delete(member);
