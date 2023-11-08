@@ -33,6 +33,10 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+          proxy:
+            host: krmp-proxy.9rum.cc
+            port: 3128
 jwt:
   secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
 kakao:

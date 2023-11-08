@@ -46,6 +46,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
     private final JavaMailSender javaMailSender;
+    private final RestTemplate restTemplate;
     @Value("${kakao.client.id}")
     private String KAKAO_CLIENT_ID;
     @Value("${kakao.redirect.uri}")
@@ -227,7 +228,6 @@ public class MemberService {
     }
 
     public MemberResponse.authTokenDTO getKakaoInfo(String code) {
-        //리팩토링 대상...!!
         String accessToken = "";
 
         try{
@@ -241,6 +241,7 @@ public class MemberService {
             params.add("redirect_uri", KAKAO_REDIRECT_URI);
 
             RestTemplate restTemplate = new RestTemplate();
+            System.out.println(restTemplate.getClass());
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -250,7 +251,6 @@ public class MemberService {
                     String.class
             );
 
-            System.out.println(response.getBody());
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
@@ -264,22 +264,28 @@ public class MemberService {
         String kakaoEmail = kakaoInfo.getId() + "@wekiki.com";
         Optional<Member> kakaoMember = memberRepository.findByEmail(kakaoEmail);
         if(kakaoMember.isEmpty()){
-            Member member = Member.builder()
-                    .name(kakaoInfo.getProperties().getNickname())
-                    .email(kakaoEmail)
-                    .password(passwordEncoder.encode(KAKAO_PASSWORD))
-                    .created_at(LocalDateTime.now())
-                    .authority(Authority.user)
-                    .build();
-            memberRepository.save(member);
+            kakaoSignUp(kakaoInfo, kakaoEmail);
         }
         MemberRequest.loginRequestDTO kakaoLogin = new MemberRequest.loginRequestDTO(kakaoEmail,KAKAO_PASSWORD);
         return login(kakaoLogin);
     }
 
+    private void kakaoSignUp(MemberResponse.KakaoInfoDTO kakaoInfo, String kakaoEmail) {
+        Member member = Member.builder()
+                .name(kakaoInfo.getProperties().getNickname())
+                .email(kakaoEmail)
+                .password(passwordEncoder.encode(KAKAO_PASSWORD))
+                .created_at(LocalDateTime.now())
+                .authority(Authority.user)
+                .build();
+        memberRepository.save(member);
+    }
+
     private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
         MemberResponse.KakaoInfoDTO kakaoInfo = null;
         RestTemplate restTemplate = new RestTemplate();
+        System.out.println(restTemplate.getClass());
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
@@ -293,8 +299,6 @@ public class MemberService {
                 httpEntity,
                 String.class
         );
-
-        System.out.println(response.getBody());
 
         ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
