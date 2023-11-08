@@ -40,8 +40,6 @@ public class History {
         this.created_at = post.getCreated_at();
     }
 
-
-
     public void updateGroupMember(GroupMember groupMember) {
         this.groupMember = groupMember;
     }

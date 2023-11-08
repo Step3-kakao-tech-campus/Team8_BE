@@ -93,7 +93,7 @@ public class GroupRestController {
     @PostMapping("/{groupId}/entry")
     public ResponseEntity<?> groupEntry(@PathVariable("groupId") Long groupId, @RequestBody GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
 
-        groupService.groupEntry(groupId, requestDTO);
+        groupService.groupEntry(groupId, currentMember(), requestDTO);
 
         return ResponseEntity.ok().body(ApiUtils.success(null));
     }
@@ -131,7 +131,7 @@ public class GroupRestController {
     @GetMapping("/invitation/{invitationLink}")
     public ResponseEntity<?> ValidateInvitation(@PathVariable String invitationLink) {
 
-        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.validateInvitation(invitationLink);
+        GroupResponseDTO.ValidateInvitationResponseDTO responseDTO = invitationService.validateInvitation(invitationLink, currentMember());
 
         return ResponseEntity.ok().body(ApiUtils.success(responseDTO));
     }

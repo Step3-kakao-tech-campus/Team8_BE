@@ -37,4 +37,7 @@ public class Report {
         this.created_at = created_at;
     }
 
+    public void updateGroupMember(GroupMember groupMember) {
+        this.fromMember = groupMember;
+    }
 }
