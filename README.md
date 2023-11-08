@@ -1,5 +1,30 @@
 # Team8_BE
-8조
+
+## 프로젝트 소개
+<img width="100%" alt="스크린샷 2023-11-09 오전 3 08 11" src="https://github.com/Step3-kakao-tech-campus/Team8_BE/assets/80378041/5b22370a-292a-4e1a-8ebc-ad866903128a">
+
+||설명|
+|-----------|----|
+|제목 |위키키| 
+|개발 목적| 그룹별로 자신들만의 나무위키를 만들고, 기록하고자 하는 사람들을 위해 프로젝트를 만들었습니다. |
+|개발 기간|2023.09 - 2023.11|
+
+## 팀원
+| [이준희](https://github.com/Jun2-Lee) | [김돈우](https://github.com/kimdonwoo) | [황인욱](https://github.com/INUK-ai)|
+|----------|----------|----------|
+| <img src="https://github.com/Jun2-Lee.png" width="100"> | <img src="https://github.com/kimdonwoo.png" width="100"> | <img src="https://github.com/INUK-ai.png" width="100"> |
+
+
+
+
+
+
+
+
+
+
+
+
 ## 카카오 테크 캠퍼스 3단계 진행 보드
 
 </br>
