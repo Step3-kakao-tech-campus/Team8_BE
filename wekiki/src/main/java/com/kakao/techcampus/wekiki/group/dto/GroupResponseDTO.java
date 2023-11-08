@@ -87,7 +87,7 @@ public class GroupResponseDTO {
         public record GroupInfoDTO(
                 Long groupId,
                 String groupName,
-                String groupProfileImage
+                String groupImage
         ) {
             public GroupInfoDTO(Group group) {
                 this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
