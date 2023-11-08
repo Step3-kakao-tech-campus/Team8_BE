@@ -26,7 +26,7 @@ public class Post {
 
     private int orders;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember groupMember;
 
     @Setter
