@@ -36,7 +36,7 @@ spring:
             required: true
           proxy:
             host: krmp-proxy.9rum.cc
-            port: 3182
+            port: 3128
 jwt:
   secret: 7ZmA656AIOuTneygkOyZlSDquLDsm5AgMeydvOywqALdlsKJL3234jklsdjfaKJDLnflkasdf
 kakao:
