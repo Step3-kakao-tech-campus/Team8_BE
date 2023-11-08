@@ -62,7 +62,8 @@ public class PageService {
                 log.error("회원이 존재하지 않습니다.");
                 throw new Exception400("없는 회원입니다.");
             }
-            List<Group> myGroupList = member.get().getGroupMembers().stream().map(GroupMember::getGroup).toList();
+            List<Group> myGroupList = member.get().getGroupMembers().stream()
+                    .filter(GroupMember::isActiveStatus).map(GroupMember::getGroup).toList();
             List<Long> myGroupIdList = myGroupList.stream().map(Group::getId).toList();
             List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupListDTO = getMyGroupList(myGroupList);
             List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = getOfficialGroupList();
