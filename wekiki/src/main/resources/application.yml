@@ -38,8 +38,9 @@ jwt:
 kakao:
   client:
     id: 08e6c709229f3b44a8cff2fc7168e1a2
+    password: haaland09
   redirect:
-    uri: http://3.39.150.229:8080/auth/kakao/signin
+    uri: http://localhost:3000/auth/kakao/signin
 logging:
   level:
     '[com.example.kakao]': DEBUG

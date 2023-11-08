@@ -1,7 +1,9 @@
 package com.kakao.techcampus.wekiki.member;
 
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +23,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @NotNull
     private String email;
     private String password;
     private LocalDateTime created_at;
@@ -46,5 +49,12 @@ public class Member {
 
     public void changeNickName(String name) {
         this.name = name;
+    }
+
+    public void delete(String randomPassword) {
+        this.name = "";
+        this.email = "";
+        this.password = randomPassword;
+        this.authority = Authority.none;
     }
 }

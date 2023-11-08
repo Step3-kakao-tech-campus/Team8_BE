@@ -149,7 +149,7 @@ public class PageRestController {
     @GetMapping("/link")
     public ResponseEntity<ApiUtils.ApiResult<PageInfoResponse.getPageLinkDTO>> getPageLink(@PathVariable Long groupid, @RequestParam(value = "title") String title){
 
-        PageInfoResponse.getPageLinkDTO response = pageService.getPageLink(currentMember(), groupid, title);
+        PageInfoResponse.getPageLinkDTO response = pageService.getPageLink(groupid, title);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }

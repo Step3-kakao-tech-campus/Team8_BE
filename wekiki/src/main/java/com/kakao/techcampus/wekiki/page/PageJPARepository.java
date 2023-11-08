@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.page;
 
+import com.kakao.techcampus.wekiki.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,9 +29,13 @@ public interface PageJPARepository extends JpaRepository<PageInfo, Long> {
     @Query("SELECT p FROM PageInfo p LEFT JOIN FETCH p.posts ps WHERE p.id = :pageId ORDER BY ps.orders ASC")
     Optional<PageInfo> findByPageIdWithPosts(@Param("pageId") Long pageId);
 
-    @Query("SELECT p FROM PageInfo p LEFT JOIN FETCH p.posts ps WHERE p.group.id = :groupId AND p.pageName LIKE %:keyword%")
+//    @Query("SELECT p FROM PageInfo p LEFT JOIN FETCH p.posts ps WHERE p.group.id = :groupId AND p.pageName LIKE %:keyword%")
+//    Page<PageInfo> findPagesWithPosts(@Param("groupId") Long groupId, @Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT distinct p FROM PageInfo p LEFT JOIN FETCH p.posts ps WHERE p.group.id = :groupId AND p.pageName LIKE %:keyword% AND (ps.orders = 1 or ps.orders is null)")
     Page<PageInfo> findPagesWithPosts(@Param("groupId") Long groupId, @Param("keyword") String keyword, Pageable pageable);
 
-
+    @Query("SELECT p FROM PageInfo p WHERE p.group.id = :groupId AND p.pageName LIKE %:keyword% ")
+    Page<PageInfo> findPages(@Param("groupId") Long groupId, @Param("keyword") String keyword, Pageable pageable);
 
 }
