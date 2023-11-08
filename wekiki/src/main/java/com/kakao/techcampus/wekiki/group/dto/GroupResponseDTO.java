@@ -1,10 +1,12 @@
 package com.kakao.techcampus.wekiki.group.dto;
 
+import com.kakao.techcampus.wekiki.group.GroupType;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.domain.Invitation;
 import com.kakao.techcampus.wekiki.group.domain.OfficialGroup;
 import com.kakao.techcampus.wekiki.group.domain.UnOfficialOpenedGroup;
-import com.kakao.techcampus.wekiki.group.domain.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import jakarta.persistence.DiscriminatorValue;
 import org.springframework.data.domain.Page;
@@ -137,7 +139,8 @@ public class GroupResponseDTO {
     public record GetGroupMembersResponseDTO(List<String> nickNames) {
         public GetGroupMembersResponseDTO(Group group) {
             this(group.getGroupMembers().stream()
-                    .map(GroupMember::getNickName)
+                    .filter(groupMember -> groupMember instanceof ActiveGroupMember)
+                    .map(groupMember -> groupMember.getNickName())
                     .collect(Collectors.toList()));
         }
     }

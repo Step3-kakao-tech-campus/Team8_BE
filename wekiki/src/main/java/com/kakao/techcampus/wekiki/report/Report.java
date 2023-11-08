@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.report;
 
-import com.kakao.techcampus.wekiki.group.domain.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,7 +19,7 @@ public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private GroupMember fromMember;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.post;
 
-import com.kakao.techcampus.wekiki.group.domain.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.report.Report;
 import lombok.Getter;

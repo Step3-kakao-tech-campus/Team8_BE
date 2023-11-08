@@ -1,6 +1,8 @@
-package com.kakao.techcampus.wekiki.group.domain;
+package com.kakao.techcampus.wekiki.group.domain.member;
 
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.member.Member;
+import com.kakao.techcampus.wekiki.member.MemberService;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,7 +14,9 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "group_member_tb")
+@DiscriminatorColumn(name = "member_status", discriminatorType = DiscriminatorType.STRING)
 public class
 GroupMember {
 
@@ -27,7 +31,6 @@ GroupMember {
     private String nickName;
     private int memberLevel;
     private LocalDateTime created_at;
-    boolean activeStatus;
 
     @Builder
     public GroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at) {
@@ -37,7 +40,6 @@ GroupMember {
         this.nickName = nickName;
         this.memberLevel = 1;
         this.created_at = created_at;
-        this.activeStatus = true;
     }
 
     public void changeMember(Member member) {
@@ -47,9 +49,5 @@ GroupMember {
     // 그룹 내 정보 변경
     public void update(String groupNickName) {
         this.nickName = groupNickName;
-    }
-
-    public void changeStatus() {
-        this.activeStatus = !this.activeStatus;
     }
 }
