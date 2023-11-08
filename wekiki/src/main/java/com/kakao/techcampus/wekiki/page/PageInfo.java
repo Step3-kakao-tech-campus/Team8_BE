@@ -21,11 +21,11 @@ public class PageInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Group group;
     private String pageName;
 
-    @OneToMany(mappedBy = "pageInfo", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "pageInfo")
     private List<Post> posts = new ArrayList<>();
     private int goodCount;
     private int badCount;

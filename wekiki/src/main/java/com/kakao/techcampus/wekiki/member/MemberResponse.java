@@ -2,7 +2,7 @@ package com.kakao.techcampus.wekiki.member;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.kakao.techcampus.wekiki.group.domain.Group;
-import com.kakao.techcampus.wekiki.group.domain.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

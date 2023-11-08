@@ -2,15 +2,18 @@ package com.kakao.techcampus.wekiki.comment;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.domain.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
+import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +37,7 @@ public class CommentService {
     public CommentResponse.getCommentDTO getComment(Long memberId, Long groupId, Long postId, int pageNo){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. post 존재하는지 예외처리
         Post post = checkPostFromPostId(postId);
@@ -53,7 +56,7 @@ public class CommentService {
     public CommentResponse.createCommentDTO createComment(Long memberId, Long groupId, Long postId, String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. post 존재하는지 예외처리
         Post post = checkPostFromPostId(postId);
@@ -75,7 +78,7 @@ public class CommentService {
     public CommentResponse.deleteCommentDTO deleteComment(Long memberId, Long groupId, Long commentId){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. comment 존재하는지 예외처리
         Comment comment = checkCommentFromCommentId(commentId);
@@ -97,7 +100,7 @@ public class CommentService {
     public CommentResponse.updateCommentDTO updateComment(Long memberId, Long groupId, Long commentId, String updateContent){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. comment 존재하는지 예외처리
         Comment comment = checkCommentFromCommentId(commentId);
@@ -120,11 +123,10 @@ public class CommentService {
     }
 
 
-    public GroupMember checkGroupMember(Long memberId, Long groupId){
+    public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
 
-        GroupMember activeGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
+        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
-        if(!activeGroupMember.isActiveStatus()) throw new Exception404("해당 그룹에 속한 회원이 아닙니다.");
         if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
         if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
 
