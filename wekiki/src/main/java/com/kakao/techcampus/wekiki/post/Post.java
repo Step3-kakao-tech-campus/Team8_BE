@@ -1,7 +1,7 @@
 package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki.comment.Comment;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import jakarta.persistence.*;
@@ -26,7 +26,7 @@ public class Post {
 
     private int orders;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private GroupMember groupMember;
 
     @Setter

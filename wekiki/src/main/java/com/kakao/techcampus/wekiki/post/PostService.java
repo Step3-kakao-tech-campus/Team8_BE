@@ -3,15 +3,10 @@ package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.domain.Group;
-import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
-import com.kakao.techcampus.wekiki.member.Member;
-import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.report.Report;
@@ -41,7 +36,7 @@ public class PostService {
     public PostResponse.createPostDTO createPost(Long memberId,Long groupId,Long pageId, Long parentPostId, int order, String title, String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. pageId로 PageInfo 객체 들고오기
         PageInfo pageInfo = checkPageFromPageId(pageId);
@@ -84,7 +79,7 @@ public class PostService {
     public PostResponse.modifyPostDTO modifyPost(Long memberId , Long groupId, Long postId , String title, String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. postId로 post 엔티티 가져오기
         Post post = checkPostFromPostId(postId);
@@ -152,7 +147,7 @@ public class PostService {
     public PostResponse.createReportDTO createReport(Long memberId, Long groupId, Long postId , String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. postId로 post 엔티티 가져오기
         checkPostFromPostId(postId);
@@ -175,10 +170,11 @@ public class PostService {
     }
 
 
-    public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
+    public GroupMember checkGroupMember(Long memberId, Long groupId){
 
-        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
+        GroupMember activeGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+        if(!activeGroupMember.isActiveStatus()) throw new Exception404("해당 그룹에 속한 회원이 아닙니다.");
         if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
         if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
 
