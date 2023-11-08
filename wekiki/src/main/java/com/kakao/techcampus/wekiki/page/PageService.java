@@ -4,6 +4,7 @@ import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
@@ -41,10 +42,12 @@ public class PageService {
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final GroupJPARepository groupJPARepository;
     private final IndexUtils indexUtils;
-    private final RedisUtility redisUtility;
+    private final RedisUtils redisUtils;
 
     final int PAGE_COUNT = 10;
     final int RECENTLY_PAGE_COUNT = 10;
+    final String GROUP_PREFIX = "GROUP_";
+
     @Transactional
     public PageInfoResponse.mainPageDTO getMainPage() {
         if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
@@ -124,7 +127,7 @@ public class PageService {
         pageJPARepository.deleteById(pageId);
 
         // 5. redis에 페이지 목록 삭제 시켜주기
-        redisUtility.deleteValues(groupId+"_"+pageInfo.getPageName());
+        redisUtils.deleteHashValue(GROUP_PREFIX+groupId,pageInfo.getPageName());
 
         // 6. return DTO
         return response;
@@ -177,11 +180,10 @@ public class PageService {
         // 5. Page 저장
         PageInfo savedPageInfo = pageJPARepository.save(newPageInfo);
 
-        // TODO : 추후에 redis value 자료구조를 String에서 Hash로 변경 (key overhead 최소화)
-        //       <groupId, <pageTitle,pageId>>
-        redisUtility.setValues(groupId+"_"+title,newPageInfo.getId().toString());
+        // 6. Redis에 Hash 자료구조로 pageID 저장
+        redisUtils.saveKeyAndHashValue(GROUP_PREFIX+groupId,title,newPageInfo.getId().toString());
 
-        // 6. return DTO
+        // 7. return DTO
         return new PageInfoResponse.createPageDTO(savedPageInfo);
     }
 
@@ -310,7 +312,7 @@ public class PageService {
     public PageInfoResponse.getPageLinkDTO getPageLink( Long groupId, String title){
 
         // 1. redis로 groupId_title을 key로 value 받아오기 (페이지 테이블에 접근할 필요 x)
-        String value = redisUtility.getValues(groupId+"_"+title);
+        String value = redisUtils.getHashValue(GROUP_PREFIX + groupId, title);
 
         if(value == null){
             throw new Exception404("존재하지 않는 페이지 입니다.");
