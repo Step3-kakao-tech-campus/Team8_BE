@@ -27,7 +27,7 @@ GroupMember {
     private String nickName;
     private int memberLevel;
     private LocalDateTime created_at;
-    boolean activeStatus;
+    private boolean activeStatus;
 
     @Builder
     public GroupMember(Long id, Member member, Group group, String nickName, LocalDateTime created_at) {

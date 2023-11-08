@@ -227,6 +227,7 @@ public class GroupService {
 
             // 재가입 회원인지 확인
             wasGroupMember.changeStatus();
+            wasGroupMember.update(requestDTO.nickName());
 
             // GroupMember 저장
             saveGroupMember(member, group, wasGroupMember);
@@ -343,6 +344,7 @@ public class GroupService {
         if(group.getMemberCount() != 1) {
             group.minusMemberCount();
             groupMember.changeStatus();
+            groupMember.update("알수없음");
 
             Member member = getMemberById(memberId);
             member.getGroupMembers().remove(groupMember);
