@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.group.domain.member;
 
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.member.Member;
+import com.kakao.techcampus.wekiki.member.MemberService;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,7 +23,7 @@ GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Member member;
     @ManyToOne(fetch = FetchType.LAZY)
     private Group group;
@@ -39,6 +40,10 @@ GroupMember {
         this.nickName = nickName;
         this.memberLevel = 1;
         this.created_at = created_at;
+    }
+
+    public void changeMember(Member member) {
+        this.member = member;
     }
 
     // 그룹 내 정보 변경

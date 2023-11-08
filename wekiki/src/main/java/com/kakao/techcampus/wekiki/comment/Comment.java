@@ -39,4 +39,8 @@ public class Comment {
     public void updateContent(String newContent){
         this.content = newContent;
     }
+
+    public void updateGroupMember(GroupMember groupMember) {
+        this.groupMember = groupMember;
+    }
 }

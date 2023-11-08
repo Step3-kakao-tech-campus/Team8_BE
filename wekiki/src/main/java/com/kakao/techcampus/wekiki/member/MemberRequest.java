@@ -13,6 +13,7 @@ public class MemberRequest {
     }
 
     @Getter
+    @AllArgsConstructor
     public static class loginRequestDTO {
         private String email;
         private String password;

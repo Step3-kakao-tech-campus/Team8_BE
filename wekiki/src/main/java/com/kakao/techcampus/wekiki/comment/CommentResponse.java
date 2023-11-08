@@ -43,13 +43,15 @@ public class CommentResponse {
         public static class commentDTO{
             Long commentId;
             String nickName;
+            boolean isMine;
             int memberLevel;
             String content;
             LocalDateTime createdAt;
 
-            public commentDTO(Comment comment , GroupMember groupMember){
+            public commentDTO(Comment comment , GroupMember groupMember, boolean isMine){
                 this.commentId = comment.getId();
                 this.nickName = groupMember.getNickName();
+                this.isMine = isMine;
                 this.memberLevel = groupMember.getMemberLevel();
                 this.content = comment.getContent();
                 this.createdAt = comment.getCreated_at();

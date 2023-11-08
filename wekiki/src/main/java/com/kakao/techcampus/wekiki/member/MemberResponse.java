@@ -12,16 +12,29 @@ import java.util.List;
 
 public class MemberResponse {
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class KakaoTokenDTO{
+        private String id_token;
         private String token_type;
         private String access_token;
         private int expires_in;
         private String refresh_token;
         private String refresh_token_expires_in;
+        private String scope;
     }
 
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class KakaoInfoDTO {
+        Long id;
+        Properties properties;
+
+        @Getter
+        public class Properties {
+            private String nickname;
+        }
 
     }
 
