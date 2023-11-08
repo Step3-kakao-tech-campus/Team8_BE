@@ -105,9 +105,9 @@ public class PageInfoResponse {
             String pageName;
             String content;
 
-            public pageDTO(PageInfo pageInfo ,String content){
-                this.pageId = pageInfo.getId();
-                this.pageName = pageInfo.getPageName();
+            public pageDTO(Long pageId, String pageName ,String content){
+                this.pageId = pageId;
+                this.pageName = pageName;
                 this.content = content;
             }
         }

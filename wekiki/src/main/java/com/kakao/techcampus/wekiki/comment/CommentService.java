@@ -36,25 +36,18 @@ public class CommentService {
     @Transactional
     public CommentResponse.getCommentDTO getComment(Long memberId, Long groupId, Long postId, int pageNo){
 
-        // 1. memberId로 Member 객체 가져오기
-        checkMemberFromMemberId(memberId);
+        // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
-        // 2. 존재하는 group인지 확인하기
-        checkGroupFromGroupId(groupId);
-
-        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
-        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
-
-        // 4. post 존재하는지 예외처리
+        // 2. post 존재하는지 예외처리
         Post post = checkPostFromPostId(postId);
 
-        // 5. postId로 Comment 다 가져오기
-        Pageable pageable = PageRequest.of(pageNo, COMMENT_COUNT);
-        Page<Comment> comments = commentJPARepository.findCommentsByPostIdWithGroupMembers(postId, pageable);
+        // 3. postId로 Comment 다 가져오기
+        Page<Comment> comments = commentJPARepository.findCommentsByPostIdWithGroupMembers(postId, PageRequest.of(pageNo, COMMENT_COUNT));
 
-        // 6. return DTO
+        // 4. return DTO
         List<CommentResponse.getCommentDTO.commentDTO> commentDTOs = comments.getContent()
-                .stream().map(c -> new CommentResponse.getCommentDTO.commentDTO(c , c.getGroupMember()))
+                .stream().map(c -> new CommentResponse.getCommentDTO.commentDTO(c,c.getGroupMember(), c.getGroupMember().getId() == activeGroupMember.getId()))
                 .collect(Collectors.toList());
         return new CommentResponse.getCommentDTO(post,commentDTOs);
     }
@@ -62,105 +55,82 @@ public class CommentService {
     @Transactional
     public CommentResponse.createCommentDTO createComment(Long memberId, Long groupId, Long postId, String content){
 
-        // 1. memberId로 Member 객체 가져오기
-        checkMemberFromMemberId(memberId);
+        // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
-        // 2. 존재하는 group인지 확인하기
-        checkGroupFromGroupId(groupId);
-
-        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
-        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
-
-        // 4. post 존재하는지 예외처리
+        // 2. post 존재하는지 예외처리
         Post post = checkPostFromPostId(postId);
 
-        // 4. comment 생성
+        // 3. comment 생성
         Comment comment = Comment.builder()
-                .groupMember(groupMember)
+                .groupMember(activeGroupMember)
                 .content(content)
                 .created_at(LocalDateTime.now())
                 .build();
         post.addComment(comment);
         Comment savedComment = commentJPARepository.save(comment);
 
-        // 5. return DTO
-        return new CommentResponse.createCommentDTO(savedComment,groupMember.getNickName());
+        // 4. return DTO
+        return new CommentResponse.createCommentDTO(savedComment,activeGroupMember.getNickName());
     }
 
     @Transactional
     public CommentResponse.deleteCommentDTO deleteComment(Long memberId, Long groupId, Long commentId){
 
-        // 1. memberId로 Member 객체 가져오기
-        checkMemberFromMemberId(memberId);
+        // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
-        // 2. 존재하는 group인지 확인하기
-        checkGroupFromGroupId(groupId);
-
-        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
-        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
-
-        // 4. comment 존재하는지 예외처리
+        // 2. comment 존재하는지 예외처리
         Comment comment = checkCommentFromCommentId(commentId);
 
-        // 5. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
-        if(comment.getGroupMember().getId() != groupMember.getId()){
+        // 3. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
+        if(comment.getGroupMember().getId() != activeGroupMember.getId()){
             throw new Exception400("본인이 쓴 댓글만 삭제가 가능합니다.");
         }
 
-        // 5. comment 삭제
+        // 4. comment 삭제
         CommentResponse.deleteCommentDTO response = new CommentResponse.deleteCommentDTO(comment);
         commentJPARepository.delete(comment);
 
-        // 6. return DTO
+        // 5. return DTO
         return response;
     }
 
     @Transactional
     public CommentResponse.updateCommentDTO updateComment(Long memberId, Long groupId, Long commentId, String updateContent){
 
-        // 1. memberId로 Member 객체 가져오기
-        checkMemberFromMemberId(memberId);
+        // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
+        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
-        // 2. 존재하는 group인지 확인하기
-        checkGroupFromGroupId(groupId);
-
-        // 3. 해당 그룹에 속하는 Member인지 확인 (=GroupMember 확인)
-        ActiveGroupMember groupMember = checkGroupMember(memberId, groupId);
-
-        // 4. comment 존재하는지 예외처리
+        // 2. comment 존재하는지 예외처리
         Comment comment = checkCommentFromCommentId(commentId);
 
-        // 5. comment 쓴 사람이 삭제하는 유저랑 일치하는지 확인
-        if(comment.getGroupMember().getId() != groupMember.getId()){
+        // 3. comment 쓴 사람이 수정하는 유저랑 일치하는지 확인
+        if(comment.getGroupMember().getId() != activeGroupMember.getId()){
             throw new Exception400("본인이 쓴 댓글만 수정이 가능합니다.");
         }
 
-        // 6. 내용 동일하면 exception
+        // 4. 내용 동일하면 exception
         if(comment.getContent().equals(updateContent)){
             throw new Exception400("기존 댓글과 동일한 내용입니다.");
         }
 
-        // 7. 수정
+        // 5. 수정
         comment.updateContent(updateContent);
 
-        // 8. return DTO
+        // 6. return DTO
         return new CommentResponse.updateCommentDTO(comment);
     }
 
 
-    public Member checkMemberFromMemberId(Long memberId){
-        return memberJPARepository.findById(memberId)
-                .orElseThrow(()-> new Exception404("존재하지 않는 회원입니다."));
-    }
-
-    public Group checkGroupFromGroupId(Long groupId){
-        return groupJPARepository.findById(groupId)
-                .orElseThrow(()-> new Exception404("존재하지 않는 그룹입니다."));
-    }
-
     public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
-        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId,groupId)
+
+        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+        if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
+        if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
+
+        return activeGroupMember;
     }
 
     public Post checkPostFromPostId(Long postId){

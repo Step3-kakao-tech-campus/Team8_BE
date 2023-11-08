@@ -14,10 +14,6 @@ import java.util.List;
 @Repository
 public interface HistoryJPARepository extends JpaRepository<History, Long> {
 
-    @Modifying
-    @Query("DELETE FROM History h WHERE h.post.id = :postId")
-    void deleteByPostId(@Param("postId") Long postId);
-
     List<History> findAllByGroupMember(GroupMember groupMember);
 
     Page<History> findAllByGroupMember(GroupMember groupMember, Pageable pageable);
