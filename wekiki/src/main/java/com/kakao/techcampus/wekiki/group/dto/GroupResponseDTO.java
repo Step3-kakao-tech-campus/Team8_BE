@@ -87,7 +87,7 @@ public class GroupResponseDTO {
         public record GroupInfoDTO(
                 Long groupId,
                 String groupName,
-                String groupProfileImage
+                String groupImage
         ) {
             public GroupInfoDTO(Group group) {
                 this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
@@ -120,19 +120,20 @@ public class GroupResponseDTO {
             String entranceHint,
             String groupType
     ) {
-        public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
+        public SearchGroupInfoDTO(Group group) {
             this(
                     group.getId(),
                     group.getGroupName(),
                     group.getGroupProfileImage(),
-                    group.getIntroduction(),
+                    (group instanceof UnOfficialOpenedGroup) ? ((UnOfficialOpenedGroup) group).getIntroduction() : null,
                     group.getMemberCount(),
                     group.getCreated_at(),
-                    group.getEntranceHint(),
+                    (group instanceof UnOfficialOpenedGroup) ? ((UnOfficialOpenedGroup) group).getEntranceHint() : null,
                     group.getClass().getAnnotation(DiscriminatorValue.class).value()
             );
         }
     }
+
 
     // 그룹 내 그룹원 리스트 조회
     public record GetGroupMembersResponseDTO(List<String> nickNames) {

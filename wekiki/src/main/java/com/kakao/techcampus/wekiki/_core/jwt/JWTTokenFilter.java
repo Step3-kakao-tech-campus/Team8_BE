@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki._core.jwt;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,10 @@ public class JWTTokenFilter extends OncePerRequestFilter {
 
         // 위에서 Bearer로 시작하는 것을 알았으니, Bearer을 지워주고, 암호화된 토큰만을 남김
         String token = request.getHeader("Authorization").replace("Bearer ", "");
+        if(!jwtTokenProvider.validateToken(token)){
+            filterChain.doFilter(request, response);
+            return;
+        }
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         // 인증을 거친 뒤, 유저의 정보를 SecurityContextHolder에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
