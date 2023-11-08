@@ -25,8 +25,8 @@ public class MemberController {
 
     @GetMapping("/kakao/signin")
     public ResponseEntity<?> kakaoLogin(@RequestParam String code) {
-        memberService.getKakaoInfo(code);
-        return ResponseEntity.ok(true);
+        MemberResponse.authTokenDTO response = memberService.getKakaoInfo(code);
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     @GetMapping("/myinfo")

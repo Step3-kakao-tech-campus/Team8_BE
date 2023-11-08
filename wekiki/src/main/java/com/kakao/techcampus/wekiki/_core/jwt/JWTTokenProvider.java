@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki._core.jwt;
 
+import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki.member.MemberResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -85,7 +86,6 @@ public class JWTTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-
         // 권한 정보가 없으면 예외
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 Token 입니다.");

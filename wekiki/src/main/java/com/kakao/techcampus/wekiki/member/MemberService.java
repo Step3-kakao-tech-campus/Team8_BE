@@ -1,15 +1,15 @@
 package com.kakao.techcampus.wekiki.member;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -51,6 +51,8 @@ public class MemberService {
     private String KAKAO_CLIENT_ID;
     @Value("${kakao.redirect.uri}")
     private String KAKAO_REDIRECT_URI;
+    @Value("${kakao.client.password")
+    private String KAKAO_PASSWORD;
 
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
@@ -111,6 +113,13 @@ public class MemberService {
             log.error("Access Token에서 뽑아낸 회원이 존재하지 않는 회원입니다. (회원 탈퇴)");
             throw e;
         }
+        Member cancelMember = new Member("알수없음", "", passwordEncoder.encode(makeRandomPassword()),
+                LocalDateTime.now(), Authority.none);
+        for (GroupMember g : member.getGroupMembers()) {
+            g.update("알수없음");
+            g.changeMember(cancelMember);
+        }
+        //member.delete(passwordEncoder.encode(makeRandomPassword()));
         memberRepository.delete(member);
     }
 
@@ -218,8 +227,8 @@ public class MemberService {
         return member.get();
     }
 
-    public void getKakaoInfo(String code) {
-
+    public MemberResponse.authTokenDTO getKakaoInfo(String code) {
+        //리팩토링 대상...!!
         String accessToken = "";
 
         try{
@@ -242,17 +251,35 @@ public class MemberService {
                     String.class
             );
 
-            ObjectMapper objectMapper = new ObjectMapper();
+            System.out.println(response.getBody());
+            ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
 
         }  catch (JsonProcessingException e) {
-            throw new Exception500("Json 파싱 에러입니다." + e);
+            log.error("파싱 오류", e);
+            throw new Exception500("Json 파싱 에러입니다.");
         }
-        getUserInfoWithToken(accessToken);
+
+        MemberResponse.KakaoInfoDTO kakaoInfo = getUserInfoWithToken(accessToken);
+        String kakaoEmail = kakaoInfo.getId() + "@wekiki.com";
+        Optional<Member> kakaoMember = memberRepository.findByEmail(kakaoEmail);
+        if(kakaoMember.isEmpty()){
+            Member member = Member.builder()
+                    .name(kakaoInfo.getProperties().getNickname())
+                    .email(kakaoEmail)
+                    .password(passwordEncoder.encode(KAKAO_PASSWORD))
+                    .created_at(LocalDateTime.now())
+                    .authority(Authority.user)
+                    .build();
+            memberRepository.save(member);
+        }
+        MemberRequest.loginRequestDTO kakaoLogin = new MemberRequest.loginRequestDTO(kakaoEmail,KAKAO_PASSWORD);
+        return login(kakaoLogin);
     }
 
-    private void getUserInfoWithToken(String accessToken) {
+    private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
+        MemberResponse.KakaoInfoDTO kakaoInfo = null;
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -270,12 +297,13 @@ public class MemberService {
 
         System.out.println(response.getBody());
 
-        /*ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
-            objectMapper.readValue(response.getBody());
+            kakaoInfo = objectMapper.readValue(response.getBody(),MemberResponse.KakaoInfoDTO.class);
 
         } catch (JsonProcessingException e) {
             throw new Exception500("Json 파싱 에러입니다." + e);
-        }*/
+        }
+        return kakaoInfo;
     }
 }

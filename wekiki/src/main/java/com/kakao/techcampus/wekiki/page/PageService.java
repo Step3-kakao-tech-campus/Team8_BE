@@ -53,12 +53,8 @@ public class PageService {
         if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")) {
             // 로그인 안한 사람
             log.info("로그인하지 않은 사람의 메인 페이지 조회");
-            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
-                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                    .collect(Collectors.toList());
-            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
-                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                    .collect(Collectors.toList());
+            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = getOfficialGroupList();
+            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = getUnLoginUnOfficialGroupList();
             return new PageInfoResponse.mainPageDTO(officialGroupList, unOfficialGroupList);
         }
         else {
@@ -71,20 +67,38 @@ public class PageService {
             }
             List<Group> myGroupList = member.get().getGroupMembers().stream().map(GroupMember::getGroup).toList();
             List<Long> myGroupIdList = myGroupList.stream().map(Group::getId).toList();
-            List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupListDTO = myGroupList.stream()
-                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                    .collect(Collectors.toList());
-            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = groupJPARepository.findAllOfficialGroup().stream()
-                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                    .limit(5)
-                    .collect(Collectors.toList());
-            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = groupJPARepository.findAllUnOfficialOpenGroup().stream()
-                    .filter(tempGroup -> !myGroupIdList.contains(tempGroup.getId()))
-                    .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
-                    .limit(5)
-                    .collect(Collectors.toList());
+            List<PageInfoResponse.mainPageDTO.GroupDTO> myGroupListDTO = getMyGroupList(myGroupList);
+            List<PageInfoResponse.mainPageDTO.GroupDTO> officialGroupList = getOfficialGroupList();
+            List<PageInfoResponse.mainPageDTO.GroupDTO> unOfficialGroupList = getLoginUnOfficialGroupList(myGroupIdList);
             return new PageInfoResponse.mainPageDTO(myGroupListDTO, officialGroupList, unOfficialGroupList);
         }
+    }
+
+    private List<PageInfoResponse.mainPageDTO.GroupDTO> getMyGroupList (List<Group> myGroupList) {
+        return myGroupList.stream()
+                .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                .collect(Collectors.toList());
+    }
+    private List<PageInfoResponse.mainPageDTO.GroupDTO> getOfficialGroupList () {
+        return groupJPARepository.findAllOfficialGroup().stream()
+                .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+    private List<PageInfoResponse.mainPageDTO.GroupDTO> getUnLoginUnOfficialGroupList() {
+        return groupJPARepository.findAllUnOfficialOpenGroup().stream()
+                .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+    private List<PageInfoResponse.mainPageDTO.GroupDTO> getLoginUnOfficialGroupList(List<Long> myGroupIdList) {
+        return groupJPARepository.findAllUnOfficialOpenGroup().stream()
+                .map(PageInfoResponse.mainPageDTO.GroupDTO::new)
+                .filter(tempGroup -> !myGroupIdList.contains(tempGroup.getGroupId()))
+                .limit(5)
+                .toList();
     }
 
     @Transactional
