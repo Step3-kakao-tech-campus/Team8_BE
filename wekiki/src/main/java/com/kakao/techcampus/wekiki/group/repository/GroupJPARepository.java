@@ -25,7 +25,7 @@ public interface GroupJPARepository extends JpaRepository<Group, Long> {
     Page<UnOfficialOpenedGroup> findUnOfficialOpenedGroupsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     /*
-        비공식 공개 그룹 상세 조회
+        비공식 공개 그룹 입장
      */
     @Query("SELECT g FROM UnOfficialOpenedGroup g WHERE g.id = :id")
     Optional<UnOfficialOpenedGroup> findUnOfficialOpenedGroupById(@Param("id") Long id);

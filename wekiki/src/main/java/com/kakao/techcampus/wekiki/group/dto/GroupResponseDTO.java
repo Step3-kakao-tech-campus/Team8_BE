@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GroupResponseDTO {
-    
+
     // 그룹 내 본인 정보 조회
     public record MyGroupInfoResponseDTO(
             Long groupId,
             String groupName,
             String groupNickName,
-            List<MyHistoryDTO> myHistoryDTOS
+            List<MyHistoryDTO> historyList
     ) {
         public MyGroupInfoResponseDTO(Group group, GroupMember groupMember, Page<History> histories) {
             this(group.getId(), group.getGroupName(), groupMember.getNickName(), histories.stream().map(MyHistoryDTO::new).collect(Collectors.toList()));
@@ -30,14 +30,28 @@ public class GroupResponseDTO {
 
         public record MyHistoryDTO(
                 Long historyId,
-                String content,
-                LocalDateTime created_at
+                String pageName,
+                Content content,
+                LocalDateTime createdAt
         ) {
             public MyHistoryDTO(History history) {
-                this(history.getId(), history.getContent(), history.getCreated_at());
+                this(history.getId(), history.getPost().getPageInfo().getPageName(), new Content(1, history.getTitle(), history.getContent()), history.getCreated_at());
+            }
+        }
+
+        public record Content(
+                double index,
+                String name,
+                String detail
+        ) {
+            public Content(double index, String name, String detail) {
+                this.index = index;
+                this.name = name;
+                this.detail = detail;
             }
         }
     }
+
 
     // 내 문서 기여 목록 조회
     public record MyGroupHistoryResponseDTO(List<MyGroupInfoResponseDTO.MyHistoryDTO> historyList) {
@@ -73,7 +87,7 @@ public class GroupResponseDTO {
         public record GroupInfoDTO(
                 Long groupId,
                 String groupName,
-                String groupProfileImage
+                String groupImage
         ) {
             public GroupInfoDTO(Group group) {
                 this(group.getId(), group.getGroupName(), group.getGroupProfileImage());
@@ -106,19 +120,20 @@ public class GroupResponseDTO {
             String entranceHint,
             String groupType
     ) {
-        public SearchGroupInfoDTO(UnOfficialOpenedGroup group) {
+        public SearchGroupInfoDTO(Group group) {
             this(
                     group.getId(),
                     group.getGroupName(),
                     group.getGroupProfileImage(),
-                    group.getIntroduction(),
+                    (group instanceof UnOfficialOpenedGroup) ? ((UnOfficialOpenedGroup) group).getIntroduction() : null,
                     group.getMemberCount(),
                     group.getCreated_at(),
-                    group.getEntranceHint(),
+                    (group instanceof UnOfficialOpenedGroup) ? ((UnOfficialOpenedGroup) group).getEntranceHint() : null,
                     group.getClass().getAnnotation(DiscriminatorValue.class).value()
             );
         }
     }
+
 
     // 그룹 내 그룹원 리스트 조회
     public record GetGroupMembersResponseDTO(List<String> nickNames) {

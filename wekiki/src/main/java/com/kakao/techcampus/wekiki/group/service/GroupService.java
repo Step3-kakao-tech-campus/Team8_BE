@@ -3,7 +3,11 @@ package com.kakao.techcampus.wekiki.group.service;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception500;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.comment.Comment;
+import com.kakao.techcampus.wekiki.comment.CommentJPARepository;
 import com.kakao.techcampus.wekiki.group.domain.Group;
+import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
 import com.kakao.techcampus.wekiki.group.dto.GroupResponseDTO;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
@@ -19,6 +23,8 @@ import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
+import com.kakao.techcampus.wekiki.report.Report;
+import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,13 +32,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class GroupService {
+
+    private final RedisUtils redisUtils;
 
     private final InvitationService invitationService;
 
@@ -41,8 +51,12 @@ public class GroupService {
     private final MemberJPARepository memberJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
+    private final CommentJPARepository commentJPARepository;
+    private final ReportJPARepository reportJPARepository;
 
     private static final int GROUP_SEARCH_SIZE = 16;
+    private static final String MEMBER_ID_PREFIX = "member_id:";
+    private static final long MEMBER_ID_LIFETIME = 3L;
 
     /*
         비공식 그룹 생성
@@ -187,12 +201,11 @@ public class GroupService {
     }
 
     /*
-        비공식 공개 그룹 상세 정보 조회
+        그룹 상세 정보 조회
      */
     public GroupResponseDTO.SearchGroupInfoDTO getGroupInfo(Long groupId) {
         try {
-            UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
-                    .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
+            Group group = getGroupById(groupId);
 
             return new GroupResponseDTO.SearchGroupInfoDTO(group);
         } catch (Exception404 e) {
@@ -206,8 +219,11 @@ public class GroupService {
     /*
         비공식 공개 그룹 입장
      */
-    public void groupEntry(Long groupId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
+    public void groupEntry(Long groupId, Long memberId, GroupRequestDTO.GroupEntryRequestDTO requestDTO) {
         try {
+            getGroupById(groupId);
+            getMemberById(memberId);
+
             UnOfficialOpenedGroup group = groupJPARepository.findUnOfficialOpenedGroupById(groupId)
                     .orElseThrow(() -> new Exception404("그룹을 찾을 수 없습니다."));
 
@@ -215,6 +231,8 @@ public class GroupService {
             if(!group.getEntrancePassword().equals(requestDTO.entrancePassword())) {
                 throw new Exception400("비밀번호가 틀렸습니다.");
             }
+
+            redisUtils.setGroupIdValues(MEMBER_ID_PREFIX + memberId, groupId, Duration.ofHours(MEMBER_ID_LIFETIME));
 
         } catch (Exception400 | Exception404 e) {
             throw e;
@@ -228,38 +246,58 @@ public class GroupService {
      */
     @Transactional
     public void joinGroup(Long groupId, Long memberId, GroupRequestDTO.JoinGroupRequestDTO requestDTO) {
-        // 회원 정보 확인
-        Member member = getMemberById(memberId);
+        try {
+            // 회원 정보 확인
+            Member member = getMemberById(memberId);
+            // 그룹 정보 확인
+            Group group = getGroupById(groupId);
 
-        // 그룹 정보 확인
-        Group group = getGroupById(groupId);
+            checkJoinPermission(memberId, groupId);
 
-        // 그룹 내 닉네임 중복 예외 처리
-        groupNickNameCheck(groupId, requestDTO.nickName());
+            // 그룹 내 닉네임 중복 예외 처리
+            groupNickNameCheck(groupId, requestDTO.nickName());
 
-        // 이미 가입한 상태일 시 예외 처리
-        if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
-            throw new Exception400("이미 가입된 회원입니다.");
+            // 이미 가입한 상태일 시 예외 처리
+            if (groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isPresent()) {
+                throw new Exception400("이미 가입된 회원입니다.");
+            }
+
+            // 재가입 회원인지 확인
+            InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
+
+            // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
+            ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
+
+            if(wasGroupMember != null) {
+                changeAuthorization(wasGroupMember, groupMember);
+            }
+
+            // GroupMember 저장
+            group.addGroupMember(groupMember);
+            member.getGroupMembers().add(groupMember);
+
+            groupJPARepository.save(group);
+            memberJPARepository.save(member);
+            groupMemberJPARepository.save(groupMember);
+
+        } catch (Exception400 | Exception404 e) {
+            throw e;
+        } catch (Exception e) {
+            throw new Exception500("서버 에러가 발생했습니다.");
+        }
+    }
+
+    protected void checkJoinPermission(Long memberId, Long groupId) {
+        Object oGroupId = Optional.ofNullable(redisUtils.getValues(MEMBER_ID_PREFIX + memberId))
+                .orElseThrow(() -> new Exception404("해당 그룹에 가입할 수 없습니다."));
+
+        Long lGroupId = ((Integer) oGroupId).longValue();
+
+        if(!lGroupId.equals(groupId)) {
+            throw new Exception400("현재 그룹에 가입할 수 없습니다.");
         }
 
-        // 재가입 회원인지 확인
-        InactiveGroupMember wasGroupMember = groupMemberJPARepository.findInactiveGroupMemberByMemberAndGroup(member, group);
-
-        // 재가입 회원이면 활성화, 신규 회원이면 새로 생성
-        ActiveGroupMember groupMember = wasGroupMember != null ? new ActiveGroupMember(wasGroupMember) : buildGroupMember(member, group, requestDTO.nickName());
-
-        // 그룹 멤버 잔재 삭제
-        if(wasGroupMember != null) {
-            groupMemberJPARepository.delete(wasGroupMember);
-        }
-
-        // GroupMember 저장
-        group.addGroupMember(groupMember);
-        member.getGroupMembers().add(groupMember);
-
-        groupJPARepository.save(group);
-        memberJPARepository.save(member);
-        groupMemberJPARepository.save(groupMember);
+        redisUtils.deleteValues(MEMBER_ID_PREFIX + memberId);
     }
 
     /*
@@ -268,10 +306,7 @@ public class GroupService {
     public GroupResponseDTO.GetGroupMembersResponseDTO getGroupMembers(Long groupId, Long memberId) {
         try {
             Group group = getGroupById(groupId);
-
-            if(groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId).isEmpty()) {
-                throw new Exception400("해당 그룹에 대한 권한이 없습니다.");
-            }
+            getActiveGroupMember(groupId, memberId);
 
             return new GroupResponseDTO.GetGroupMembersResponseDTO(group);
 
@@ -288,12 +323,11 @@ public class GroupService {
     public GroupResponseDTO.MyGroupInfoResponseDTO getMyGroupInfo(Long groupId, Long memberId) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             // 해당 멤버의 Post 기록 정보 확인(History에서 가져옴)
             Pageable pageable = PageRequest.of(0, 10);
-            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
+            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember.getId(), pageable);
 
             // 그룹 이름, 현재 닉네임, Post 기록 정보를 담은 responseDTO 반환
             return new GroupResponseDTO.MyGroupInfoResponseDTO(groupMember.getGroup(), groupMember, myHistoryList);
@@ -311,11 +345,10 @@ public class GroupService {
     public GroupResponseDTO.MyGroupHistoryResponseDTO getMyGroupHistory(Long groupId, Long memberId, int page, int size) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember, pageable);
+            Page<History> myHistoryList = historyJPARepository.findAllByGroupMember(groupMember.getId(), pageable);
 
             return new GroupResponseDTO.MyGroupHistoryResponseDTO(myHistoryList);
 
@@ -334,8 +367,7 @@ public class GroupService {
     public void updateMyGroupPage(Long groupId, Long memberId, GroupRequestDTO.UpdateMyGroupPageDTO requestDTO) {
         try {
             // 그룹 멤버 확인
-            ActiveGroupMember groupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember groupMember = getActiveGroupMember(groupId, memberId);
 
             // 변경할 닉네임 확인
             String newNickName = requestDTO.groupNickName();
@@ -373,25 +405,20 @@ public class GroupService {
     @Transactional
     public void leaveGroup(Long groupId, Long memberId) {
         try {
-            // 그룹 멤버 확인
-            ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
-                    .orElseThrow(() -> new Exception404("해당 그룹의 회원이 아닙니다"));
+            ActiveGroupMember activeGroupMember = getActiveGroupMember(groupId, memberId);
+
+            Member member = getMemberById(memberId);
+            Group group = getGroupById(groupId);
+
+            member.getGroupMembers().remove(activeGroupMember);
+            group.getGroupMembers().remove(activeGroupMember);
 
             // 탈퇴 그룹 회원 생성
             InactiveGroupMember inactiveGroupMember = new InactiveGroupMember(activeGroupMember);
 
-            // Post의 그룹 멤버 변경
-            List<Post> postList = postJPARepository.findAllByGroupMember(activeGroupMember);
-            postList.forEach(p -> p.updateGroupMember(inactiveGroupMember));
+            changeAuthorization(activeGroupMember, inactiveGroupMember);
 
-            // History 그룹 멤버 변경
-            List<History> historyList = historyJPARepository.findAllByGroupMember(activeGroupMember);
-            historyList.forEach(h -> h.updateGroupMember(inactiveGroupMember));
-
-            // DB 작업
-            groupMemberJPARepository.delete(activeGroupMember);
             groupMemberJPARepository.save(inactiveGroupMember);
-            historyJPARepository.saveAll(historyList);
 
         } catch (Exception404 e) {
             throw e;
@@ -400,12 +427,47 @@ public class GroupService {
         }
     }
 
+    private void changeAuthorization(GroupMember originGroupMember, GroupMember targetGroupMember) {
+
+        Long originGroupMemberId = originGroupMember.getId();
+
+        // Post의 그룹 멤버 변경
+        List<Post> postList = postJPARepository.findAllByGroupMember(originGroupMemberId);
+        postList.forEach(p -> p.updateGroupMember(targetGroupMember));
+
+        // History 그룹 멤버 변경
+        List<History> historyList = historyJPARepository.findAllByGroupMemberId(originGroupMemberId);
+        historyList.forEach(h -> h.updateGroupMember(targetGroupMember));
+
+        // Comment 그룹 멤버 변경
+        List<Comment> commentList = commentJPARepository.findAllByGroupMemberId(originGroupMemberId);
+        commentList.forEach(c -> c.updateGroupMember(targetGroupMember));
+
+        // Reposrt 그룹 멤버 변경
+        List<Report> reportList = reportJPARepository.findAllByFromMemberId(originGroupMemberId);
+        reportList.forEach(r -> r.updateGroupMember(targetGroupMember));
+
+        // DB 작업
+        groupMemberJPARepository.delete(originGroupMember);
+
+        postJPARepository.saveAll(postList);
+        historyJPARepository.saveAll(historyList);
+        commentJPARepository.saveAll(commentList);
+        reportJPARepository.saveAll(reportList);
+    }
+
     protected Member getMemberById(Long memberId) {
         return memberJPARepository.findById(memberId).orElseThrow(() -> new Exception404("해당 사용자를 찾을 수 없습니다."));
     }
 
     protected Group getGroupById(Long groupId) {
         return groupJPARepository.findById(groupId).orElseThrow(() -> new Exception404("해당 그룹을 찾을 수 없습니다."));
+    }
+
+    private ActiveGroupMember getActiveGroupMember(Long groupId, Long memberId) {
+        // 그룹 멤버 확인
+        return groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupId(memberId, groupId)
+                .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다"));
     }
 
     protected void groupNickNameCheck(Long groupId, String groupNickName) {
