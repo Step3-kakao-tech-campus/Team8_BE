@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -228,7 +227,6 @@ public class MemberService {
     }
 
     public MemberResponse.authTokenDTO getKakaoInfo(String code) {
-        //리팩토링 대상...!!
         String accessToken = "";
 
         try{
@@ -250,8 +248,6 @@ public class MemberService {
                     httpEntity,
                     String.class
             );
-
-            System.out.println(response.getBody());
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
@@ -265,17 +261,21 @@ public class MemberService {
         String kakaoEmail = kakaoInfo.getId() + "@wekiki.com";
         Optional<Member> kakaoMember = memberRepository.findByEmail(kakaoEmail);
         if(kakaoMember.isEmpty()){
-            Member member = Member.builder()
-                    .name(kakaoInfo.getProperties().getNickname())
-                    .email(kakaoEmail)
-                    .password(passwordEncoder.encode(KAKAO_PASSWORD))
-                    .created_at(LocalDateTime.now())
-                    .authority(Authority.user)
-                    .build();
-            memberRepository.save(member);
+            kakaoSignUp(kakaoInfo, kakaoEmail);
         }
         MemberRequest.loginRequestDTO kakaoLogin = new MemberRequest.loginRequestDTO(kakaoEmail,KAKAO_PASSWORD);
         return login(kakaoLogin);
+    }
+
+    private void kakaoSignUp(MemberResponse.KakaoInfoDTO kakaoInfo, String kakaoEmail) {
+        Member member = Member.builder()
+                .name(kakaoInfo.getProperties().getNickname())
+                .email(kakaoEmail)
+                .password(passwordEncoder.encode(KAKAO_PASSWORD))
+                .created_at(LocalDateTime.now())
+                .authority(Authority.user)
+                .build();
+        memberRepository.save(member);
     }
 
     private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
