@@ -2,6 +2,7 @@ package com.kakao.techcampus.wekiki.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 public class MemberRequest {
@@ -14,6 +15,7 @@ public class MemberRequest {
 
     @Getter
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class loginRequestDTO {
         private String email;
         private String password;
