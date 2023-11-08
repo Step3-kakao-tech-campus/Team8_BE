@@ -137,6 +137,7 @@ public class GroupResponseDTO {
     public record GetGroupMembersResponseDTO(List<String> nickNames) {
         public GetGroupMembersResponseDTO(Group group) {
             this(group.getGroupMembers().stream()
+                    .filter(GroupMember::isActiveStatus)
                     .map(GroupMember::getNickName)
                     .collect(Collectors.toList()));
         }
