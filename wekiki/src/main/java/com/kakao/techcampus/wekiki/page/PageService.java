@@ -338,6 +338,7 @@ public class PageService {
 
         GroupMember activeGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+        if(!activeGroupMember.isActiveStatus()) throw new Exception404("해당 그룹에 속한 회원이 아닙니다.");
         if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
         if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
 
