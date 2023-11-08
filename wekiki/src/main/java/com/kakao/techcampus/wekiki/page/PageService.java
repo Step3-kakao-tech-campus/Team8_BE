@@ -3,12 +3,10 @@ package com.kakao.techcampus.wekiki.page;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.IndexUtils;
-import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.domain.Group;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.member.Member;
 import com.kakao.techcampus.wekiki.member.MemberJPARepository;
@@ -16,7 +14,6 @@ import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -173,7 +170,7 @@ public class PageService {
     public PageInfoResponse.createPageDTO createPage(String title, Long groupId, Long memberId){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. 그룹 내 동일한 title의 Page가 존재하는지 체크
         if(pageJPARepository.findByTitle(groupId,title).isPresent()){
@@ -337,10 +334,11 @@ public class PageService {
     }
 
 
-    public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
+    public GroupMember checkGroupMember(Long memberId, Long groupId){
 
-        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
+        GroupMember activeGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+        if(!activeGroupMember.isActiveStatus()) throw new Exception404("해당 그룹에 속한 회원이 아닙니다.");
         if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
         if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
 

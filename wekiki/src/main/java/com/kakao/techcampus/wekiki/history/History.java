@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.history;
 
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +16,7 @@ public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private GroupMember groupMember;
 
     @Setter

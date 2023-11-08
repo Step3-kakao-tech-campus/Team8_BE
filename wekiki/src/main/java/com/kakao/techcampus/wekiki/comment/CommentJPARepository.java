@@ -1,8 +1,5 @@
 package com.kakao.techcampus.wekiki.comment;
 
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
-import com.kakao.techcampus.wekiki.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
