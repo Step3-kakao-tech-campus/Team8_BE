@@ -14,6 +14,51 @@
 |----------|----------|----------|
 | <img src="https://github.com/Jun2-Lee.png" width="100"> | <img src="https://github.com/kimdonwoo.png" width="100"> | <img src="https://github.com/INUK-ai.png" width="100"> |
 
+<br>
+
+## 주요기능
+<주요 기능 적기>
+
+## 문서
+|문서 목록|
+|----|
+[GitHub (FE)](https://github.com/Step3-kakao-tech-campus/Team8_FE)        
+[ERD](https://www.notion.so/ERD-e0a43b03115d4551a6138d7b98c43e68)               
+[API 문서](https://www.notion.so/API-e6a2fe24cffe4c54ad9815f32dd8790b)          
+[와이어프레임](https://www.figma.com/file/HrjwnC0UfzYJjmwaBRg7uj/8%EC%A1%B0-%EC%99%80%EC%9D%B4%EC%96%B4-%ED%94%84%EB%A0%88%EC%9E%84-Web-%2F-Mobile?type=design&node-id=0-1&mode=design&t=wkU2aDHsx0pHTvYT-0)        
+
+
+## 기술 스택
+**Spring Boot** : 3.1.4
+
+- **Spring Security**
+- **JPA**
+- **Lombok**
+- **Actuator**
+- **JWT**
+- **Validation**
+
+**Java** : 17
+
+**DB**
+
+- 테스트/로컬 용 : H2
+- 배포용 : MariaDB 최신 버전
+
+**redis**        
+
+
+## How to Use
+
+```
+git clone https://github.com/Step3-kakao-tech-campus/Team8_BE.git
+// 깃헙 주소 클론
+// 그 뒤 로컬 저장소로 이동
+./gradlew build
+// 프로젝트 빌드
+java -jar ./build/libs/wekiki-0.0.1-SNAPSHOT.jar
+// 빌드 파일 실행
+```
 
 
 
@@ -25,7 +70,12 @@
 
 
 
-## 카카오 테크 캠퍼스 3단계 진행 보드
+<details>
+<summary>카카오 테크 캠퍼스 3단계 진행 보드</summary>
+<div markdown="1">
+
+
+
 
 </br>
 
@@ -272,6 +322,9 @@ UI 컴포넌트의 명칭과 이를 구현하는 능력은 필수적인 커뮤�
 > 
 
 </br>
+
+</div>
+</details>
 
 </div>
 
