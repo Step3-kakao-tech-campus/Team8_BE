@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody MemberRequest.signUpRequestDTO signUpRequestDTO) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody MemberRequest.signUpRequestDTO signUpRequestDTO) {
         memberService.signUp(signUpRequestDTO);
         return ResponseEntity.ok(true);
     }
