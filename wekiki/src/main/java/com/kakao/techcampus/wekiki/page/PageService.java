@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -229,23 +228,44 @@ public class PageService {
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
         checkGroupMember(memberId, groupId);
 
-        // 2. keyword로 존재하는 page title에 keyword를 가지고 있는 페이지들 다 가져오기
-        // (TODO : fetch join이랑 Pagination 함께 쓰면 페이지네이션을 애플리케이션에 들고온 다음 하게됨)
-        Page<PageInfo> pages = pageJPARepository.findPagesWithPosts(groupId, keyword, PageRequest.of(pageNo, PAGE_COUNT));
+        // 2. 페이지네이션 적용하여 Page 이름으로 keyword를 들고있는 페이지 들고오기
+        List<PageInfo> pages = pageJPARepository.findPages(groupId, keyword, PageRequest.of(pageNo, PAGE_COUNT)).getContent();
 
-        // 3. 해당 Page들을 FK로 가지고 있는 Post들 중에 Orders가 1인 Post들 가져오기
+        // 3. 가져온 페이지들 중에 첫 포스트 가져오기
+        List<Post> posts = postJPARepository.findPostInPages(pages);
+
+        // 4. responseDTO 만들기
         List<PageInfoResponse.searchPageDTO.pageDTO> res = new ArrayList<>();
 
-        for(PageInfo p : pages.getContent()){
-            List<Post> posts = p.getPosts();
-            if(posts.size() == 0){
-                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,""));
-            }else{
-                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p,posts.get(0).getContent()));
+        boolean flag;
+        for(PageInfo p : pages) { // 최대 10개
+            flag = false;
+            for (Post po : posts) { // 최대 10개
+                if (p.getId() == po.getPageInfo().getId()) {
+                    res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(), p.getPageName(), po.getContent()));
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(), p.getPageName(), ""));
             }
         }
+//        Page<PageInfo> pages = pageJPARepository.findPagesWithPosts(groupId, keyword, PageRequest.of(pageNo, PAGE_COUNT));
+//
+//        List<PageInfoResponse.searchPageDTO.pageDTO> res = new ArrayList<>();
+//
+//        for(PageInfo p : pages.getContent()){
+//            if(p.getPosts().size() == 0){
+//                System.out.println(p.getId() + " 페이지 : "+ p.getPageName());
+//                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(),p.getPageName(),""));
+//            }else{
+//                System.out.println(p.getId() + " 페이지 : "+ p.getPageName()+ " : " + p.getPosts().get(0).getContent());
+//                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(),p.getPageName(),p.getPosts().get(0).getContent()));
+//            }
+//        }
 
-        // 6. pages로 DTO return
+        // 5. pages로 DTO return DTO
         return new PageInfoResponse.searchPageDTO(res);
     }
 
