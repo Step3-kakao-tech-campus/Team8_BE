@@ -1,5 +1,6 @@
 package com.kakao.techcampus.wekiki.member;
 
+import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
 import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,7 @@ public class Member {
     private String password;
     private LocalDateTime created_at;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "member")
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     @Enumerated(value = EnumType.STRING)
@@ -48,5 +49,12 @@ public class Member {
 
     public void changeNickName(String name) {
         this.name = name;
+    }
+
+    public void delete(String randomPassword) {
+        this.name = "";
+        this.email = "";
+        this.password = randomPassword;
+        this.authority = Authority.none;
     }
 }
