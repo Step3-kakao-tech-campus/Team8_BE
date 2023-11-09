@@ -116,6 +116,7 @@ public class PageService {
                 .map(p -> new PageInfoResponse.getPageIndexDTO.postDTO(p, indexs.get(p.getId())))
                 .collect(Collectors.toList());
 
+        log.info(memberId + " 님이 " + groupId + "의 "  + pageId + " 페이지 목차 조회 API를 호출하였습니다. ");
         return new PageInfoResponse.getPageIndexDTO(pageInfo, temp);
 
     }
@@ -142,6 +143,7 @@ public class PageService {
         redisUtils.deleteHashValue(GROUP_PREFIX+groupId,pageInfo.getPageName());
 
         // 6. return DTO
+        log.info(memberId + " 님이 " + groupId + "의 "  + pageId + " 페이지 삭제 API를 호출하였습니다. ");
         return response;
     }
 
@@ -163,6 +165,7 @@ public class PageService {
                 .map(p -> new PageInfoResponse.getPageFromIdDTO.postDTO(p, indexs.get(p.getId())))
                 .collect(Collectors.toList());
 
+        log.info(memberId + " 님이 " + groupId + "의 "  + pageId + " 페이지 조회 API를 호출하였습니다. ");
         return new PageInfoResponse.getPageFromIdDTO(pageInfo, temp);
 
     }
@@ -196,6 +199,7 @@ public class PageService {
         redisUtils.saveKeyAndHashValue(GROUP_PREFIX+groupId,title,newPageInfo.getId().toString());
 
         // 7. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 "  + title + " 페이지를 생성하였습니다.");
         return new PageInfoResponse.createPageDTO(savedPageInfo);
     }
 
@@ -211,9 +215,8 @@ public class PageService {
         // 3. 페이지 goodCount 증가
         pageInfo.plusGoodCount();
 
-        // TODO : 유저 경험치증가 or 유저 당일 페이지 좋아요 횟수 차감
-
         // 4. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 "  + pageId + " 페이지 좋아요를 눌렀습니다.");
         return new PageInfoResponse.likePageDTO(pageInfo);
 
     }
@@ -230,9 +233,8 @@ public class PageService {
         // 3. 페이지 goodCount 증가
         pageInfo.plusBadCount();
 
-        // TODO : 유저 경험치증가 or 유저 당일 페이지 좋아요 횟수 차감
-
         // 4. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 "  + pageId + " 페이지 싫어요를 눌렀습니다.");
         return new PageInfoResponse.hatePageDTO(pageInfo);
     }
 
@@ -271,15 +273,14 @@ public class PageService {
 //
 //        for(PageInfo p : pages.getContent()){
 //            if(p.getPosts().size() == 0){
-//                System.out.println(p.getId() + " 페이지 : "+ p.getPageName());
 //                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(),p.getPageName(),""));
 //            }else{
-//                System.out.println(p.getId() + " 페이지 : "+ p.getPageName()+ " : " + p.getPosts().get(0).getContent());
 //                res.add(new PageInfoResponse.searchPageDTO.pageDTO(p.getId(),p.getPageName(),p.getPosts().get(0).getContent()));
 //            }
 //        }
 
         // 5. pages로 DTO return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 "  + keyword + " 키워드로 페이지 검색을 요청하였습니다.");
         return new PageInfoResponse.searchPageDTO(res);
     }
 
@@ -295,6 +296,8 @@ public class PageService {
         // 3. return DTO
         List<PageInfoResponse.getRecentPageDTO.RecentPageDTO> collect = recentPage.stream().map(pageInfo ->
                 new PageInfoResponse.getRecentPageDTO.RecentPageDTO(pageInfo)).collect(Collectors.toList());
+
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 최근 변경/생성된 페이지 10개을 조회합니다.");
         return new PageInfoResponse.getRecentPageDTO(collect);
 
     }
@@ -317,14 +320,16 @@ public class PageService {
                 .map(p -> new PageInfoResponse.getPageFromIdDTO.postDTO(p, indexs.get(p.getId())))
                 .collect(Collectors.toList());
 
+        log.info(memberId + " 님이 " + groupId + " 그룹에서 "+ title + " 페이지를 조회합니다.");
         return new PageInfoResponse.getPageFromIdDTO(page, temp);
     }
 
     @Transactional
-    public PageInfoResponse.getPageLinkDTO getPageLink( Long groupId, String title){
+    public PageInfoResponse.getPageLinkDTO getPageLink(Long groupId, String title){
 
         // 1. redis로 groupId_title을 key로 value 받아오기 (페이지 테이블에 접근할 필요 x)
         String value = redisUtils.getHashValue(GROUP_PREFIX + groupId, title);
+        log.info(groupId + " 그룹에서 " + title + " 페이지의 링크를 요청합니다.");
 
         if(value == null){
             throw new Exception404("존재하지 않는 페이지 입니다.");
