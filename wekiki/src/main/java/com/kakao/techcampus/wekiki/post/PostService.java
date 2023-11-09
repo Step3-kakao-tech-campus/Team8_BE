@@ -12,6 +12,7 @@ import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.report.Report;
 import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class PostService {
 
     private final PageJPARepository pageJPARepository;
@@ -72,6 +74,7 @@ public class PostService {
         historyJPARepository.save(newHistory);
 
         // 7. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹의 "  + pageId + " 페이지에 "+ title+" 포스트를 생성하였습니다.");
         return new PostResponse.createPostDTO(savedPost);
     }
 
@@ -94,6 +97,7 @@ public class PostService {
         historyJPARepository.save(newHistory);
 
         // 5. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ title+" 포스트를 수정하였습니다.");
         return new PostResponse.modifyPostDTO(post);
     }
 
@@ -112,6 +116,8 @@ public class PostService {
         // 4. DTO로 return
         List<PostResponse.getPostHistoryDTO.historyDTO> historyDTOs = historys.getContent().stream().
                 map(h -> new PostResponse.getPostHistoryDTO.historyDTO(h.getGroupMember(),h)).collect(Collectors.toList());
+
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트의 히스토리를 조회합니다.");
         return new PostResponse.getPostHistoryDTO(post,historyDTOs);
 
     }
@@ -139,6 +145,7 @@ public class PostService {
                 .stream().forEach(p -> p.minusOrder());
 
         // 6. return DTO;
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트를 삭제합니다.");
         return response;
 
     }
@@ -165,6 +172,7 @@ public class PostService {
         Report savedReport = reportJPARepository.save(report);
 
         // 5. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트를 신고합니다.");
         return new PostResponse.createReportDTO(savedReport);
 
     }
