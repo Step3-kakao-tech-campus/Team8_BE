@@ -9,6 +9,7 @@ import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -49,7 +50,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
     private final JavaMailSender javaMailSender;
-    private final RestTemplate restTemplate;
     @Value("${kakao.client.id}")
     private String KAKAO_CLIENT_ID;
     @Value("${kakao.redirect.uri}")

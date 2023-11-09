@@ -15,7 +15,7 @@ public class ProxyConfig {
     private static final int PROXY_PORT = 3128;
 
     @Bean
-    public RestTemplate restTemplateWithProxy() {
+    public RestTemplate restTemplate() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
         requestFactory.setProxy(proxy);
