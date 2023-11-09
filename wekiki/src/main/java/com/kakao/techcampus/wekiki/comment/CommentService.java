@@ -9,6 +9,7 @@ import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,13 +22,12 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class CommentService {
 
     private final CommentJPARepository commentJPARepository;
     private final PostJPARepository postJPARepository;
-    private final MemberJPARepository memberJPARepository;
     private final GroupMemberJPARepository groupMemberJPARepository;
-    private final GroupJPARepository groupJPARepository;
     final int COMMENT_COUNT = 10;
 
     @Transactional
@@ -46,6 +46,8 @@ public class CommentService {
         List<CommentResponse.getCommentDTO.commentDTO> commentDTOs = comments.getContent()
                 .stream().map(c -> new CommentResponse.getCommentDTO.commentDTO(c,c.getGroupMember(), c.getGroupMember().getId() == activeGroupMember.getId()))
                 .collect(Collectors.toList());
+
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트의 댓글을 조회합니다.");
         return new CommentResponse.getCommentDTO(post,commentDTOs);
     }
 
@@ -68,6 +70,7 @@ public class CommentService {
         Comment savedComment = commentJPARepository.save(comment);
 
         // 4. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트의 댓글을 생성합니다.");
         return new CommentResponse.createCommentDTO(savedComment,activeGroupMember.getNickName());
     }
 
@@ -90,6 +93,7 @@ public class CommentService {
         commentJPARepository.delete(comment);
 
         // 5. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ commentId +" 댓글을 삭제합니다.");
         return response;
     }
 
@@ -116,6 +120,7 @@ public class CommentService {
         comment.updateContent(updateContent);
 
         // 6. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ commentId +" 댓글을 수정합니다.");
         return new CommentResponse.updateCommentDTO(comment);
     }
 

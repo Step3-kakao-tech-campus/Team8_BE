@@ -23,7 +23,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
-
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 
