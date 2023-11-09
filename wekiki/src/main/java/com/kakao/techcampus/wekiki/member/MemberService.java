@@ -14,6 +14,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +56,8 @@ public class MemberService {
     private String KAKAO_REDIRECT_URI;
     @Value("${kakao.client.password")
     private String KAKAO_PASSWORD;
+    private static final String PROXY_HOST = "krmp-proxy.9rum.cc";
+    private static final int PROXY_PORT = 3128;
 
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
@@ -231,7 +236,7 @@ public class MemberService {
 
     public MemberResponse.authTokenDTO getKakaoInfo(String code) {
         String accessToken = "";
-
+        log.info("카카오 엑세스 토큰 발급 시작");
         try{
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-type", "application/x-www-form-urlencoded");
@@ -242,7 +247,10 @@ public class MemberService {
             params.add("code", code);
             params.add("redirect_uri", KAKAO_REDIRECT_URI);
 
-            RestTemplate restTemplate = new RestTemplate();
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setProxy(proxy);
+            RestTemplate restTemplate = new RestTemplate(requestFactory);
             System.out.println(restTemplate.getClass());
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
@@ -252,11 +260,11 @@ public class MemberService {
                     httpEntity,
                     String.class
             );
+            log.info("카카오 엑세스 토큰 발급 완료");
 
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
-
         }  catch (JsonProcessingException e) {
             log.error("파싱 오류", e);
             throw new Exception500("Json 파싱 에러입니다.");
@@ -285,7 +293,12 @@ public class MemberService {
 
     private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
         MemberResponse.KakaoInfoDTO kakaoInfo = null;
-        RestTemplate restTemplate = new RestTemplate();
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setProxy(proxy);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
         System.out.println(restTemplate.getClass());
 
 
