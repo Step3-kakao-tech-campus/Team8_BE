@@ -85,18 +85,21 @@ public class PostService {
         GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. postId로 post 엔티티 가져오기
-        Post post = checkPostFromPostId(postId);
+        Post post = checkPostFromPostIdWithPage(postId);
 
-        // 3. 현재 Post랑 내용 같은지 확인
+        // 3. page 최근 수정 시간 바꾸기
+        post.getPageInfo().updatePage();
+
+        // 4. 현재 Post랑 내용 같은지 확인
         if(post.getTitle().equals(title) && post.getContent().equals(content)){
             throw new Exception400("기존 글과 동일한 글입니다.");
         }
 
-        // 4. 다르면 Post 수정후 히스토리 생성 저장
+        // 5. 다르면 Post 수정후 히스토리 생성 저장
         History newHistory = post.modifyPost(activeGroupMember, title, content);
         historyJPARepository.save(newHistory);
 
-        // 5. return DTO
+        // 6. return DTO
         log.info(memberId + " 님이 " + groupId + " 그룹에 "+ title+" 포스트를 수정하였습니다.");
         return new PostResponse.modifyPostDTO(post);
     }
@@ -196,6 +199,11 @@ public class PostService {
 
     public Post checkPostFromPostId(Long postId){
         return postJPARepository.findById(postId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 글 입니다."));
+    }
+
+    public Post checkPostFromPostIdWithPage(Long postId){
+        return postJPARepository.findPostWithPageFromPostId(postId)
                 .orElseThrow(() -> new Exception404("존재하지 않는 글 입니다."));
     }
 

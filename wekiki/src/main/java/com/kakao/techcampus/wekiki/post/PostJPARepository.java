@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostJPARepository extends JpaRepository<Post, Long> {
@@ -19,6 +20,9 @@ public interface PostJPARepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.pageInfo.id = :pageId ORDER BY p.orders ASC")
     List<Post> findPostsByPageIdOrderByOrderAsc(@Param("pageId") Long pageId);
+
+    @Query("SELECT po FROM Post po JOIN FETCH po.pageInfo WHERE po.id = :postId ")
+    Optional<Post> findPostWithPageFromPostId(@Param("postId") Long postId);
 
     boolean existsByPageInfoId(Long pageInfoId);
 
