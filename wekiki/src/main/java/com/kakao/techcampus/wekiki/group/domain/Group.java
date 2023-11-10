@@ -24,7 +24,7 @@ public class Group {
     private String groupName;
     private String groupProfileImage;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     private int memberCount;
@@ -46,10 +46,5 @@ public class Group {
 
     public void minusMemberCount() {
         this.memberCount--;
-    }
-
-    public void removeGroupMember(GroupMember groupMember) {
-        this.groupMembers.remove(groupMember);
-        minusMemberCount();
     }
 }

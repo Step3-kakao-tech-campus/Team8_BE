@@ -39,5 +39,5 @@ public interface PageJPARepository extends JpaRepository<PageInfo, Long> {
     Page<PageInfo> findPages(@Param("groupId") Long groupId, @Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT p FROM PageInfo p WHERE p.group.id = :groupId")
-    List<PageInfo> findAllByGroupMember(@Param("groupId") Long groupId);
+    List<PageInfo> findAllByGroupId(@Param("groupId") Long groupId);
 }
