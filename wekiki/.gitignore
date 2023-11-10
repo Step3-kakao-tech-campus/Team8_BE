@@ -45,10 +45,7 @@ out/
 
 # Log file
 *.log
-**/*.log
-log/error/*.log
-log/info/*.log
-log/warn/*.log
+**/log/**/*.log
 
 
 # BlueJ files
