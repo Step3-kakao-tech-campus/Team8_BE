@@ -36,6 +36,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -411,20 +412,9 @@ public class GroupService {
 
         for(PageInfo pageInfo : pageList) {
             for(Post post : pageInfo.getPosts()) {
-                commentJPARepository.deleteAll(post.getComments());
+                reportJPARepository.deleteReportsByHistoryInQuery(post.getHistorys());
 
-                log.debug(post.getId() + " 번 post의 모든 comment 삭제 완료");
-
-                for(History history : post.getHistorys()) {
-                    List<Report> reportList = reportJPARepository.findALLByHistoryId(history.getId());
-                    reportJPARepository.deleteAll(reportList);
-
-                    log.debug(history.getId() + " 번 history의 모든 report 삭제 완료");
-                }
-
-                historyJPARepository.deleteAll(post.getHistorys());
-
-                log.debug(post.getId() + " 번 post의 모든 history 삭제 완료");
+                log.debug(post.getId() + " 번 post의 모든 report 삭제 완료");
             }
 
             postJPARepository.deleteAll(pageInfo.getPosts());
@@ -441,10 +431,6 @@ public class GroupService {
 
             log.debug(member.getId() + " 번 회원의 groupMember 삭제 완료");
         }
-
-        groupMemberJPARepository.deleteAll(group.getGroupMembers());
-
-        log.debug(group.getId() + " 번 group의 모든 groupMember 삭제 완료");
 
         groupJPARepository.delete(group);
 
