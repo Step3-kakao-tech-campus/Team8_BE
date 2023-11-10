@@ -3,8 +3,6 @@ package com.kakao.techcampus.wekiki.group.service;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
 import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
-import com.kakao.techcampus.wekiki.comment.Comment;
-import com.kakao.techcampus.wekiki.comment.CommentJPARepository;
 import com.kakao.techcampus.wekiki.group.domain.Group;
 import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.group.dto.GroupRequestDTO;
@@ -22,7 +20,6 @@ import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
 import com.kakao.techcampus.wekiki.post.PostJPARepository;
-import com.kakao.techcampus.wekiki.report.Report;
 import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +33,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -54,7 +50,6 @@ public class GroupService {
     private final PageJPARepository pageJPARepository;
     private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
-    private final CommentJPARepository commentJPARepository;
     private final ReportJPARepository reportJPARepository;
 
     private static final int GROUP_SEARCH_SIZE = 16;
