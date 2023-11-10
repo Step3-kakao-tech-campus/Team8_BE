@@ -18,9 +18,6 @@ public interface HistoryJPARepository extends JpaRepository<History, Long> {
     void deleteByPostId(@Param("postId") Long postId);
 
     @Query("SELECT h FROM History h WHERE h.groupMember.id = :groupMemberId")
-    List<History> findAllByGroupMemberId(@Param("groupMemberId") Long groupMemberId);
-
-    @Query("SELECT h FROM History h WHERE h.groupMember.id = :groupMemberId")
     Page<History> findAllByGroupMember(@Param("groupMemberId") Long groupMemberId, Pageable pageable);
 
     @Query("SELECT h FROM History h JOIN FETCH h.groupMember m WHERE h.post.id = :postId ORDER BY h.created_at DESC")

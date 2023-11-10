@@ -407,53 +407,48 @@ public class GroupService {
     }
 
     private void deleteGroup(Group group) {
-        List<GroupMember> groupMemberList = groupMemberJPARepository.findAllByGroupId(group.getId());
-        
-        log.debug("그룹 멤버 조회 완료");
+        List<PageInfo> pageList = pageJPARepository.findAllByGroupId(group.getId());
 
-        for (GroupMember groupMember : groupMemberList) {
-            Long groupMemberId = groupMember.getId();
+        for(PageInfo pageInfo : pageList) {
+            for(Post post : pageInfo.getPosts()) {
+                commentJPARepository.deleteAll(post.getComments());
 
-            List<Report> reportList = reportJPARepository.findAllByFromMemberId(groupMemberId);
-            reportJPARepository.deleteAll(reportList);
-            
-            log.debug("리포트 삭제 완료");
+                log.debug(post.getId() + " 번 post의 모든 comment 삭제 완료");
 
-            List<History> historyList = historyJPARepository.findAllByGroupMemberId(groupMemberId);
-            historyJPARepository.deleteAll(historyList);
+                for(History history : post.getHistorys()) {
+                    List<Report> reportList = reportJPARepository.findALLByHistoryId(history.getId());
+                    reportJPARepository.deleteAll(reportList);
 
-            log.debug("히스토리 삭제 완료");
+                    log.debug(history.getId() + " 번 history의 모든 report 삭제 완료");
+                }
 
-            List<Comment> commentList = commentJPARepository.findAllByGroupMemberId(groupMemberId);
-            commentJPARepository.deleteAll(commentList);
+                historyJPARepository.deleteAll(post.getHistorys());
 
-            log.debug("댓글 삭제 완료");
+                log.debug(post.getId() + " 번 post의 모든 history 삭제 완료");
+            }
 
-            List<Post> postList = postJPARepository.findAllByGroupMember(groupMemberId);
-            postJPARepository.deleteAll(postList);
+            postJPARepository.deleteAll(pageInfo.getPosts());
 
-            log.debug("포스트 삭제 완료");
+            log.debug(pageInfo.getId() + " 번 page의 모든 post 삭제 완료");
+        }
 
-            List<PageInfo> pageInfoList = pageJPARepository.findAllByGroupMember(group.getId());
-            pageJPARepository.deleteAll(pageInfoList);
+        pageJPARepository.deleteAll(pageList);
 
-            log.debug("페이지 삭제 완료");
-
+        for(GroupMember groupMember : group.getGroupMembers()) {
             Member member = groupMember.getMember();
             member.getGroupMembers().remove(groupMember);
             memberJPARepository.save(member);
 
-            log.debug("회원 내 그룹 멤버 삭제 완료");
-
-            group.removeGroupMember(groupMember);
-            groupMemberJPARepository.delete(groupMember);
-
-            log.debug("그룹 멤버 삭제 완료");
+            log.debug(member.getId() + " 번 회원의 groupMember 삭제 완료");
         }
+
+        groupMemberJPARepository.deleteAll(group.getGroupMembers());
+
+        log.debug(group.getId() + " 번 group의 모든 groupMember 삭제 완료");
 
         groupJPARepository.delete(group);
 
-        log.debug("그룹 삭제 완료");
+        log.debug("group 삭제 완료");
     }
 
     protected Member getMemberById(Long memberId) {

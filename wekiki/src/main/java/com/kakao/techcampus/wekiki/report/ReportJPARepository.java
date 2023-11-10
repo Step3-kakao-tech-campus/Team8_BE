@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ReportJPARepository extends JpaRepository<Report, Long> {
 
-    @Query("SELECT r FROM Report r WHERE r.fromMember.id = :groupMemberId")
-    List<Report> findAllByFromMemberId(@Param("groupMemberId") Long groupMemberId);
+    @Query("SELECT r FROM Report r WHERE r.history.id = :historyId")
+    List<Report> findALLByHistoryId(@Param("historyId") Long historyId);
 }

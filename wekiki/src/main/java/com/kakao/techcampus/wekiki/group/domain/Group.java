@@ -24,7 +24,7 @@ public class Group {
     private String groupName;
     private String groupProfileImage;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     private int memberCount;

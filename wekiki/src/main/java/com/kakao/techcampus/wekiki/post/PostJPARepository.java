@@ -28,9 +28,6 @@ public interface PostJPARepository extends JpaRepository<Post, Long> {
 
     boolean existsByParentId(Long parentId);
 
-    @Query("SELECT p FROM Post p WHERE p.groupMember.id = :groupId")
-    List<Post> findAllByGroupMember(@Param("groupId") Long groupId);
-
     // 해당 pageId를 가지고 있는 post들 중에 orders가 1인거 들고오기
     @Query("SELECT p FROM Post p WHERE p.pageInfo.id = :pageId AND p.orders = 1")
     List<Post> findFirstPost(@Param("pageId") Long pageId);
