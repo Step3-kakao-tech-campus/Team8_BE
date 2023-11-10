@@ -72,6 +72,7 @@ public class GroupService {
             case UNOFFICIAL_OPENED -> buildUnOfficialOpenedGroup(requestDTO);
             default -> throw new Exception400("유효하지 않은 그룹 유형입니다.");
         };
+
         log.debug("그룹 생성 완료");
 
         // MemberId로부터 Member 찾기
@@ -165,7 +166,6 @@ public class GroupService {
 
         if (officialGroups.isEmpty()) {
             log.info("공식 그룹 마지막 페이지");
-            throw new Exception404("마지막 페이지입니다.");
         }
 
         return new GroupResponseDTO.SearchOfficialGroupResponseDTO(officialGroups);
@@ -184,7 +184,6 @@ public class GroupService {
 
         if (unOfficialOpenedGroups.isEmpty()) {
             log.info("비공식 공개 그룹 마지막 페이지");
-            throw new Exception404("마지막 페이지입니다.");
         }
 
         return new GroupResponseDTO.SearchUnOfficialGroupResponseDTO(unOfficialOpenedGroups);
