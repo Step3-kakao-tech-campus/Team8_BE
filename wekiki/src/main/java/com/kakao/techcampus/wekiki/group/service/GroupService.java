@@ -66,7 +66,10 @@ public class GroupService {
         Group group = switch (requestDTO.groupType()) {
             case UNOFFICIAL_CLOSED -> buildUnOfficialClosedGroup(requestDTO);
             case UNOFFICIAL_OPENED -> buildUnOfficialOpenedGroup(requestDTO);
-            default -> throw new Exception400("유효하지 않은 그룹 유형입니다.");
+            default -> {
+                log.info("그룹 생성 실패 " + memberId + " 번 회원");
+                throw new Exception400("유효하지 않은 그룹 유형입니다.");
+            }
         };
 
         log.debug("그룹 생성 완료");
@@ -79,12 +82,7 @@ public class GroupService {
         log.debug("GroupMember 생성 완료");
 
         // Entity 저장
-        group.addGroupMember(groupMember);
-        member.getGroupMembers().add(groupMember);
-
-        groupJPARepository.save(group);
-        memberJPARepository.save(member);
-        groupMemberJPARepository.save(groupMember);
+        saveGroupMember(member, group, groupMember);
         
         log.debug("Entity 저장 완료");
 

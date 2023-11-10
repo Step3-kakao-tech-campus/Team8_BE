@@ -47,9 +47,4 @@ public class Group {
     public void minusMemberCount() {
         this.memberCount--;
     }
-
-    public void removeGroupMember(GroupMember groupMember) {
-        this.groupMembers.remove(groupMember);
-        minusMemberCount();
-    }
 }
