@@ -409,10 +409,6 @@ public class GroupService {
 
                 log.debug(post.getId() + " 번 post의 모든 report 삭제 완료");
             }
-
-            postJPARepository.deleteAll(pageInfo.getPosts());
-
-            log.debug(pageInfo.getId() + " 번 page의 모든 post 삭제 완료");
         }
 
         pageJPARepository.deleteAll(pageList);
