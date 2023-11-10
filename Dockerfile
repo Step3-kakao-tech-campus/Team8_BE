@@ -18,5 +18,8 @@ RUN cd ./wekiki && ./gradlew clean build -x test
 # DATABASE_URL을 환경 변수로 삽입
 ENV DATABASE_URL=jdbc:mariadb://mariadb/krampoline
 
+ENV SERVER_URL=https://kb70bd6b8a3f6a.user-app.krampoline.com
+
+
 # 빌드 결과 jar 파일을 실행
 CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/wekiki/gradle/project/wekiki/build/libs/wekiki-0.0.1-SNAPSHOT.jar"]
