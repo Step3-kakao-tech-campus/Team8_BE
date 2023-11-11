@@ -18,7 +18,7 @@ public class MemberRequest {
         @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9]).{8,20}$", message = "(8~20자 영문과 숫자)")
         private String password;
         @NotNull
-        @Pattern(regexp = "^[가-힣a-zA-Z]{2,10}$", message = "(2~10자 한글, 영어)")
+        @Pattern(regexp = "^[가-힣a-zA-Z]{1,10}$", message = "(1~10자 한글, 영어)")
         private String nickName;
     }
 
@@ -33,21 +33,25 @@ public class MemberRequest {
     @Getter
     public static class changePasswordRequestDTO {
         private String currentPassword;
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9]).{8,20}$", message = "(8~20자 영문과 숫자)")
         private String newPassword;
     }
 
     @Getter
     public static class changeNickNameRequestDTO {
+        @Pattern(regexp = "^[가-힣a-zA-Z]{1,10}$", message = "(1~10자 한글, 영어)")
         private String newNickName;
     }
 
     @Getter
     public static class PNUEmailRequestDTO {
+        @Pattern(regexp = "^[A-Za-z0-9._%+-]+@pusan\\.ac\\.kr$")
         private String email;
     }
 
     @Getter
     public static class checkPNUEmailRequestDTO {
+        @Pattern(regexp = "^[A-Za-z0-9._%+-]+@pusan\\.ac\\.kr$")
         private String email;
         private String certificationNumber;
     }

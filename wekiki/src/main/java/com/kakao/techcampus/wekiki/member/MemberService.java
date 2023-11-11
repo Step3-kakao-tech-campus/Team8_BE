@@ -9,7 +9,6 @@ import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
 import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -274,6 +273,7 @@ public class MemberService {
         String kakaoEmail = kakaoInfo.getId() + "@wekiki.com";
         Optional<Member> kakaoMember = memberRepository.findByEmail(kakaoEmail);
         if(kakaoMember.isEmpty()){
+            log.info("없는 회원이니 카카오 회원가입을 진행합니다.");
             kakaoSignUp(kakaoInfo, kakaoEmail);
         }
         MemberRequest.loginRequestDTO kakaoLogin = new MemberRequest.loginRequestDTO(kakaoEmail,KAKAO_PASSWORD);
