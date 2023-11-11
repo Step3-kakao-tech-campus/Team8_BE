@@ -158,6 +158,7 @@
 - 비공식 비공개 그룹은 초대 링크를 통한 접근으로 가입 권한을 얻을 수 있습니다.
   - 초대 링크는 일정 기간 동안 해당 링크를 타고 들어오는 사용자들에게 가입 권한을 줍니다
   - Redis에 해당 key 값을 저장하고 일정 주기로 만료된 초대 링크를 찾아 Redis에서 삭제합니다
+- 가입 권한은 Redis에 해당 회원에게 권한을 얻은 groupId를 저장하여 확인하였습니다. 
 
 ### 그룹 탈퇴
 그룹 탈퇴 시 해당 그룹에 남아있는 사람의 존재 여부를 확인한 후 그룹 탈퇴와 나아가 그룹 삭제까지 수행합니다
@@ -213,6 +214,13 @@ HHH000104: firstResult/maxResults specified with collection fetch; applying in m
 ```
 먼저 DB로부터 그룹 내에 해당 키워드를 포함하는 페이지 10개를 받아오는 select 쿼리를 날렸습니다. 그리고 나서 해당 페이지ID를 PK로 가지고 있으며, 가장 상단에 있는(Order = 1)인 Post들을 IN연산자를 활용하여
 조회하는 쿼리를 날려서 해결하였습니다. 
+
+### 로깅
+- Logback을 사용하여 로그를 생성하였습니다
+- !Prod 환경 파일에서 실행될 경우 Console 창에 debug 레벨까지의 log를 생성하였습니다
+- Prod 환경 파일에서 실행될 경우 ./log 디렉토리 내부에 info, warn, error 레벨 로그 파일들을 각각 생성하여 저장하였습니다
+  - 각 레벨의 로그 파일들은 maxFileSize 100MB, maxHisotry 30일, totalSizeCap은 3GB
+  - 로그 포맷은 [%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] %-5level [%C.%M:%L] - %msg%n 로 설정하였습니다
 
 <br>
 
