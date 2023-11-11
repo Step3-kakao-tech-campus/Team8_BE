@@ -14,7 +14,7 @@
     
 ||설명|
 |-----------|----|
-|제목 |위키키| 
+|제목 |[위키키](https://kb70bd6b8a3f6a.user-app.krampoline.com)| 
 |개발 목적| 우리만의 추억을 함께 기록하고, 즐거운 순간을 공유하며 소중한 경험을 함께 만들어보세요! 위키키는 친구, 동료와 함께 다양한 활동을 기록하며 우리만의 특별한 공간을 만들 수 있는 그룹형 커뮤니티 서비스입니다. |
 |개발 기간|2023.09.25 ~ 2023.11.11|  
 </div>
@@ -100,10 +100,13 @@
 
 ## 프로젝트 구조도
 
+![구조도 drawio](https://github.com/Step3-kakao-tech-campus/Team8_BE/assets/81402944/11ef488b-8a20-4f41-8c59-53f4af16c38b)
+
 
 <br>
 
 ## 문서
+
 |문서 목록|
 |----|
 [GitHub (FE)](https://github.com/Step3-kakao-tech-campus/Team8_FE)                      
