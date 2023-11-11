@@ -56,7 +56,7 @@ public class JWTTokenProvider {
                 //암호화
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-
+        log.info("위키키 엑세스 토큰 발급 완료" + accessToken);
         return new MemberResponse.authTokenDTO("Bearer", accessToken, accessTokenValidTime);
     }
 

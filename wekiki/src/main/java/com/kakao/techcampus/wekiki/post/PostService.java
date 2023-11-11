@@ -3,20 +3,16 @@ package com.kakao.techcampus.wekiki.post;
 
 import com.kakao.techcampus.wekiki._core.error.exception.Exception400;
 import com.kakao.techcampus.wekiki._core.error.exception.Exception404;
-import com.kakao.techcampus.wekiki.group.domain.Group;
-import com.kakao.techcampus.wekiki.group.repository.GroupJPARepository;
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.group.repository.GroupMemberJPARepository;
 import com.kakao.techcampus.wekiki.history.History;
 import com.kakao.techcampus.wekiki.history.HistoryJPARepository;
-import com.kakao.techcampus.wekiki.member.Member;
-import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.report.Report;
 import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -28,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class PostService {
 
     private final PageJPARepository pageJPARepository;
@@ -41,7 +38,7 @@ public class PostService {
     public PostResponse.createPostDTO createPost(Long memberId,Long groupId,Long pageId, Long parentPostId, int order, String title, String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. pageId로 PageInfo 객체 들고오기
         PageInfo pageInfo = checkPageFromPageId(pageId);
@@ -77,6 +74,7 @@ public class PostService {
         historyJPARepository.save(newHistory);
 
         // 7. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹의 "  + pageId + " 페이지에 "+ title+" 포스트를 생성하였습니다.");
         return new PostResponse.createPostDTO(savedPost);
     }
 
@@ -84,21 +82,25 @@ public class PostService {
     public PostResponse.modifyPostDTO modifyPost(Long memberId , Long groupId, Long postId , String title, String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. postId로 post 엔티티 가져오기
-        Post post = checkPostFromPostId(postId);
+        Post post = checkPostFromPostIdWithPage(postId);
 
-        // 3. 현재 Post랑 내용 같은지 확인
+        // 3. page 최근 수정 시간 바꾸기
+        post.getPageInfo().updatePage();
+
+        // 4. 현재 Post랑 내용 같은지 확인
         if(post.getTitle().equals(title) && post.getContent().equals(content)){
             throw new Exception400("기존 글과 동일한 글입니다.");
         }
 
-        // 4. 다르면 Post 수정후 히스토리 생성 저장
+        // 5. 다르면 Post 수정후 히스토리 생성 저장
         History newHistory = post.modifyPost(activeGroupMember, title, content);
         historyJPARepository.save(newHistory);
 
-        // 5. return DTO
+        // 6. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ title+" 포스트를 수정하였습니다.");
         return new PostResponse.modifyPostDTO(post);
     }
 
@@ -117,6 +119,8 @@ public class PostService {
         // 4. DTO로 return
         List<PostResponse.getPostHistoryDTO.historyDTO> historyDTOs = historys.getContent().stream().
                 map(h -> new PostResponse.getPostHistoryDTO.historyDTO(h.getGroupMember(),h)).collect(Collectors.toList());
+
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트의 히스토리를 조회합니다.");
         return new PostResponse.getPostHistoryDTO(post,historyDTOs);
 
     }
@@ -144,6 +148,7 @@ public class PostService {
                 .stream().forEach(p -> p.minusOrder());
 
         // 6. return DTO;
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트를 삭제합니다.");
         return response;
 
     }
@@ -152,7 +157,7 @@ public class PostService {
     public PostResponse.createReportDTO createReport(Long memberId, Long groupId, Long postId , String content){
 
         // 1. 존재하는 Member, Group, GroupMember 인지 fetch join으로 하나의 쿼리로 확인
-        ActiveGroupMember activeGroupMember = checkGroupMember(memberId, groupId);
+        GroupMember activeGroupMember = checkGroupMember(memberId, groupId);
 
         // 2. postId로 post 엔티티 가져오기
         checkPostFromPostId(postId);
@@ -170,15 +175,17 @@ public class PostService {
         Report savedReport = reportJPARepository.save(report);
 
         // 5. return DTO
+        log.info(memberId + " 님이 " + groupId + " 그룹에 "+ postId +" 포스트를 신고합니다.");
         return new PostResponse.createReportDTO(savedReport);
 
     }
 
 
-    public ActiveGroupMember checkGroupMember(Long memberId, Long groupId){
+    public GroupMember checkGroupMember(Long memberId, Long groupId){
 
-        ActiveGroupMember activeGroupMember = groupMemberJPARepository.findActiveGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
+        GroupMember activeGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupIdFetchJoin(memberId, groupId)
                 .orElseThrow(() -> new Exception404("해당 그룹에 속한 회원이 아닙니다."));
+        if(!activeGroupMember.isActiveStatus()) throw new Exception404("해당 그룹에 속한 회원이 아닙니다.");
         if(activeGroupMember.getMember() == null) throw new Exception404("존재하지 않는 회원입니다.");
         if(activeGroupMember.getGroup() == null) throw new Exception404("존재하지 않는 그룹입니다.");
 
@@ -192,6 +199,11 @@ public class PostService {
 
     public Post checkPostFromPostId(Long postId){
         return postJPARepository.findById(postId)
+                .orElseThrow(() -> new Exception404("존재하지 않는 글 입니다."));
+    }
+
+    public Post checkPostFromPostIdWithPage(Long postId){
+        return postJPARepository.findPostWithPageFromPostId(postId)
                 .orElseThrow(() -> new Exception404("존재하지 않는 글 입니다."));
     }
 

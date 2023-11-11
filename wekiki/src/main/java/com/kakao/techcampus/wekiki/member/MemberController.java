@@ -1,6 +1,7 @@
 package com.kakao.techcampus.wekiki.member;
 
 import com.kakao.techcampus.wekiki._core.utils.ApiUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody MemberRequest.signUpRequestDTO signUpRequestDTO) {
+    public ResponseEntity<?> signUp(@Valid @RequestBody MemberRequest.signUpRequestDTO signUpRequestDTO) {
         memberService.signUp(signUpRequestDTO);
         return ResponseEntity.ok(true);
     }
@@ -46,19 +47,19 @@ public class MemberController {
      */
 
     @PatchMapping("/password/change")
-    public ResponseEntity<?> changePassword(@RequestBody MemberRequest.changePasswordRequestDTO changePasswordRequestDTO) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid MemberRequest.changePasswordRequestDTO changePasswordRequestDTO) {
         memberService.changePassword(changePasswordRequestDTO);
         return ResponseEntity.ok(true);
     }
 
     @PatchMapping("/changename")
-    public ResponseEntity<?> changeNickName(@RequestBody MemberRequest.changeNickNameRequestDTO nickNameRequestDTO) {
+    public ResponseEntity<?> changeNickName(@RequestBody @Valid MemberRequest.changeNickNameRequestDTO nickNameRequestDTO) {
         memberService.changeNickName(nickNameRequestDTO);
         return ResponseEntity.ok(true);
     }
 
     @PostMapping("/pusanuniv")
-    public ResponseEntity<?> sendMail(@RequestBody MemberRequest.PNUEmailRequestDTO PNUemailRequestDTO) {
+    public ResponseEntity<?> sendMail(@RequestBody @Valid MemberRequest.PNUEmailRequestDTO PNUemailRequestDTO) {
         memberService.sendEmail(PNUemailRequestDTO.getEmail());
         return ResponseEntity.ok(true);
     }
