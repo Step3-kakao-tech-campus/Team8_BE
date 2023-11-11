@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          # 여러분의 frontend image 주소를 입력해주세요.
+          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_cf91e1e9b807
+          env:
+            - name: REACT_APP_API_URL
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_API_URL
+            - name: REACT_APP_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_BUCKET_NAME
+            - name: REACT_APP_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_REGION
+            - name: REACT_APP_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_ACCESS_KEY_ID
+            - name: REACT_APP_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_SECRET_ACCESS_KEY
+            - name: REACT_APP_KAKAO_REDIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_KAKAO_REDIRECT_URL
+            - name: REACT_APP_KAKAO_REST_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: REACT_APP_KAKAO_REST_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 3000
+      targetPort: 3000

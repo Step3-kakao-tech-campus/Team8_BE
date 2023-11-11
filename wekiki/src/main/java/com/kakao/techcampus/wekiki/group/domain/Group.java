@@ -1,6 +1,5 @@
 package com.kakao.techcampus.wekiki.group.domain;
 
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +24,7 @@ public class Group {
     private String groupName;
     private String groupProfileImage;
 
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
     private int memberCount;
@@ -42,6 +41,10 @@ public class Group {
 
     public void addGroupMember(GroupMember groupMember) {
         this.groupMembers.add(groupMember);
-        this.memberCount = this.groupMembers.size();
+        this.memberCount++;
+    }
+
+    public void minusMemberCount() {
+        this.memberCount--;
     }
 }

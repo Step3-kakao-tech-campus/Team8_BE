@@ -25,7 +25,7 @@ public class PageInfo {
     private Group group;
     private String pageName;
 
-    @OneToMany(mappedBy = "pageInfo")
+    @OneToMany(mappedBy = "pageInfo", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
     private int goodCount;
     private int badCount;

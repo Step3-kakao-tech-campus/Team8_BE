@@ -1,6 +1,6 @@
 package com.kakao.techcampus.wekiki.comment;
 
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import com.kakao.techcampus.wekiki.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +23,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
 
-
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime created_at;
 

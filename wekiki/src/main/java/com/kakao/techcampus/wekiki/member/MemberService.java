@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
-import com.kakao.techcampus.wekiki.group.domain.member.ActiveGroupMember;
-import com.kakao.techcampus.wekiki.group.domain.member.GroupMember;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
+import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +50,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
+    private final RedisUtils redisUtils;
     private final JavaMailSender javaMailSender;
     @Value("${kakao.client.id}")
     private String KAKAO_CLIENT_ID;
@@ -53,6 +58,11 @@ public class MemberService {
     private String KAKAO_REDIRECT_URI;
     @Value("${kakao.client.password")
     private String KAKAO_PASSWORD;
+    private static final String PROXY_HOST = "krmp-proxy.9rum.cc";
+    private static final int PROXY_PORT = 3128;
+    private static final String MEMBER_ID_PREFIX = "member_id:";
+    private static final long MEMBER_ID_LIFETIME = 3L;
+    private static final long PNU_GROUP_ID = 8L;
 
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
@@ -99,6 +109,7 @@ public class MemberService {
             throw e;
         }
         List<MemberResponse.myInfoResponseDTO.myInfoGroupDTO> infoGroupDTOList = member.getGroupMembers().stream()
+                .filter(GroupMember::isActiveStatus)
                 .map(groupMember -> {
                     return new MemberResponse.myInfoResponseDTO.myInfoGroupDTO(groupMember, groupMember.getGroup());
                 }).collect(Collectors.toList());
@@ -118,6 +129,7 @@ public class MemberService {
         for (GroupMember g : member.getGroupMembers()) {
             g.update("알수없음");
             g.changeMember(cancelMember);
+            g.changeStatus();
         }
         //member.delete(passwordEncoder.encode(makeRandomPassword()));
         memberRepository.delete(member);
@@ -181,6 +193,8 @@ public class MemberService {
             log.error("부산대 메일 인증 번호가 틀렸습니다. User Id : " + member.getEmail());
             throw new Exception400("인증번호가 틀렸습니다.");
         }
+
+        redisUtils.setGroupIdValues(MEMBER_ID_PREFIX + member.getId(), PNU_GROUP_ID, Duration.ofHours(MEMBER_ID_LIFETIME));
     }
 
     public void findPassword(String email) {
@@ -228,9 +242,8 @@ public class MemberService {
     }
 
     public MemberResponse.authTokenDTO getKakaoInfo(String code) {
-        //리팩토링 대상...!!
         String accessToken = "";
-
+        log.info("카카오 엑세스 토큰 발급 시작");
         try{
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-type", "application/x-www-form-urlencoded");
@@ -241,7 +254,11 @@ public class MemberService {
             params.add("code", code);
             params.add("redirect_uri", KAKAO_REDIRECT_URI);
 
-            RestTemplate restTemplate = new RestTemplate();
+            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+            SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+            requestFactory.setProxy(proxy);
+            RestTemplate restTemplate = new RestTemplate(requestFactory);
+            System.out.println(restTemplate.getClass());
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -250,12 +267,11 @@ public class MemberService {
                     httpEntity,
                     String.class
             );
+            log.info("카카오 엑세스 토큰 발급 완료");
 
-            System.out.println(response.getBody());
             ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             MemberResponse.KakaoTokenDTO kakaoTokenDTO = objectMapper.readValue(response.getBody(), MemberResponse.KakaoTokenDTO.class);
             accessToken = kakaoTokenDTO.getAccess_token();
-
         }  catch (JsonProcessingException e) {
             log.error("파싱 오류", e);
             throw new Exception500("Json 파싱 에러입니다.");
@@ -265,22 +281,34 @@ public class MemberService {
         String kakaoEmail = kakaoInfo.getId() + "@wekiki.com";
         Optional<Member> kakaoMember = memberRepository.findByEmail(kakaoEmail);
         if(kakaoMember.isEmpty()){
-            Member member = Member.builder()
-                    .name(kakaoInfo.getProperties().getNickname())
-                    .email(kakaoEmail)
-                    .password(passwordEncoder.encode(KAKAO_PASSWORD))
-                    .created_at(LocalDateTime.now())
-                    .authority(Authority.user)
-                    .build();
-            memberRepository.save(member);
+            log.info("없는 회원이니 카카오 회원가입을 진행합니다.");
+            kakaoSignUp(kakaoInfo, kakaoEmail);
         }
         MemberRequest.loginRequestDTO kakaoLogin = new MemberRequest.loginRequestDTO(kakaoEmail,KAKAO_PASSWORD);
         return login(kakaoLogin);
     }
 
+    private void kakaoSignUp(MemberResponse.KakaoInfoDTO kakaoInfo, String kakaoEmail) {
+        Member member = Member.builder()
+                .name(kakaoInfo.getProperties().getNickname())
+                .email(kakaoEmail)
+                .password(passwordEncoder.encode(KAKAO_PASSWORD))
+                .created_at(LocalDateTime.now())
+                .authority(Authority.user)
+                .build();
+        memberRepository.save(member);
+    }
+
     private MemberResponse.KakaoInfoDTO getUserInfoWithToken(String accessToken) {
         MemberResponse.KakaoInfoDTO kakaoInfo = null;
-        RestTemplate restTemplate = new RestTemplate();
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setProxy(proxy);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        System.out.println(restTemplate.getClass());
+
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
@@ -294,8 +322,6 @@ public class MemberService {
                 httpEntity,
                 String.class
         );
-
-        System.out.println(response.getBody());
 
         ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
