@@ -19,7 +19,6 @@ import com.kakao.techcampus.wekiki.member.MemberJPARepository;
 import com.kakao.techcampus.wekiki.page.PageInfo;
 import com.kakao.techcampus.wekiki.page.PageJPARepository;
 import com.kakao.techcampus.wekiki.post.Post;
-import com.kakao.techcampus.wekiki.post.PostJPARepository;
 import com.kakao.techcampus.wekiki.report.ReportJPARepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,6 @@ public class GroupService {
     private final GroupMemberJPARepository groupMemberJPARepository;
     private final MemberJPARepository memberJPARepository;
     private final PageJPARepository pageJPARepository;
-    private final PostJPARepository postJPARepository;
     private final HistoryJPARepository historyJPARepository;
     private final ReportJPARepository reportJPARepository;
 
@@ -236,6 +234,9 @@ public class GroupService {
         log.debug("가입 권한 확인 완료");
 
         String groupNickName = requestDTO.nickName();
+        groupNickNameCheck(groupId, groupNickName);
+
+        log.debug("그룹 닉네임 중복 확인 완료");
 
         GroupMember wasGroupMember = groupMemberJPARepository.findGroupMemberByMemberIdAndGroupId(memberId, groupId);
 
@@ -252,10 +253,6 @@ public class GroupService {
             // GroupMember 저장
             saveGroupMember(member, group, wasGroupMember);
         } else {
-            groupNickNameCheck(groupId, groupNickName);
-            
-            log.debug("그룹 닉네임 중복 확인 완료");
-
             saveGroupMember(member, group, buildGroupMember(member, group, groupNickName));
         }
         

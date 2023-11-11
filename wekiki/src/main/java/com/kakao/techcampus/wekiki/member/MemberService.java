@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakao.techcampus.wekiki._core.error.exception.*;
 import com.kakao.techcampus.wekiki._core.jwt.JWTTokenProvider;
 import com.kakao.techcampus.wekiki._core.utils.RedisUtility;
+import com.kakao.techcampus.wekiki._core.utils.redis.RedisUtils;
 import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +50,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final PasswordEncoder passwordEncoder;
     private final RedisUtility redisUtility;
+    private final RedisUtils redisUtils;
     private final JavaMailSender javaMailSender;
     @Value("${kakao.client.id}")
     private String KAKAO_CLIENT_ID;
@@ -57,6 +60,9 @@ public class MemberService {
     private String KAKAO_PASSWORD;
     private static final String PROXY_HOST = "krmp-proxy.9rum.cc";
     private static final int PROXY_PORT = 3128;
+    private static final String MEMBER_ID_PREFIX = "member_id:";
+    private static final long MEMBER_ID_LIFETIME = 3L;
+    private static final long PNU_GROUP_ID = 8L;
 
 
     public void signUp(MemberRequest.signUpRequestDTO signUpRequestDTO) {
@@ -187,6 +193,8 @@ public class MemberService {
             log.error("부산대 메일 인증 번호가 틀렸습니다. User Id : " + member.getEmail());
             throw new Exception400("인증번호가 틀렸습니다.");
         }
+
+        redisUtils.setGroupIdValues(MEMBER_ID_PREFIX + member.getId(), PNU_GROUP_ID, Duration.ofHours(MEMBER_ID_LIFETIME));
     }
 
     public void findPassword(String email) {
