@@ -10,10 +10,7 @@ import com.kakao.techcampus.wekiki.group.domain.GroupMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -163,16 +160,30 @@ public class MemberService {
             log.error("Access Token에서 뽑아낸 회원이 존재하지 않는 회원입니다. (부산대 인증 메일 전송)");
             throw e;
         }
-        Integer authNumber = makeEmailAuthNum();
-        redisUtility.setValues(email, Integer.toString(authNumber), 300);
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        String authNumber = Integer.toString(makeEmailAuthNum());
+        redisUtility.setValues(email, authNumber, 300);
+        /*SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setTo(email);
         simpleMailMessage.setSubject("부산대 인증 메일입니다!");
         simpleMailMessage.setText("인증 번호 입니다.\n"
                 + authNumber +
                 "\n잘 입력해 보세요!");
         // 이메일 발신
-        javaMailSender.send(simpleMailMessage);
+        javaMailSender.send(simpleMailMessage);*/
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setProxy(proxy);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        String body = "{\"email\":\"" + email + "\",\"number\":\"" + authNumber + "\"}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+
+        String response = restTemplate.postForObject("http://43.202.141.142:8080/pusanuniv", httpEntity, String.class);
+        System.out.println(response);
     }
 
     public void checkPNUEmail(MemberRequest.checkPNUEmailRequestDTO pnuEmailRequestDTO) {
@@ -197,14 +208,20 @@ public class MemberService {
         }
         String randomPassword = makeRandomPassword();
         member.get().changePassword(passwordEncoder.encode(randomPassword));
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setTo(email);
-        simpleMailMessage.setSubject("비밀번호가 변경되었습니다.");
-        simpleMailMessage.setText("임의 생성된 비밀번호입니다.\n"
-                + randomPassword +
-                "\n추후에 꼭 변경하세요!");
-        // 이메일 발신
-        javaMailSender.send(simpleMailMessage);
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setProxy(proxy);
+
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        String body = "{\"email\":\"" + email + "\",\"password\":\"" + randomPassword + "\"}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+
+        String response = restTemplate.postForObject("http://43.202.141.142:8080/password/find", httpEntity, String.class);
+        System.out.println(response);
     }
 
     public Integer makeEmailAuthNum() {
@@ -249,8 +266,8 @@ public class MemberService {
             Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_HOST, PROXY_PORT));
             SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
             requestFactory.setProxy(proxy);
+
             RestTemplate restTemplate = new RestTemplate(requestFactory);
-            System.out.println(restTemplate.getClass());
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
@@ -299,9 +316,6 @@ public class MemberService {
         requestFactory.setProxy(proxy);
 
         RestTemplate restTemplate = new RestTemplate(requestFactory);
-        System.out.println(restTemplate.getClass());
-
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
