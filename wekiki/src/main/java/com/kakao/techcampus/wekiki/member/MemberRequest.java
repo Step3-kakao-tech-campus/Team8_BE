@@ -49,6 +49,13 @@ public class MemberRequest {
         private String email;
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MailRequestDTO {
+        String email;
+        String number;
+    }
+
     @Getter
     public static class checkPNUEmailRequestDTO {
         @Pattern(regexp = "^[A-Za-z0-9._%+-]+@pusan\\.ac\\.kr$")
